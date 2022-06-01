@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrNFSeXLerXml_ABRASFv1;
+  ACBrNFSeXLerXml_ABRASFv1, ACBrUtil.Strings;
 
 type
   { TNFSeR_BHISS }
@@ -62,7 +62,9 @@ implementation
 
 function TNFSeR_BHISS.NormatizarXml(const aXml: string): string;
 begin
-  Result := StringReplace(aXml, '&>', ' ', [rfReplaceAll]);
+  Result := inherited NormatizarXml(aXml);
+
+  Result := StringReplace(Result, '&>', ' ', [rfReplaceAll]);
 end;
 
 end.

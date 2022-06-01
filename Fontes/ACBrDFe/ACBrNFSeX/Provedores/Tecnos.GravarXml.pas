@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2, ACBrNFSeXConversao,
@@ -49,6 +48,8 @@ type
 
   TNFSeW_Tecnos201 = class(TNFSeW_ABRASFv2)
   protected
+    function DefinirNameSpaceDeclaracao: string; override;
+
     function GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode; override;
     function GerarValores: TACBrXmlNode; override;
 
@@ -58,6 +59,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -131,6 +135,11 @@ begin
                    Poem_Zeros(OnlyNumber(NFSe.IdentificacaoRps.Numero), 16);
 end;
 
+function TNFSeW_Tecnos201.DefinirNameSpaceDeclaracao: string;
+begin
+  Result := 'http://www.abrasf.org.br/nfse.xsd';
+end;
+
 function TNFSeW_Tecnos201.GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode;
 begin
   Result := CreateElement('tcDeclaracaoPrestacaoServico');
@@ -171,7 +180,7 @@ begin
                                            NFSe.Servico.CodigoPais, DSC_CPAIS));
 
   Result.AppendChild(AddNode(tcStr, '#35', 'ExigibilidadeISS', 1, 01, 1,
-             ExigibilidadeISSToStr(NFSe.Servico.ExigibilidadeISS), DSC_INDISS));
+    FpAOwner.ExigibilidadeISSToStr(NFSe.Servico.ExigibilidadeISS), DSC_INDISS));
 
   Result.AppendChild(AddNode(tcInt, '#36', 'MunicipioIncidencia', 7, 07, NrOcorrMunIncid,
                                 NFSe.Servico.MunicipioIncidencia, DSC_MUNINCI));

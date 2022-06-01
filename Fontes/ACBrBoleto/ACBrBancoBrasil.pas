@@ -48,6 +48,8 @@ type
 
   TACBrBancoBrasil = class(TACBrBancoClass)
    protected
+     procedure EhObrigatorioContaDV; override;
+     procedure EhObrigatorioAgenciaDV; override;
    private
     fQtMsg: Integer;
     function FormataNossoNumero(const ACBrTitulo :TACBrTitulo): String;
@@ -83,9 +85,8 @@ type
 implementation
 
 uses {$IFDEF COMPILER6_UP} DateUtils {$ELSE} ACBrD5, FileCtrl {$ENDIF},
-  StrUtils, Variants,
-  ACBrUtil,
-  Math;
+  StrUtils, Variants, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings,
+  ACBrUtil.DateTime, Math;
 
 constructor TACBrBancoBrasil.create(AOwner: TACBrBanco);
 begin
@@ -99,6 +100,18 @@ begin
    fpTamanhoCarteira       := 2;
    fpCodigosMoraAceitos    := '123';
    fQtMsg                  := 0;
+end;
+
+procedure TACBrBancoBrasil.EhObrigatorioAgenciaDV;
+begin
+  if ACBrBanco.TipoCobranca <> cobBancoDoBrasilAPI then
+    inherited;
+end;
+
+procedure TACBrBancoBrasil.EhObrigatorioContaDV;
+begin
+  if ACBrBanco.TipoCobranca <> cobBancoDoBrasilAPI then
+    inherited;
 end;
 
 function TACBrBancoBrasil.CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo ): String;

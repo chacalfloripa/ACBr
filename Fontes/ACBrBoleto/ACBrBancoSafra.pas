@@ -92,7 +92,7 @@ type
 
 implementation
 
-uses ACBrUtil;
+uses ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 var
   aTotal: Extended;
@@ -907,7 +907,7 @@ begin
     else if Trim(EspecieDoc) = 'DS' then
       aEspecie := '09'
     else
-      aEspecie := EspecieDoc;
+      aEspecie := PadLeft(EspecieDoc, 2, ' ') ;
 
     if Aceite = atSim then
       aAceite := 'A'

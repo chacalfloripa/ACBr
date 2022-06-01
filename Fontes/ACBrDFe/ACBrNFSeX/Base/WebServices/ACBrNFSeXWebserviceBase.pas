@@ -269,6 +269,7 @@ type
     FNumeroNFSe: string;
     FSerieNFSe: string;
     FChaveNFSe: string;
+    FDataEmissaoNFSe: TDateTime;
     FCodCancelamento: string;
     FMotCancelamento: string;
     FNumeroLote: string;
@@ -288,6 +289,7 @@ type
     property NumeroNFSe: string      read FNumeroNFSe      write FNumeroNFSe;
     property SerieNFSe: string       read FSerieNFSe       write FSerieNFSe;
     property ChaveNFSe: string       read FChaveNFSe       write FChaveNFSe;
+    property DataEmissaoNFSe: TDateTime read FDataEmissaoNFSe write FDataEmissaoNFSe;
     property CodCancelamento: string read FCodCancelamento write FCodCancelamento;
     property MotCancelamento: string read FMotCancelamento write FMotCancelamento;
     property NumeroLote: string      read FNumeroLote      write FNumeroLote;
@@ -305,7 +307,12 @@ implementation
 
 uses
   IniFiles, StrUtils, synautil,
-  ACBrUtil, ACBrConsts, ACBrDFeException, ACBrXmlBase,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrUtil.DateTime,
+  ACBrUtil.FilesIO,
+  ACBrConsts, ACBrDFeException, ACBrXmlBase,
   ACBrNFSeX, ACBrNFSeXConfiguracoes;
 
 { TACBrNFSeXWebservice }
@@ -543,27 +550,25 @@ begin
 end;
 
 procedure TACBrNFSeXWebservice.LevantarExcecaoHttp;
-//var
-//  aRetorno: TACBrXmlDocument;
+var
+  aRetorno: TACBrXmlDocument;
 begin
   // Verifica se o ResultCode é: 200 OK; 201 Created; 202 Accepted
   // https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 
-  if not (HttpClient.HTTPResultCode in [200..202]) then
-    raise EACBrDFeException.Create('Erro de Conexão.');
+//  if not (HttpClient.HTTPResultCode in [200..202]) then
+//    raise EACBrDFeException.Create('Erro de Conexão.');
 
-    {
-    if not (HttpClient.HTTPResultCode in [200..202]) then
-    begin
-      aRetorno := TACBrXmlDocument.Create;
-      try
-        aRetorno.LoadFromXml(FPRetorno);
-        VerificarErroNoRetorno(aRetorno);
-      finally
-        aRetorno.Free;
-      end;
+  if not (HttpClient.HTTPResultCode in [200..202]) then
+  begin
+    aRetorno := TACBrXmlDocument.Create;
+    try
+      aRetorno.LoadFromXml(FPRetorno);
+      VerificarErroNoRetorno(aRetorno);
+    finally
+      aRetorno.Free;
     end;
-    }
+  end;
 end;
 
 procedure TACBrNFSeXWebservice.VerificarErroNoRetorno(const ADocument: TACBrXmlDocument);
@@ -611,6 +616,9 @@ begin
   Result := '';
 
   xRetorno := TratarXmlRetornado(ARetorno);
+
+  if xRetorno = '' then
+    Exit;
 
   if (Length(responseTag) = 0) then
   begin
@@ -1191,6 +1199,7 @@ begin
   FNumeroNFSe := '';
   FSerieNFSe := '';
   FChaveNFSe := '';
+  FDataEmissaoNFSe := 0;
   FCodCancelamento := '';
   FMotCancelamento := '';
   FNumeroLote := '';
@@ -1221,6 +1230,7 @@ begin
     NumeroNFSe      := INIRec.ReadString(sSecao, 'NumeroNFSe', '');
     SerieNFSe       := INIRec.ReadString(sSecao, 'SerieNFSe', '');
     ChaveNFSe       := INIRec.ReadString(sSecao, 'ChaveNFSe', '');
+    DataEmissaoNFSe := INIRec.ReadDateTime(sSecao, 'DataEmissaoNFSe', 0);
     CodCancelamento := INIRec.ReadString(sSecao, 'CodCancelamento', '');
     MotCancelamento := INIRec.ReadString(sSecao, 'MotCancelamento', '');
     NumeroLote      := INIRec.ReadString(sSecao, 'NumeroLote', '');

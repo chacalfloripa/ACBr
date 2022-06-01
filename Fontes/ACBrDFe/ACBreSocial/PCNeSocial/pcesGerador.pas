@@ -51,7 +51,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, variants,
-  ACBrUtil,
   pcnGerador, pcnLeitor, pcnConversao, pcnAuxiliar, pcnConsts,
   pcesCommon, pcesConversaoeSocial;
 
@@ -217,6 +216,9 @@ type
 implementation
 
 uses
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
   ACBreSocial, ACBrDFeSSL, ACBrDFeUtil;
 
 {TeSocialEvento}
@@ -506,8 +508,11 @@ begin
   GerarLocalTrabalho(pInfoContrato.LocalTrabalho);
 
   //Informações do Horário Contratual do Trabalhador. O preenchimento é obrigatório se {tpRegJor} = [1]
-  if (pInfoRegimeTrab.InfoCeletista.TpRegJor = rjSubmetidosHorarioTrabalho) then
-    GerarHorContratual(pInfoContrato.HorContratual);
+  if (NaoEstaVazio(pInfoRegimeTrab.InfoCeletista.cnpjSindCategProf)) then
+    begin
+      if (pInfoRegimeTrab.InfoCeletista.TpRegJor = rjSubmetidosHorarioTrabalho) then
+        GerarHorContratual(pInfoContrato.HorContratual);
+    end;
 
   if VersaoDF <= ve02_05_00 then
     GerarFiliacaoSindical(pInfoContrato.FiliacaoSindical);

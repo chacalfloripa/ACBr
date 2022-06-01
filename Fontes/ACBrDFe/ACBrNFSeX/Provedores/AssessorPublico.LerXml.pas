@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXConversao, ACBrNFSeXLerXml;
 
@@ -56,6 +55,9 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.DateTime, ACBrUtil.Strings;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
 //     AssessorPublico
@@ -66,21 +68,19 @@ implementation
 function TNFSeR_AssessorPublico.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-//  xRetorno := TratarXmlRetorno(Arquivo);
-  xRetorno := Arquivo;
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
-  if (Pos('NOTA', xRetorno) > 0) then
+  if (Pos('NOTA', Arquivo) > 0) then
     tpXML := txmlNFSe
   else
     tpXML := txmlRPS;
@@ -120,11 +120,14 @@ begin
 
   NFSe.InfID.ID := NFSe.Numero;
 
+  NFSe.IdentificacaoRps.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('SEQUENCIA'), tcStr);
+  NFSe.CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('RPS'), tcStr);
+  {
   NFSe.IdentificacaoRps.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('RPS'), tcStr);
   NFSe.CodigoVerificacao := NFSe.IdentificacaoRps.Numero;
 
   NFSe.IdentificacaoRps.Serie  := ObterConteudo(AuxNode.Childrens.FindAnyNs('SEQUENCIA'), tcStr);
-
+  }
   NFSe.Competencia := ObterConteudo(AuxNode.Childrens.FindAnyNs('MESCOMP'), tcStr) +
                       ObterConteudo(AuxNode.Childrens.FindAnyNs('ANOCOMP'), tcStr);
 
@@ -140,9 +143,11 @@ begin
   if aValor = 'S' then
     NFSe.OptanteSimplesNacional := snSim;
 
+  NFSe.OutrasInformacoes:=ObterConteudo(AuxNode.Childrens.FindAnyNs('OBSSERVICO'), tcStr);
+
   with NFSe.Servico do
   begin
-    Discriminacao     := ObterConteudo(AuxNode.Childrens.FindAnyNs('OBSSERVICO'), tcStr);
+//    Discriminacao     := ObterConteudo(AuxNode.Childrens.FindAnyNs('OBSSERVICO'), tcStr);
     ItemListaServico  := ObterConteudo(AuxNode.Childrens.FindAnyNs('ATIVCOD'), tcStr);
     xItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('ATIVDESC'), tcStr);
     CodigoMunicipio   := ObterConteudo(AuxNode.Childrens.FindAnyNs('TOMMUNICIPIOCOD'), tcStr);
@@ -246,7 +251,7 @@ begin
 
         DescontoIncondicionado := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DESCONTO'), tcDe2);
 
-        ValorTotal := Quantidade + ValorUnitario;
+        ValorTotal := Quantidade * ValorUnitario;
         Tributavel := snSim;
       end;
     end;

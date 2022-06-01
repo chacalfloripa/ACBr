@@ -148,7 +148,8 @@ type
     destructor Destroy; override;
 
     function GerarXml(const aNFSe: TNFSe; var aXml, aAlerts: string): Boolean; virtual;
-    function LerXML(const aXML: String; var aNFSe: TNFSe; var ATipo: TtpXML): Boolean; virtual;
+    function LerXML(const aXML: String; var aNFSe: TNFSe; var ATipo: TtpXML;
+      var aXmlTratado: string): Boolean; virtual;
 
     procedure GeraLote; virtual;
     procedure Emite; virtual;
@@ -191,6 +192,19 @@ type
     function ResponsavelRetencaoDescricao(const t: TnfseResponsavelRetencao): String; virtual;
 
     function NaturezaOperacaoDescricao(const t: TnfseNaturezaOperacao): string; virtual;
+
+    function TipoPessoaToStr(const t: TTipoPessoa): string; virtual;
+    function StrToTipoPessoa(out ok: boolean; const s: string): TTipoPessoa; virtual;
+
+    function ExigibilidadeISSToStr(const t: TnfseExigibilidadeISS): string; virtual;
+    function StrToExigibilidadeISS(out ok: boolean; const s: string): TnfseExigibilidadeISS; virtual;
+    function ExigibilidadeISSDescricao(const t: TnfseExigibilidadeISS): string; virtual;
+
+    function TipoRPSToStr(const t:TTipoRPS): string; virtual;
+    function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS; virtual;
+
+    function SituacaoTribToStr(const t: TSituacaoTrib): string; virtual;
+    function StrToSituacaoTrib(out ok: boolean; const s: string): TSituacaoTrib; virtual;
   end;
 
 implementation
@@ -198,7 +212,8 @@ implementation
 uses
   IniFiles,
   pcnAuxiliar,
-  ACBrUtil, ACBrXmlBase, ACBrDFeException,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO,
+  ACBrXmlBase, ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts;
 
 { TACBrNFSeXProvider }
@@ -450,6 +465,7 @@ begin
     CancPreencherMotivo := False;
     CancPreencherSerieNfse := False;
     CancPreencherCodVerificacao := False;
+    DetalharServico := False;
 
     with TACBrNFSeX(FAOwner) do
     begin
@@ -863,6 +879,23 @@ begin
     Result := 'Não';
 end;
 
+function TACBrNFSeXProvider.StrToSituacaoTrib(out ok: boolean;
+  const s: string): TSituacaoTrib;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['tp', 'tt', 'is', 'im', 'nt'],
+                           [tsTributadaNoPrestador, tsTibutadaNoTomador, tsIsenta,
+                            tsImune, tsNaoTributada]);
+end;
+
+function TACBrNFSeXProvider.SituacaoTribToStr(const t: TSituacaoTrib): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['tp', 'tt', 'is', 'im', 'nt'],
+                           [tsTributadaNoPrestador, tsTibutadaNoTomador, tsIsenta,
+                            tsImune, tsNaoTributada]);
+end;
+
 function TACBrNFSeXProvider.GerarXml(const aNFSe: TNFSe; var aXml,
   aAlerts: string): Boolean;
 var
@@ -898,14 +931,20 @@ begin
     end;
 
     Result := AWriter.GerarXml;
-    aXml := AWriter.Document.Xml;
+
+    aXml := AWriter.ConteudoTxt;
+
+    if aXml = '' then
+      aXml := AWriter.Document.Xml;
+
     aAlerts := ACBrStr(AWriter.ListaDeAlertas.Text);
   finally
     AWriter.Destroy;
   end;
 end;
 
-function TACBrNFSeXProvider.LerXML(const aXML: String; var aNFSe: TNFSe; var ATipo: TtpXML): Boolean;
+function TACBrNFSeXProvider.LerXML(const aXML: String; var aNFSe: TNFSe;
+  var ATipo: TtpXML; var aXmlTratado: string): Boolean;
 var
   AReader: TNFSeRClass;
 begin
@@ -925,6 +964,7 @@ begin
 
     Result := AReader.LerXml;
     ATipo := AReader.tpXML;
+    aXmlTratado := AReader.Arquivo;
   finally
     AReader.Destroy;
   end;
@@ -1080,6 +1120,75 @@ begin
   else
     Result := '';
   end;
+end;
+
+function TACBrNFSeXProvider.TipoPessoaToStr(const t: TTipoPessoa): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4', '5'],
+                           [tpPFNaoIdentificada, tpPF, tpPJdoMunicipio,
+                            tpPJforaMunicipio, tpPJforaPais]);
+end;
+
+function TACBrNFSeXProvider.StrToTipoPessoa(out ok: boolean;
+  const s: string): TTipoPessoa;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2', '3', '4', '5'],
+                           [tpPFNaoIdentificada, tpPF, tpPJdoMunicipio,
+                            tpPJforaMunicipio, tpPJforaPais]);
+end;
+
+function TACBrNFSeXProvider.ExigibilidadeISSDescricao(
+  const t: TnfseExigibilidadeISS): string;
+begin
+  case t of
+    exiExigivel                       : Result := '1 - Exigível';
+    exiNaoIncidencia                  : Result := '2 - Não Incidência';
+    exiIsencao                        : Result := '3 - Isenção';
+    exiExportacao                     : Result := '4 - Exportação';
+    exiImunidade                      : Result := '5 - Imunidade';
+    exiSuspensaDecisaoJudicial        : Result := '6 - Suspensa Decisao Judicial';
+    exiSuspensaProcessoAdministrativo : Result := '7 - Suspensa Processo Administrativo';
+    exiISSFixo                        : Result := '8 - ISS Fixo';
+  else
+    Result := '';
+  end;
+end;
+
+function TACBrNFSeXProvider.ExigibilidadeISSToStr(
+  const t: TnfseExigibilidadeISS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4', '5', '6', '7', '8'],
+                           [exiExigivel, exiNaoIncidencia, exiIsencao, exiExportacao,
+                            exiImunidade, exiSuspensaDecisaoJudicial,
+                            exiSuspensaProcessoAdministrativo, exiISSFixo]);
+end;
+
+function TACBrNFSeXProvider.StrToExigibilidadeISS(out ok: boolean;
+  const s: string): TnfseExigibilidadeISS;
+begin
+  Result := StrToEnumerado(ok, s,
+                          ['1', '2', '3', '4', '5', '6', '7', '8'],
+                          [exiExigivel, exiNaoIncidencia, exiIsencao, exiExportacao,
+                           exiImunidade, exiSuspensaDecisaoJudicial,
+                           exiSuspensaProcessoAdministrativo,exiISSFixo]);
+end;
+
+function TACBrNFSeXProvider.TipoRPSToStr(const t: TTipoRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '0'],
+                           [trRPS, trNFConjugada, trCupom, trNone]);
+end;
+
+function TACBrNFSeXProvider.StrToTipoRPS(out ok: boolean;
+  const s: string): TTipoRPS;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2', '3', '0'],
+                           [trRPS, trNFConjugada, trCupom, trNone]);
 end;
 
 function TACBrNFSeXProvider.PrepararRpsParaLote(const aXml: string): string;

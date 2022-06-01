@@ -87,7 +87,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   Governa.GravarXml, Governa.LerXml;
 
@@ -104,6 +107,7 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaLote := False;
     ConsultaNFSe := False;
+    DetalharServico := True;
 
     FpVersaoArquivo := Params.ValorParametro('VersaoArquivo');
   end;

@@ -138,7 +138,11 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, SynaCode,
+  SynaCode,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ACBrNFSeXNotasFiscais, SmarAPD.GravarXml, SmarAPD.LerXml;
 
@@ -153,6 +157,7 @@ begin
     Identificador := 'id';
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
+    DetalharServico := True;
   end;
 
   with ConfigAssinar do
@@ -327,12 +332,10 @@ begin
 
           if AuxNode <> nil then
           begin
-            Response.Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
-
             with Response do
             begin
-              Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('datahora'), tcDatHor);
               Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
+              Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('datahora'), tcDatVcto);
               xSucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
               Sucesso := not (xSucesso = 'N');
             end;
@@ -560,6 +563,7 @@ var
   Request: string;
 begin
   FPMsgOrig := AMSG;
+  AMSG := StringReplace(AMSG, '&amp;', '&amp;amp;',[rfReplaceAll]);
 
   Request := '<sil:nfdEntrada xmlns:sil="http://webservices.sil.com/">';
   Request := Request + DadosUsuario;

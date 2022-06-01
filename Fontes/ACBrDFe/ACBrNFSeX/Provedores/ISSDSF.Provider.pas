@@ -99,7 +99,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ISSDSF.GravarXml, ISSDSF.LerXml;
 
@@ -128,10 +131,10 @@ begin
       else
         sIndTomador := '3';
 
-    sTomador := sIndTomador + Poem_Zeros(sCPFCNPJTomador, 14);
+    sTomador := sIndTomador + ACBrUtil.Strings.Poem_Zeros(sCPFCNPJTomador, 14);
 
     // Prestador Intermediario
-    sCPFCNPJInter := OnlyNumber(NFSe.IntermediarioServico.CpfCnpj);
+    sCPFCNPJInter := ACBrUtil.Strings.OnlyNumber(NFSe.IntermediarioServico.CpfCnpj);
 
     if Length(sCPFCNPJInter) = 11 then
       sIndInter := '1'
@@ -145,20 +148,20 @@ begin
                                       ['N', 'S'], [stNormal, stRetencao]);
 
     if sIndInter <> '3' then
-      sInter := sIndInter + Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
+      sInter := sIndInter + ACBrUtil.Strings.Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
     else
       sInter := '';
 
-    sAssinatura := Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 8) +
+    sAssinatura := ACBrUtil.Strings.Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 8) +
                    PadRight(NFSe.IdentificacaoRps.Serie, 5 , ' ') +
-                   Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
+                   ACBrUtil.Strings.Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
                    FormatDateTime('yyyymmdd', NFse.DataEmissao) +
                    TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS) +
                    sSituacao +
                    sISSRetido +
-                   Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15 ) +
-                   Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorDeducoes)), 15 ) +
-                   Poem_Zeros(OnlyNumber(NFSe.Servico.ItemListaServico ), 5 ) +
+                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15 ) +
+                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorDeducoes)), 15 ) +
+                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(NFSe.Servico.ItemListaServico ), 5 ) +
                    sTomador +
                    sInter;
 
@@ -175,6 +178,7 @@ begin
   begin
     QuebradeLinha := '<br >';
     ModoEnvio := meLoteSincrono;
+    DetalharServico := True;
   end;
 
   with ConfigAssinar do
@@ -526,8 +530,7 @@ procedure TACBrNFSeProviderISSDSF.TratarRetornoEmitir(Response: TNFSeEmiteRespon
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
-  ANode: TACBrXmlNode;
-  AuxNode: TACBrXmlNode;
+  ANode, AuxNodeChave, AuxNode: TACBrXmlNode;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -566,14 +569,13 @@ begin
       begin
         with Response do
         begin
+          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr) = 'true';
           Lote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
           Protocolo := Lote;
-          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr) = 'true';
 
           { Verificar se mais alguma dessas informações são necessárias
           with InformacoesLote do
           begin
-            NumeroLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
             InscricaoPrestador := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('InscricaoPrestador'), tcStr);
             CPFCNPJRemetente := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CPFCNPJRemetente'), tcStr);
             DataEnvioLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEnvioLote'), tcDatHor);
@@ -588,18 +590,18 @@ begin
         end;
       end;
 
-      {
-      AuxNode := ANode.Childrens.FindAnyNs('ChavesNFeRPS');
+      AuxNode := ANode.Childrens.FindAnyNs('ChavesNFSeRPS');
 
       if AuxNode <> nil then
       begin
+        AuxNode := AuxNode.Childrens.FindAnyNs('ChaveNFSeRPS');
+
         AuxNodeChave := AuxNode.Childrens.FindAnyNs('ChaveRPS');
 
         if (AuxNodeChave <> nil) then
         begin
           with Response do
           begin
-            InscricaoPrestador := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('InscricaoPrestador'), tcStr);
             SerieRPS := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('SerieRPS'), tcStr);
             NumeroRPS := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('NumeroRPS'), tcStr);
           end;
@@ -611,13 +613,11 @@ begin
         begin
           with Response do
           begin
-            InscricaoPrestador := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('InscricaoPrestador'), tcStr);
-            Numero := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('NumeroNFe'), tcStr);
-            CodigoVerificacao := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+            NumeroNota := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('NumeroNFe'), tcStr);
+            CodVerificacao := ObterConteudoTag(AuxNodeChave.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           end;
         end;
       end;
-      }
     except
       on E:Exception do
       begin

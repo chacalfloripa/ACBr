@@ -87,7 +87,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, fintelISS.GravarXml, fintelISS.LerXml;
 
 { TACBrNFSeProviderfintelISS200 }
@@ -95,6 +96,8 @@ uses
 procedure TACBrNFSeProviderfintelISS200.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.DetalharServico := True;
 
   with ConfigAssinar do
   begin
@@ -345,7 +348,7 @@ begin
 
   with ConfigAssinar do
   begin
-    Rps := True;
+    Rps := False;
     LoteRps := True;
     CancelarNFSe := True;
     RpsGerarNFSe := True;

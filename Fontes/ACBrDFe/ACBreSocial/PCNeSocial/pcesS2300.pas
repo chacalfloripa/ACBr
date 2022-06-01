@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, ACBrUtil, pcnConsts,
+  ACBrBase, pcnConversao, pcnConsts,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -232,6 +232,9 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
   ACBreSocial;
 
 { TS2300Collection }
@@ -466,7 +469,10 @@ begin
     
     if VersaoDF > ve02_05_00 then
     begin
-      Gerador.wCampo(tcStr, '', 'tpRegTrab',   1,  1, 0, eSTpRegTrabToStr(obj.tpRegTrab));
+      //preenchimento é obrigatório e exclusivo se infoDirigenteSindical/categOrig corresponder a "Empregado" ou "Agente Público"
+      case obj.categOrig of
+        101..199, 301..399 : Gerador.wCampo(tcStr, '', 'tpRegTrab',   1,  1, 0, eSTpRegTrabToStr(obj.tpRegTrab));
+      end;
       Gerador.wCampo(tcStr, '', 'tpRegPrev',   1,  1, 1, eSTpRegPrevToStr(obj.tpRegPrev));
     end;
 

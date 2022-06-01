@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, synacode,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   pcnAuxiliar,
   ACBrNFSeXConversao, ACBrNFSeXLerXml;
@@ -59,6 +58,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -162,19 +164,17 @@ end;
 function TNFSeR_ISSDSF.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-//italo  xRetorno := TratarXmlRetorno(Arquivo);
-  xRetorno := Arquivo;
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
   if (Pos('NumeroNota', Arquivo) > 0) or (Pos('NumeroNFe', Arquivo) > 0) then
     tpXML := txmlNFSe

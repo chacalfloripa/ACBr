@@ -104,16 +104,32 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
                                      const AMessageTag: string = 'MensagemRetorno'); virtual;
+
+    function LerDatas(const xData: string): TDateTime;
   end;
 
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrXmlBase,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML, ACBrUtil.DateTime,
+  ACBrDFeException, ACBrXmlBase,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais, ACBrNFSeXConsts,
   ACBrNFSeXConversao, ACBrNFSeXWebserviceBase;
 
 { TACBrNFSeProviderABRASFv2 }
+
+function TACBrNFSeProviderABRASFv2.LerDatas(const xData: string): TDateTime;
+begin
+  if Pos('/', xData) = 3 then
+  begin
+    if Copy(xData, 1, 2) > '12' then
+      result := EncodeDataHora(xData, 'DD/MM/YYYY')
+    else
+      result := EncodeDataHora(xData, 'MM/DD/YYYY');
+  end
+  else
+    result := EncodeDataHora(xData, '');
+end;
 
 procedure TACBrNFSeProviderABRASFv2.Configuracao;
 const
@@ -869,8 +885,11 @@ begin
         if AuxNode = nil then
           AuxNode := AuxNode.Childrens.FindAnyNs('ConfirmacaoCancelamento');
 
-        Response.Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataHora'), tcDatHor);
-        Response.DescSituacao := 'Nota Cancelada';
+        Response.DataCanc := LerDatas(ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataHora'), tcStr));
+        Response.DescSituacao := '';
+
+        if Response.DataCanc > 0 then
+          Response.DescSituacao := 'Nota Cancelada';
       end;
 
       AuxNode := ANode.Childrens.FindAnyNs('Nfse');
@@ -884,7 +903,7 @@ begin
         begin
           NumeroNota := NumNFSe;
           CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
-          Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
+          Data := LerDatas(ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcStr));
         end;
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
@@ -2348,7 +2367,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
   AAlerta: TNFSeEventoCollectionItem;
-  Mensagem: string;
+  Codigo, Mensagem: string;
 
 procedure ProcessarErros;
 var
@@ -2362,12 +2381,13 @@ begin
     begin
       for I := Low(ANodeArray) to High(ANodeArray) do
       begin
+        Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
         Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
 
-        if Mensagem <> '' then
+        if (Mensagem <> '') and (Codigo <> 'L000') then
         begin
           AErro := Response.Erros.New;
-          AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
+          AErro.Codigo := Codigo;
           AErro.Descricao := Mensagem;
           AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
         end;
@@ -2375,12 +2395,13 @@ begin
     end
     else
     begin
+      Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
       Mensagem := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
 
-      if Mensagem <> '' then
+      if (Mensagem <> '') and (Codigo <> 'L000') then
       begin
         AErro := Response.Erros.New;
-        AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
+        AErro.Codigo := Codigo;
         AErro.Descricao := Mensagem;
         AErro.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
       end;

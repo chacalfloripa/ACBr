@@ -56,7 +56,7 @@ type
 
     function NormatizarItemListaServico(const Codigo: string): string;
     function ItemListaServicoDescricao(const Codigo: string): string;
-    function TipodeXMLLeitura(const aArquivo: string): TtpXML;
+    function TipodeXMLLeitura(const aArquivo: string): TtpXML; virtual;
     function NormatizarXml(const aXml: string): string; virtual;
   public
     constructor Create(AOwner: IACBrNFSeXProvider);
@@ -72,7 +72,7 @@ type
 implementation
 
 uses
-  ACBrUtil,
+  ACBrUtil.Strings,
   ACBrDFeException;
 
 { TNFSeRClass }
@@ -118,7 +118,7 @@ end;
 
 function TNFSeRClass.NormatizarXml(const aXml: string): string;
 begin
-  Result := aXml;
+  Result := TiraAcentos(aXml);
 end;
 
 function TNFSeRClass.TipodeXMLLeitura(const aArquivo: string): TtpXML;

@@ -42,7 +42,8 @@ uses
 type
   IACBrNFSeXProvider = interface ['{6A71A59C-9EA1-45BF-BCAB-59BB90B62AAA}']
     function GerarXml(const ANFSe: TNFSe; var AXml, AAlerts: string): Boolean;
-    function LerXml(const AXML: String; var ANFSe: TNFSe; var ATipo: TtpXML): Boolean;
+    function LerXml(const AXML: String; var ANFSe: TNFSe; var ATipo: TtpXML;
+      var aXmlTratado: string): Boolean;
 
     procedure GeraLote;
     procedure Emite;
@@ -82,6 +83,19 @@ type
     function ResponsavelRetencaoDescricao(const t: TnfseResponsavelRetencao): String;
 
     function NaturezaOperacaoDescricao(const t: TnfseNaturezaOperacao): string; 
+
+    function TipoPessoaToStr(const t: TTipoPessoa): string;
+    function StrToTipoPessoa(out ok: boolean; const s: string): TTipoPessoa;
+
+    function ExigibilidadeISSToStr(const t: TnfseExigibilidadeISS): string;
+    function StrToExigibilidadeISS(out ok: boolean; const s: string): TnfseExigibilidadeISS;
+    function ExigibilidadeISSDescricao(const t: TnfseExigibilidadeISS): string;
+
+    function TipoRPSToStr(const t:TTipoRPS): string;
+    function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS;
+
+    function SituacaoTribToStr(const t: TSituacaoTrib): string;
+    function StrToSituacaoTrib(out ok: boolean; const s: string): TSituacaoTrib;
   end;
 
 implementation

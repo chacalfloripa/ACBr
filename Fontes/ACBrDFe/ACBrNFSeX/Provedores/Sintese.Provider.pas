@@ -73,7 +73,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   Sintese.GravarXml, Sintese.LerXml;
 
 { TACBrNFSeProviderSintese204 }
@@ -87,6 +88,7 @@ begin
     Rps := True;
     LoteRps := True;
     RpsGerarNFSe := True;
+    CancelarNFSe := True;
   end;
 
   with ConfigWebServices do

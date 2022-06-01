@@ -100,7 +100,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, RLZ.GravarXml, RLZ.LerXml;
 
 { TACBrNFSeProviderRLZ203 }
@@ -343,6 +345,7 @@ begin
     Identificador := '';
     QuebradeLinha := '|';
     ModoEnvio := meUnitario;
+    DetalharServico := True;
   end;
 
   ConfigSchemas.Validar := False;

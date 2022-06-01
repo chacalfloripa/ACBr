@@ -37,9 +37,10 @@ unit ACBrNFSeXDANFSeRLRetrato;
 interface
 
 uses
-  SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, ACBrNFSeXDANFSeRL, RLFilters, RLPDFFilter, RLReport,
-  ACBrNFSeXConversao, ACBrDelphiZXingQRCode;
+  SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
+  RLFilters, RLPDFFilter, RLReport,
+  ACBrDelphiZXingQRCode,
+  ACBrNFSeXConversao, ACBrNFSeXDANFSeRL;
 
 type
 
@@ -225,6 +226,8 @@ type
     txtServicoTotal: TRLLabel;
     rllCodTributacaoMunicipio: TRLLabel;
     rlmDescCodTributacaoMunicipio: TRLMemo;
+    RLLabel69: TRLLabel;
+    rllPrestInscEstadual: TRLLabel;
 
     procedure rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure rlbItensServicoBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -252,7 +255,9 @@ var
 implementation
 
 uses
-  StrUtils, DateUtils, ACBrUtil,
+  StrUtils, DateUtils,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
   ACBrNFSeX, ACBrNFSeXClass, ACBrNFSeXInterface,
   ACBrValidador, ACBrDFeReportFortes;
 
@@ -516,8 +521,9 @@ begin
 
     with IdentificacaoPrestador do
     begin
-      rllPrestCNPJ.Caption := FormatarCNPJouCPF(ifThen(CpfCnpj <> '', CpfCnpj,fpDANFSe.Prestador.CNPJ));
+      rllPrestCNPJ.Caption := FormatarCNPJouCPF(ifThen(CpfCnpj <> '', CpfCnpj, fpDANFSe.Prestador.CNPJ));
       rllPrestInscMunicipal.Caption := IfThen(InscricaoMunicipal <> '', InscricaoMunicipal, fpDANFSe.Prestador.InscricaoMunicipal);
+      rllPrestInscEstadual.Caption := IfThen(InscricaoEstadual <> '', InscricaoEstadual, fpDANFSe.Prestador.InscricaoEstadual);
     end;
 
     with Endereco do
@@ -630,8 +636,8 @@ begin
   rllMsgTeste.Visible := (fpDANFSe.Producao = snNao);
   rllMsgTeste.Enabled := (fpDANFSe.Producao = snNao);
 
-  if (fpNFSe.NfseCancelamento.DataHora <> 0) or
-     (fpNFSe.SituacaoNfse = snCancelado) or fpDANFSe.Cancelada then
+  if fpDANFSe.Cancelada or (fpNFSe.NfseCancelamento.DataHora <> 0) or
+    (fpNFSe.SituacaoNfse = snCancelado) or (fpNFSe.StatusRps = srCancelado) then
   begin
     rllMsgTeste.Caption := 'NFS-e CANCELADA';
     rllMsgTeste.Visible := True;
@@ -643,14 +649,26 @@ end;
 
 procedure TfrlXDANFSeRLRetrato.RLNFSeBeforePrint(Sender: TObject;
   var PrintIt: Boolean);
+var
+  Detalhar: Boolean;
 begin
   inherited;
 
+  Detalhar := ACBrNFSe.Provider.ConfigGeral.DetalharServico;
+
   RLNFSe.Title := 'NFS-e: ' + fpNFSe.Numero;
   TDFeReportFortes.AjustarMargem(RLNFSe, fpDANFSe);
-  rlbItens.Visible := not (fpDANFSe.DetalharServico);
-  rlbHeaderItensDetalhado.Visible := fpDANFSe.DetalharServico;
-  subItens.Visible := fpDANFSe.DetalharServico;
+  rlbItens.Visible := not Detalhar;
+  rlbHeaderItensDetalhado.Visible := Detalhar;
+  subItens.Visible := Detalhar;
+
+//  rlbItens.Visible := not (fpDANFSe.DetalharServico);
+//  rlbHeaderItensDetalhado.Visible := fpDANFSe.DetalharServico;
+//  subItens.Visible := fpDANFSe.DetalharServico;
+
+  // Estudar a melhor forma de não especificar o provedor.
+  RLLabel65.Visible := not (ACBrNFSe.Configuracoes.Geral.Provedor in [proSimple]);
+  txtServicoQtde.Visible := not (ACBrNFSe.Configuracoes.Geral.Provedor in [proSimple]);
 end;
 
 procedure TfrlXDANFSeRLRetrato.subItensDataRecord(Sender: TObject;

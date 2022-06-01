@@ -75,7 +75,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrXmlDocument,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrXmlDocument,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ISSFortaleza.GravarXml, ISSFortaleza.LerXml;
 

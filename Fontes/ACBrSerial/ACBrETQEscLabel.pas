@@ -1,33 +1,33 @@
 {******************************************************************************}
 { Projeto: Componentes ACBr                                                    }
-{  Biblioteca multiplataforma de componentes Delphi para intera√ß√£o com equipa- }
-{ mentos de Automa√ß√£o Comercial utilizados no Brasil                           }
+{  Biblioteca multiplataforma de componentes Delphi para interaÁ„o com equipa- }
+{ mentos de AutomaÁ„o Comercial utilizados no Brasil                           }
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
-{  Voc√™ pode obter a √∫ltima vers√£o desse arquivo na pagina do  Projeto ACBr    }
+{  VocÍ pode obter a ˙ltima vers„o desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
-{  Esta biblioteca √© software livre; voc√™ pode redistribu√≠-la e/ou modific√°-la }
-{ sob os termos da Licen√ßa P√∫blica Geral Menor do GNU conforme publicada pela  }
-{ Free Software Foundation; tanto a vers√£o 2.1 da Licen√ßa, ou (a seu crit√©rio) }
-{ qualquer vers√£o posterior.                                                   }
+{  Esta biblioteca È software livre; vocÍ pode redistribuÌ-la e/ou modific·-la }
+{ sob os termos da LicenÁa P˙blica Geral Menor do GNU conforme publicada pela  }
+{ Free Software Foundation; tanto a vers„o 2.1 da LicenÁa, ou (a seu critÈrio) }
+{ qualquer vers„o posterior.                                                   }
 {                                                                              }
-{  Esta biblioteca √© distribu√≠da na expectativa de que seja √∫til, por√©m, SEM   }
-{ NENHUMA GARANTIA; nem mesmo a garantia impl√≠cita de COMERCIABILIDADE OU      }
-{ ADEQUA√á√ÉO A UMA FINALIDADE ESPEC√çFICA. Consulte a Licen√ßa P√∫blica Geral Menor}
-{ do GNU para mais detalhes. (Arquivo LICEN√áA.TXT ou LICENSE.TXT)              }
+{  Esta biblioteca È distribuÌda na expectativa de que seja ˙til, porÈm, SEM   }
+{ NENHUMA GARANTIA; nem mesmo a garantia implÌcita de COMERCIABILIDADE OU      }
+{ ADEQUA«√O A UMA FINALIDADE ESPECÕFICA. Consulte a LicenÁa P˙blica Geral Menor}
+{ do GNU para mais detalhes. (Arquivo LICEN«A.TXT ou LICENSE.TXT)              }
 {                                                                              }
-{  Voc√™ deve ter recebido uma c√≥pia da Licen√ßa P√∫blica Geral Menor do GNU junto}
-{ com esta biblioteca; se n√£o, escreva para a Free Software Foundation, Inc.,  }
-{ no endere√ßo 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.          }
-{ Voc√™ tamb√©m pode obter uma copia da licen√ßa em:                              }
+{  VocÍ deve ter recebido uma cÛpia da LicenÁa P˙blica Geral Menor do GNU junto}
+{ com esta biblioteca; se n„o, escreva para a Free Software Foundation, Inc.,  }
+{ no endereÁo 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.          }
+{ VocÍ tambÈm pode obter uma copia da licenÁa em:                              }
 { http://www.opensource.org/licenses/lgpl-license.php                          }
 {                                                                              }
-{ Daniel Sim√µes de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br}
-{       Rua Coronel Aureliano de Camargo, 963 - Tatu√≠ - SP - 18270-170         }
+{ Daniel Simıes de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br}
+{       Rua Coronel Aureliano de Camargo, 963 - TatuÌ - SP - 18270-170         }
 {******************************************************************************}
 
 {$I ACBr.inc}
@@ -38,7 +38,7 @@ interface
 
 uses
   Classes,
-  ACBrETQZplII, ACBrDevice
+  ACBrETQZplII, ACBrETQClass
   {$IFDEF NEXTGEN}
    ,ACBrBase
   {$ENDIF};
@@ -51,9 +51,12 @@ type
   private
   protected
     function ConverterPaginaDeCodigo(aPaginaDeCodigo: TACBrETQPaginaCodigo): String; override;
+    function ComandoCor: String; override;
     function ComandoTemperatura: AnsiString; override;
     function ComandoResolucao: AnsiString; override;
     function ComandoVelocidade: AnsiString; override;
+    function ComandoDeteccao: AnsiString; override;
+    function ComandoDimensoes: AnsiString; override;
   public
     constructor Create(AOwner: TComponent);
     function ComandoCarregarImagem(aStream: TStream; var aNomeImagem: String;
@@ -65,9 +68,8 @@ type
 implementation
 
 uses
-  SysUtils,
-  synautil,
-  ACBrUtil, ACBrImage;
+  SysUtils, synautil, ACBrImage,
+  ACBrUtil.Strings;
 
 { TACBrETQEscLabel }
 
@@ -86,8 +88,8 @@ begin
   if (aTipo = 'PNG') then       // EscLabel suporta PNG colorido
   begin
     aStream.Position := 0;
-    if not IsPNG(aStream) then
-      raise Exception.Create(ACBrStr('Imagem n√£o √© PNG'));
+    if not IsPNG(aStream, False) then
+      raise Exception.Create(ACBrStr(cErrImgNotPNG));
 
     Result := '~DY'+                // Download Graphics command
               'R:' +                // File Location
@@ -105,6 +107,21 @@ begin
     Result := inherited ComandoCarregarImagem(aStream, aNomeImagem, aFlipped, aTipo)
 end;
 
+function TACBrETQEscLabel.ComandoCor: String;
+begin
+  Result := '^F(C'+
+            IntToStr(CorFrente.R)+','+
+            IntToStr(CorFrente.G)+','+
+            IntToStr(CorFrente.B)+','+
+            IntToStr(CorFrente.Opacidade)+
+            ',D,'+     // D : Specified by "^FR"(field reverse)/"^LR"(label reverse);  N : Reversal canceled;  R : Reversal specified
+            IntToStr(CorFundo.R)+','+
+            IntToStr(CorFundo.G)+','+
+            IntToStr(CorFundo.B)+','+
+            IntToStr(CorFundo.Opacidade)+
+            ',D';
+end;
+
 function TACBrETQEscLabel.ConverterPaginaDeCodigo(aPaginaDeCodigo: TACBrETQPaginaCodigo): String;
 begin
   case aPaginaDeCodigo of
@@ -116,7 +133,7 @@ end;
 
 function TACBrETQEscLabel.ComandoTemperatura: AnsiString;
 begin
-  Result := EmptyStr;  // N√£o suportado em EscLabel (n√£o usado)
+  Result := EmptyStr;  // N„o suportado em EscLabel (n„o usado)
 end;
 
 function TACBrETQEscLabel.ComandoResolucao: AnsiString;
@@ -130,9 +147,10 @@ begin
     ResDPI := '200';
   end;
 
-  Result := '^S(CLR,R,'+ ResDPI + sLineBreak + // Sets the format base in dots per inch
-            '^S(CLR,P,'+ ResDPI + sLineBreak + // Sets the print Resolution
-            '^S(CLR,Z,'+ ResDPI;               // Sets Print Resolution of replaced printer
+  Result := '';
+  AdicionarComandos( '^S(CLR,R,'+ ResDPI, Result);  // Sets the format base in dots per inch
+  AdicionarComandos( '^S(CLR,P,'+ ResDPI, Result);  // Sets the print Resolution
+  AdicionarComandos( '^S(CLR,Z,'+ ResDPI, Result);  // Sets Print Resolution of replaced printer
 end;
 
 function TACBrETQEscLabel.ComandoVelocidade: AnsiString;
@@ -146,14 +164,41 @@ begin
     Result := EmptyStr;
 end;
 
+function TACBrETQEscLabel.ComandoDeteccao: AnsiString;
+var
+  d: Char;
+begin
+  case DeteccaoEtiqueta of
+    mdeNone: d := 'N';
+    mdeBlackMark: d := 'M';
+  else
+    d := 'W';
+  end;
+
+  Result := '^S(CLM,D,'+d
+end;
+
+function TACBrETQEscLabel.ComandoDimensoes: AnsiString;
+begin
+  Result := '';
+  if (Dimensoes.Largura > 0) then
+    AdicionarComandos('^S(CLS,P,' + IntToStr(ConverterUnidade(etqDots, Dimensoes.Largura)), Result);
+  if (Dimensoes.Altura > 0) then
+    AdicionarComandos('^S(CLS,L,'+IntToStr(ConverterUnidade(etqDots, Dimensoes.Altura)), Result);
+  if (Dimensoes.EspacoEntreEtiquetas > 0) then
+    AdicionarComandos('^S(CLS,C,'+IntToStr(ConverterUnidade(etqDots, Dimensoes.EspacoEntreEtiquetas)), Result);
+  if (Dimensoes.EspacoEsquerda > 0) then
+    AdicionarComandos('^S(CLS,G,'+IntToStr(ConverterUnidade(etqDots, Dimensoes.EspacoEsquerda)), Result);
+end;
+
 function TACBrETQEscLabel.ComandoGravaRFIDHexaDecimal(aValue: String): AnsiString;
 begin
-  Result := EmptyStr;  // N√£o suportado em EscLabel (n√£o usado)
+  Result := EmptyStr;  // N„o suportado em EscLabel (n„o usado)
 end;
 
 function TACBrETQEscLabel.ComandoGravaRFIDASCII(aValue: String): AnsiString;
 begin
-  Result := EmptyStr;  // N√£o suportado em EscLabel (n√£o usado)
+  Result := EmptyStr;  // N„o suportado em EscLabel (n„o usado)
 end;
 
 end.

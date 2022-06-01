@@ -78,7 +78,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, ISSe.GravarXml, ISSe.LerXml;
 
 { TACBrNFSeProviderISSe200 }
@@ -97,6 +98,12 @@ begin
   begin
     LoteRps := True;
     CancelarNFSe := True;
+  end;
+
+  with ConfigWebServices do
+  begin
+    VersaoDados := '2.01';
+    VersaoAtrib := '2.01';
   end;
 end;
 

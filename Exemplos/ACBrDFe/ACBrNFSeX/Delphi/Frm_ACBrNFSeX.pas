@@ -6,7 +6,10 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
-  ACBrBase, ACBrUtil, ACBrDFe, ACBrDFeReport, ACBrMail, ACBrNFSeX,
+  ACBrBase,
+  ACBrUtil.Base,
+  ACBrUtil.DateTime, ACBrUtil.FilesIO,
+  ACBrDFe, ACBrDFeReport, ACBrMail, ACBrNFSeX,
   ACBrNFSeXConversao, ACBrNFSeXWebservicesResponse,
   ACBrNFSeXDANFSeClass, ACBrNFSeXDANFSeRLClass;
 
@@ -493,6 +496,8 @@ begin
           else
             IdentificacaoRps.Serie := '8';
 
+        proSystemPro:
+          IdentificacaoRps.Serie := 'RPP';
       else
         IdentificacaoRps.Serie := '85';
       end;
@@ -571,8 +576,8 @@ begin
 
       Servico.Valores.ValorServicos := 100.35;
       Servico.Valores.ValorDeducoes := 0.00;
-      Servico.Valores.AliquotaPis := 1.00;
-      Servico.Valores.ValorPis := 1.00;
+      Servico.Valores.AliquotaPis := 0.00;
+      Servico.Valores.ValorPis := 0.00;
       Servico.Valores.AliquotaCofins := 2.00;
       Servico.Valores.ValorCofins := 2.00;
       Servico.Valores.ValorInss := 0.00;
@@ -640,7 +645,10 @@ begin
       case ACBrNFSeX1.Configuracoes.Geral.Provedor of
         proISSDSF, proSiat, proAgili:
           // código com 9 digitos
-          Servico.CodigoCnae := '452000200'
+          Servico.CodigoCnae := '452000200';
+
+        proSystemPro:
+          Servico.CodigoCnae := '';
       else
         // código com 7 digitos
         Servico.CodigoCnae := '6203100';
@@ -656,7 +664,7 @@ begin
         proISSSalvador:
           Servico.CodigoTributacaoMunicipio := '0901001';
 
-        proIPM:
+        proIPM, proSystemPro:
           Servico.CodigoTributacaoMunicipio := '';
       else
         Servico.CodigoTributacaoMunicipio := '63194';
@@ -675,6 +683,10 @@ begin
       // Para alguns provedores não devemos informar o código do pais
 //      Servico.CodigoPais := 1058; // Brasil
       Servico.MunicipioIncidencia := StrToIntDef(edtCodCidade.Text, 0);
+
+      // Provedor GeisWeb
+      // tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador, tlSimplesNacional, tlIsentoImune
+      Servico.TipoLancamento := tlSimplesNacional;
 
       // Provedores que permitem informar mais de 1 serviço:
       // Agili, AssessorPublico, EL, EloTech, Equiplano, fintelISS, Governa,
@@ -702,7 +714,7 @@ begin
         TipoUnidade := tuQtde;
         Unidade := 'UN';
         Quantidade := 10;
-        ValorUnitario := 5;
+        ValorUnitario := 0.01;
 
         QtdeDiaria := 0;
         ValorTaxaTurismo := 0;
@@ -711,7 +723,7 @@ begin
 
         BaseCalculo := ValorTotal - ValorDeducoes - DescontoIncondicionado;
 
-        Aliquota := 4;
+        Aliquota := 0.10;
 
         ValorISS := BaseCalculo * Aliquota / 100;
 
@@ -780,9 +792,9 @@ begin
 
       // Para o provedor SigISS usar os valores acima de forma adquada
       Tomador.IdentificacaoTomador.Tipo := tpPJdoMunicipio;
-      Tomador.IdentificacaoTomador.CpfCnpj := '11222333000144';
-      Tomador.IdentificacaoTomador.InscricaoMunicipal := '12345678';
-      Tomador.IdentificacaoTomador.InscricaoEstadual := '12345678';
+      Tomador.IdentificacaoTomador.CpfCnpj := '06760213874';
+      Tomador.IdentificacaoTomador.InscricaoMunicipal := '';
+      Tomador.IdentificacaoTomador.InscricaoEstadual := '';
 
       Tomador.RazaoSocial := 'INSCRICAO DE TESTE';
 
@@ -894,11 +906,10 @@ end;
 
 procedure TfrmACBrNFSe.btnCancNFSeClick(Sender: TObject);
 var
-  NumNFSe, Codigo, Motivo, NumLote, CodVerif, SerNFSe, NumRps,
-  SerRps, ValNFSe, ChNFSe, eMailTomador: String;
+  Titulo, NumNFSe, Codigo, Motivo, NumLote, CodVerif, SerNFSe, NumRps,
+  SerRps, ValNFSe, ChNFSe, eMailTomador, vNumRPS: String;
   CodCanc: Integer;
   InfCancelamento: TInfCancelamento;
-  Titulo: string;
 begin
   Titulo := 'Cancelar NFSe';
 
@@ -938,7 +949,6 @@ begin
         exit;
     end;
 
-    // Provedor Conam
     if ACBrNFSeX1.Configuracoes.Geral.Provedor = proConam then
     begin
       SerNFSe := '1';
@@ -955,6 +965,13 @@ begin
 
       ValNFSe := '';
       if not (InputQuery(Titulo, 'Valor da NFSe', ValNFSe)) then
+        exit;
+    end;
+
+    if ACBrNFSeX1.Configuracoes.Geral.Provedor = proAssessorPublico then
+    begin
+      NumRps := '';
+      if not (InputQuery(Titulo, 'Numero do RPS', NumRps)) then
         exit;
     end;
 
@@ -982,9 +999,10 @@ begin
 
     // Os Provedores da lista requerem que seja informado o motivo do cancelamento
     if ACBrNFSeX1.Configuracoes.Geral.Provedor in [proAgili, proAssessorPublico,
-      proConam, proEquiplano, proGoverna, proIPM, proISSDSF, proISSLencois,
-      proModernizacaoPublica, proPublica, proSiat, proSigISS, proSigep,
-      proSmarAPD, proWebFisco, proTecnos, proSudoeste, proSimple, proFGMaiss] then
+      proConam, proEquiplano, proFGMaiss, proGoverna, proIPM, proISSBarueri,
+      proISSDSF, proISSLencois, proModernizacaoPublica, proPublica, proSiat,
+      proSigISS, proSigep, proSimple, proSmarAPD, proSudoeste, proTecnos,
+      proWebFisco] then
     begin
       Motivo := 'Motivo do Cancelamento';
       if not (InputQuery(Titulo, 'Motivo do Cancelamento', Motivo)) then
@@ -1013,6 +1031,16 @@ begin
       if not (InputQuery(Titulo, 'eMail do Tomador', eMailTomador)) then
         exit;
     end;
+  end;
+
+  if ACBrNFSeX1.Configuracoes.Geral.Provedor = proISSBarueri then
+  begin
+    vNumRPS := '';
+    if not(InputQuery('Substituir NFS-e', 'Numero do novo RPS', vNumRPS)) then
+      exit;
+
+    ACBrNFSeX1.NotasFiscais.Clear;
+    AlimentarNFSe(vNumRPS, '1');
   end;
 
   InfCancelamento := TInfCancelamento.Create;
@@ -1877,9 +1905,14 @@ begin
     else
       memoLog.Lines.Add('Arquivo Carregado de: ' + ACBrNFSeX1.NotasFiscais.Items[0].NomeArq);
 
-    memoLog.Lines.Add('Nota Numero: ' + ACBrNFSeX1.NotasFiscais.Items[0].NFSe.Numero);
+    memoLog.Lines.Add('Nota Numero..........: ' + ACBrNFSeX1.NotasFiscais.Items[0].NFSe.Numero);
     memoLog.Lines.Add('Código de Verificação: ' + ACBrNFSeX1.NotasFiscais.Items[0].NFSe.CodigoVerificacao);
-    memoLog.Lines.Add('Data de Emissão: ' + DateToStr(ACBrNFSeX1.NotasFiscais.Items[0].NFSe.DataEmissao));
+    memoLog.Lines.Add('Data de Emissão......: ' + DateToStr(ACBrNFSeX1.NotasFiscais.Items[0].NFSe.DataEmissao));
+    memoLog.Lines.Add('Prestador............: ' + ACBrNFSeX1.NotasFiscais.Items[0].NFSe.Prestador.RazaoSocial);
+    memoLog.Lines.Add('Tomador..............: ' + ACBrNFSeX1.NotasFiscais.Items[0].NFSe.Tomador.RazaoSocial);
+
+    if ACBrNFSeX1.NotasFiscais.Items[0].NFSe.SituacaoNfse = ACBrNFSeXConversao.snCancelado then
+      memoLog.Lines.Add('A Nota encontra-se Cancelada.');
 
     pgRespostas.ActivePageIndex := 0;
   end;
@@ -2541,7 +2574,7 @@ begin
           end;
 
           if ACBrNFSeX1.Configuracoes.Geral.ConsultaLoteAposEnvio and
-             (Emite.Protocolo <> '') then
+             ((Emite.Protocolo <> '') or (Emite.Lote <> '')) then
           begin
             if ACBrNFSeX1.Provider.ConfigGeral.ConsultaSitLote then
             begin
@@ -3119,6 +3152,10 @@ var
   Ok: Boolean;
   PathMensal: String;
 begin
+  ACBrNFSeX1.Configuracoes.Certificados.ArquivoPFX  := '';
+  ACBrNFSeX1.Configuracoes.Certificados.Senha       := '';
+  ACBrNFSeX1.Configuracoes.Certificados.NumeroSerie := '';
+
   ACBrNFSeX1.Configuracoes.Certificados.ArquivoPFX  := edtCaminho.Text;
   ACBrNFSeX1.Configuracoes.Certificados.Senha       := AnsiString(edtSenha.Text);
   ACBrNFSeX1.Configuracoes.Certificados.NumeroSerie := edtNumSerie.Text;
@@ -3155,13 +3192,28 @@ begin
     Emitente.WSChaveAcesso  := edtChaveAcessoWeb.Text;
     Emitente.WSChaveAutoriz := edtChaveAutorizWeb.Text;
 
+    // Exemplos de valores para WSChaveAcesso para alguns provedores.
+    {
+    if Provedor in [proAgili, proElotech] then
+      Emitente.WSChaveAcesso := '0aA1bB2cC3dD4eE5fF6aA7bB8cC9dDEF';
+
+    if Provedor = proISSNet then
+      Emitente.WSChaveAcesso := 'A001.B0001.C0001-1';
+
+    if Provedor = proSigep then
+      Emitente.WSChaveAcesso := 'A001.B0001.C0001';
+
+    if Provedor = proiiBrasil then
+      Emitente.WSChaveAcesso := 'TLXX4JN38KXTRNSEAJYYEA==';
+    }
+
     {
       Para o provedor ADM, utilizar as seguintes propriedades de configurações:
       WSChaveAcesso  para o Key
       WSChaveAutoriz para o Auth
       WSUser         para o RequestId
 
-      Essas 3 propriedades são geradas pelo provedor quando o emitente se cadastra
+      O Key, Auth e RequestId são gerados pelo provedor quando o emitente se cadastra.
     }
   end;
 
@@ -3227,7 +3279,6 @@ begin
     ACBrNFSeX1.DANFSe.MargemEsquerda := 5;
     ACBrNFSeX1.DANFSe.MargemSuperior := 5;
     ACBrNFSeX1.DANFSe.MargemInferior := 5;
-    ACBrNFSeX1.DANFSE.Cancelada := True;
   end;
 
   with ACBrNFSeX1.MAIL do
@@ -3250,20 +3301,6 @@ begin
   with ACBrNFSeX1.Configuracoes.Geral do
   begin
     CodigoMunicipio := StrToIntDef(edtCodCidade.Text, 0);
-
-    // Exemplos de valores para WSChaveAcesso para alguns provedores.
-
-    if Provedor in [proAgili, proElotech] then
-      Emitente.WSChaveAcesso := '0aA1bB2cC3dD4eE5fF6aA7bB8cC9dDEF';
-
-    if Provedor = proISSNet then
-      Emitente.WSChaveAcesso := 'A001.B0001.C0001-1';
-
-    if Provedor = proSigep then
-      Emitente.WSChaveAcesso := 'A001.B0001.C0001';
-
-    if Provedor = proiiBrasil then
-      Emitente.WSChaveAcesso := 'TLXX4JN38KXTRNSEAJYYEA==';
   end;
 
   lblSchemas.Caption := ACBrNFSeX1.Configuracoes.Geral.xProvedor;
@@ -3275,7 +3312,7 @@ procedure TfrmACBrNFSe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser;
 begin
   if RetWS <> '' then
   begin
-    ACBrUtil.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + NomeArq,
+    WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + NomeArq,
                         AnsiString(RetWS), False, False);
 
     MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + NomeArq);

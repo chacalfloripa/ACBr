@@ -38,9 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
+  pcnConsts,
   ACBrNFSeX,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao;
@@ -76,6 +75,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings, ACBrUtil.DateTime;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -382,6 +384,7 @@ begin
   NrOcorrInformacoesComplemetares := 0;
   NrOcorrNIFTomador := 0;
   NrOcorrValTotTrib := 0;
+  NrOcorrAliquota := 1;
   NrOcorrCodigoPaisServico := -1;
 
   GerarEnderecoExterior := True;

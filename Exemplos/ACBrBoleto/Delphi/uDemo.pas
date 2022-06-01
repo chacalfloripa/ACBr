@@ -38,6 +38,7 @@ uses
   Dialogs, StdCtrls, ExtCtrls, Mask,
   {$IFDEF demo_forte} uDMForte,{$ELSE}uDMFast,{$ENDIF}
   ACBrBase, ACBrBoleto, ACBrUtil,
+  {$IFDEF VER150} ComCtrls,{$ENDIF}
   ACBrBoletoConversao, ACBrBoletoRetorno, Vcl.ComCtrls;
 
 type
@@ -213,7 +214,7 @@ type
     Label65: TLabel;
     edtPathRetorno: TEdit;
     Label66: TLabel;
-    flpndlgRetorno: TFileOpenDialog;
+    flpndlgRetorno: TOpenDialog;
     btnRetorno: TButton;
     edtClientID: TEdit;
     Label67: TLabel;
@@ -241,6 +242,7 @@ type
     procedure btnWSRegistrarClick(Sender: TObject);
     procedure btnConfigLerClick(Sender: TObject);
     procedure btnConfigGravarClick(Sender: TObject);
+    procedure btnImpressaoPDFIndividualClick(Sender: TObject);
     procedure btnImpressaoStreamClick(Sender: TObject);
     procedure btnRetornoClick(Sender: TObject);
     procedure btnWSConsultaClick(Sender: TObject);
@@ -507,12 +509,13 @@ begin
   Titulo.ValorAbatimento   := StrToCurrDef(edtValorAbatimento.Text,0);
   Titulo.DataMoraJuros     := StrToDateDef(edtDataMora.Text, 0);
   Titulo.DataDesconto      := StrToDateDef(edtDataDesconto.Text, 0);
+  Titulo.TipoDesconto      := tdNaoConcederDesconto;
   Titulo.DataAbatimento    := StrToDateDef(edtDataAbatimento.Text, 0);
   Titulo.DataProtesto      := StrToDateDef(edtDataProtesto.Text, 0);
   Titulo.PercentualMulta   := StrToCurrDef(edtMulta.Text,0);
-  Titulo.CodigoMoraJuros   := cjIsento;
+  Titulo.CodigoMoraJuros   := cjValorMensal;
   //Mensagem.Text     := memMensagem.Text;
-  Titulo.OcorrenciaOriginal.Tipo := toRemessaBaixar;
+  Titulo.OcorrenciaOriginal.Tipo := toRemessaRegistrar;
   Titulo.Instrucao1        := trim(edtInstrucoes1.Text);
   Titulo.Instrucao2        := trim(edtInstrucoes2.Text);
 
@@ -604,7 +607,7 @@ end;
 procedure TfrmDemo.FormCreate(Sender: TObject);
 var
   I: TACBrBolLayOut;
-  CurrentStyle : LONG;
+  CurrentStyle : longint;
 begin
   CurrentStyle := GetWindowLong(edtCNABLVLote.Handle, GWL_STYLE);
   CurrentStyle := CurrentStyle or ES_NUMBER;
@@ -920,6 +923,21 @@ var teste : TStringList;
 begin
   AplicarConfiguracoesAoComponente;
   GravarIniComponente;
+end;
+
+procedure TfrmDemo.btnImpressaoPDFIndividualClick(Sender: TObject);
+var Index : Cardinal;
+begin
+  for Index := 0 to Pred(dm.ACBrBoleto.ListadeBoletos.Count) do
+  begin
+    dm.ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := True;
+    if Index + 1 = 5 then
+      dm.ACBrBoleto.ACBrBoletoFC.PdfSenha := ''
+    else
+      dm.ACBrBoleto.ACBrBoletoFC.PdfSenha := IntToStr(Index+1);
+
+    dm.ACBrBoleto.GerarPDF(Index);
+  end;
 end;
 
 procedure TfrmDemo.btnImpressaoStreamClick(Sender: TObject);

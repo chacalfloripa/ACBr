@@ -79,7 +79,7 @@ implementation
 
 uses
   pcnConversaoNFe,
-  ACBrUtil;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 { TNFeR }
 

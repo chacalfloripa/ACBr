@@ -74,9 +74,7 @@ implementation
 
 uses
   {$ifdef COMPILER6_UP} DateUtils {$else} ACBrD5 {$endif},
-  StrUtils,
-  ACBrBoletoConversao,
-  ACBrUtil;
+  StrUtils, ACBrBoletoConversao, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 { TACBrBancoSofisaSantander }
 
@@ -161,8 +159,8 @@ end;
 procedure TACBrBancoSofisaSantander.GerarRegistroTransacao400(ACBrTitulo :TACBrTitulo; aRemessa: TStringList);
 var
   DigitoNossoNumero, Ocorrencia,aEspecie :String;
-  Protesto, Multa, aAgencia, TipoSacado, wLinha :String;
-  aCarteira, I, mensagemBranco: Integer;
+  Protesto, Multa, valorMulta, aAgencia, TipoSacado, wLinha :String;
+  aCarteira, I, mensagemBranco, multiplicadorMulta: Integer;
 begin
 
   aCarteira := StrToIntDef(ACBrTitulo.Carteira, 0 );
@@ -239,6 +237,13 @@ begin
     else
       Multa := '00';
 
+    {Define Valor Multa}
+    if MultaValorFixo then
+      multiplicadorMulta:= 100
+    else
+      multiplicadorMulta:= 10000;
+    valorMulta:= IntToStrZero( round( PercentualMulta * multiplicadorMulta ), 13);
+
     {Pegando Tipo de Sacado}
     case Sacado.Pessoa of
       pFisica   : TipoSacado := '01';
@@ -258,7 +263,7 @@ begin
         PadLeft(RightStr(NossoNumero,12),12,'0') + DigitoNossoNumero+  // 74 a 86 Cobrança direta Título Correspondente
         Space(3)                                                    +  // 87 a 89 Modalidade de Cobrança com bancos correspondentes.
         IfThen(PercentualMulta > 0,'2','0')                         +  // 90 a 90
-        IntToStrZero( round( PercentualMulta * 100 ), 13)           +  // 91 a 103
+        valorMulta                                                  +  // 91 a 103
         Multa                                                       +  // 104 a 105 Número de dias após o vencimento para aplicar a multa
         Space(2)                                                    +  // 106 a 107 Identificação da Operação no Banco
         IntToStr(aCarteira)                                         +  // 108 a 108 Código da Carteira

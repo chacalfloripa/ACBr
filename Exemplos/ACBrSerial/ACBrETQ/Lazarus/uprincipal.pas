@@ -52,13 +52,17 @@ type
     bImprimirImagem: TButton;
     bConfSalvar: TButton;
     bConfLer: TButton;
+    bEtqLogistica: TButton;
+    bApagarImagem: TButton;
     cbBackFeed: TComboBox;
+    cbDeteccaoEtiqueta: TComboBox;
     cbOrigem: TComboBox;
     cbDPI: TComboBox;
     cbModelo: TComboBox;
     cbPorta: TComboBox;
     cbPagCodigo: TComboBox;
     ckMemoria: TCheckBox;
+    ckGuilhotina: TCheckBox;
     edAvanco: TEdit;
     eCopias: TEdit;
     edNomeImg: TEdit;
@@ -73,6 +77,7 @@ type
     lbAvanco: TLabel;
     lbBackFeed: TLabel;
     lbBackFeed1: TLabel;
+    lbBackFeed2: TLabel;
     lbCopias: TLabel;
     lbDPI: TLabel;
     lbModelo: TLabel;
@@ -84,6 +89,7 @@ type
     OpenPictureDialog1: TOpenPictureDialog;
     rbArquivo: TRadioButton;
     rbStream: TRadioButton;
+    procedure bApagarImagemClick(Sender: TObject);
     procedure bConfLerClick(Sender: TObject);
     procedure bConfSalvarClick(Sender: TObject);
     procedure bEtqBlocoClick(Sender: TObject);
@@ -92,6 +98,7 @@ type
     procedure bEtqCarreirasClick(Sender: TObject);
     procedure bImprimirImagemClick(Sender : TObject);
     procedure bCarregarImgClick(Sender : TObject);
+    procedure bEtqLogisticaClick(Sender: TObject);
     procedure cbModeloChange(Sender : TObject) ;
     procedure eOnlyNumberKeyPress(Sender : TObject ; var Key : char) ;
     procedure FormCreate(Sender: TObject);
@@ -110,9 +117,9 @@ var
 
 implementation
 uses
-  typinfo, Printers, IniFiles,
+  typinfo, Printers, IniFiles, Math,
   synautil, synacode,
-  ACBrUtil, ACBrImage
+  ACBrUtil, ACBrImage, ACBrETQClass
   {$IfDef MSWINDOWS}
   ,ACBrWinUSBDevice
   {$EndIf};
@@ -123,11 +130,12 @@ procedure TFPrincipal.FormCreate(Sender: TObject);
 var
   I : TACBrETQModelo ;
   J: TACBrETQDPI;
-  K: TACBrETQUnidade;
+  //K: TACBrETQUnidade;
   L: TACBrETQBackFeed;
   M: Integer;
   N: TACBrETQOrigem;
   O: TACBrETQPaginaCodigo;
+  P: TACBrETQDeteccaoEtiqueta;
 begin
   cbModelo.Items.Clear ;
   For I := Low(TACBrETQModelo) to High(TACBrETQModelo) do
@@ -150,7 +158,7 @@ begin
      cbPagCodigo.Items.Add( GetEnumName(TypeInfo(TACBrETQPaginaCodigo), integer(O) ) ) ;
 
   cbPorta.Items.Clear;
-  //ACBrETQ.Device.AcharPortasSeriais( cbPorta.Items );
+  ACBrETQ.Device.AcharPortasSeriais( cbPorta.Items );
 
   {$IfDef MSWINDOWS}
    ACBrETQ.Device.WinUSB.FindUSBPrinters();
@@ -171,6 +179,10 @@ begin
   {$EndIf}
   cbPorta.Items.Add('TCP:192.168.0.31:9100') ;
 
+  cbDeteccaoEtiqueta.Items.Clear ;
+  For P := Low(TACBrETQDeteccaoEtiqueta) to High(TACBrETQDeteccaoEtiqueta) do
+     cbDeteccaoEtiqueta.Items.Add( GetEnumName(TypeInfo(TACBrETQDeteccaoEtiqueta), integer(P) ) ) ;
+
   cbPagCodigo.ItemIndex := 2;
   cbDPI.ItemIndex := 0;
   cbModelo.ItemIndex := 1;
@@ -185,28 +197,45 @@ begin
 
   with ACBrETQ do
   begin
-     if not (ETQ is TACBrETQZplII) then
-      begin
-        ImprimirTexto(orNormal, 2, 2, 2, 3, 3, 'RAÇÃO PARA CÃES ÁÉÍÓÚ 5KG', 0, True);
-        ImprimirTexto(orNormal, 2, 2, 1, 8, 3, 'MÉDIO PORTE');
-        ImprimirBarras(orNormal, barEAN13, 2, 2, 13, 5, '7896003701685', 10, becSIM);
-        ImprimirCaixa(10,32,56,13,1,1);
-        ImprimirTexto(orNormal, 3, 3, 2, 16, 35, 'R$');
-        ImprimirTexto(orNormal, 3, 4, 4, 12, 50, '20,59');
-      end
-      else
-      begin
-        ImprimirCaixa(3,3,90,5,5,0, 4);
-        ImprimirTexto(orNormal, 'T', 10, 10, 3, 3, 'RAÇÃO PARA CÃES ÁÉÍÓÚ 5KG', 0, True);
-        ImprimirTexto(orNormal, 'S', 10, 10, 8, 3, 'MÉDIO PORTE');
-        ImprimirBarras(orNormal, barEAN13, 2, 2, 13, 5, '7896003701685', 10, becSIM);
-        ImprimirCaixa(13,32,56,17,1,1);
-        ImprimirTexto(orNormal, 'G', 40, 80, 18, 35, 'R$');
-        ImprimirTexto(orNormal, 'G', 55, 100, 15, 50, '20,59');
-      end;
+    if (Modelo = etqZPLII) then
+    begin
+      ImprimirCaixa(3,3,90,5,5,0, 4);
+      ImprimirTexto(orNormal, 'T', 10, 10, 3, 3, 'RAÇÃO PARA CÃES ÁÉÍÓÚ 5KG', 0, True);
+      ImprimirTexto(orNormal, 'S', 10, 10, 8, 3, 'MÉDIO PORTE');
+      ImprimirBarras(orNormal, barEAN13, 2, 2, 13, 5, '7896003701685', 10, becSIM);
+      ImprimirCaixa(13,32,56,17,1,1);
+      ImprimirTexto(orNormal, 'G', 40, 80, 18, 35, 'R$');
+      ImprimirTexto(orNormal, 'G', 55, 100, 15, 50, '20,59');
+    end
+    else if (Modelo = etqEscLabel) then
+    begin
+      DefinirDimensoes(104, 33, 6, 0);
+      DefinirCor(clBlue, 255, clYellow, 200);
+      ImprimirCaixa(2,1,85,7,7,0,4);
+      DefinirCorPadrao;
+      ImprimirTexto(orNormal, 'T', 9, 9, 3, 3, 'RAÇÃO PARA CÃES ÁÉÍÓÚ 5KG', 0, True);
+      ImprimirTexto(orNormal, 'S', 9, 7, 9, 3, 'MÉDIO PORTE');
+      DefinirCor(clRed, 255, clWhite, 0);
+      ImprimirBarras(orNormal, barEAN13, 2, 2, 15, 5, '7896003701685', 10, becSIM);
+      DefinirCor(clBlack, 255, clGreen, 150);
+      ImprimirCaixa(13,32,56,17,1,1);
+      DefinirCorPadrao;
+      ImprimirTexto(orNormal, 'G', 40, 80, 18, 35, 'R$');
+      ImprimirTexto(orNormal, 'G', 55, 100, 15, 50, '20,59');
+    end
+    else
+    begin
+      DefinirCor(clBlue, 0, 0, 0);
+      ImprimirTexto(orNormal, 2, 2, 2, 3, 3, 'RAÇÃO PARA CÃES ÁÉÍÓÚ 5KG', 0, True);
+      ImprimirTexto(orNormal, 2, 2, 1, 8, 3, 'MÉDIO PORTE');
+      ImprimirBarras(orNormal, barEAN13, 2, 2, 13, 5, '7896003701685', 10, becSIM);
+      ImprimirCaixa(10,32,56,13,1,1);
+      ImprimirTexto(orNormal, 3, 3, 2, 16, 35, 'R$');
+      ImprimirTexto(orNormal, 3, 4, 4, 12, 50, '20,59');
+    end;
 
-     ImprimirEtiquetaComCopiasEAvanco;
-     Desativar;
+    ImprimirEtiquetaComCopiasEAvanco;
+    Desativar;
   end;
 end;
 
@@ -293,6 +322,18 @@ begin
   LerParametros;
 end;
 
+procedure TFPrincipal.bApagarImagemClick(Sender: TObject);
+begin
+  if (edNomeImg.Text = '') then
+  begin
+    ShowMessage('Escreva o nome para a Imagem a ser removida, use * para todas');
+    Exit;
+  end;
+
+  ConfigurarACBrETQ;
+  ACBrETQ.ApagarImagem(edNomeImg.Text);
+end;
+
 procedure TFPrincipal.bConfSalvarClick(Sender: TObject);
 begin
   GravarParametros;
@@ -358,9 +399,12 @@ begin
 
   with ACBrETQ do
   begin
-     ImprimirImagem(1,1,10,edNomeImg.Text);
-     ImprimirEtiquetaComCopiasEAvanco;
-     Desativar;
+    if (Modelo = etqEscLabel) then
+       DefinirDimensoes(104, 149 {trunc(RoundTo(ConverterUnidade(etqDots, Image1.Height, Unidade, DPI),0))}, -1, -1);
+
+    ImprimirImagem(1,0,1,edNomeImg.Text);
+    ImprimirEtiquetaComCopiasEAvanco;
+    Desativar;
   end ;
 end;
 
@@ -437,6 +481,85 @@ begin
   ACBrETQ.Desativar;
 end;
 
+procedure TFPrincipal.bEtqLogisticaClick(Sender: TObject);
+begin
+  ConfigurarACBrETQ;
+  //Modelo etiqueta de Envio 138 x 106mm
+  with ACBrETQ do
+  begin
+    if not (ETQ is TACBrETQZplII) then
+    begin
+      ImprimirImagem(1,7,4,edNomeImg.Text);
+      ImprimirQRCode( 2, 55, 'www.projetoacbr.com.br', 8 );
+      ImprimirTexto(orNormal, '2', 1, 1, 22, 3, 'www.projetoacbr.com.br');
+      ImprimirTexto(orNormal, '2', 1, 2, 29, 1,  '______________________________________________________');
+
+      ImprimirTexto(orNormal, '2', 1, 2, 35, 1,  'NF: 000025417');
+      ImprimirTexto(orNormal, '2', 1, 2, 35, 30, 'Pedido: 0025482');
+      ImprimirTexto(orNormal, '2', 1, 2, 35, 60, 'Peso(g): 500.00');
+      ImprimirBarras(orNormal, barCODE128, 3, 3, 41, 0, 'SL 600 370 126 BR', 18, becSIM);
+      ImprimirTexto(orNormal, '2', 1, 1, 72, 1,  'Nome.: _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _');
+      ImprimirTexto(orNormal, '2', 1, 1, 76, 1,  'Ass.: _ _ _ _ _ _ _ _ _ _ _ _Doc.: _ _ _ _ _ _ _ _ _ _');
+
+      ImprimirTexto(orNormal, '2', 2, 2, 86, 0,  '  DESTINATARIO              ', 0, True);
+
+      ImprimirCaixa(90,0,84,35,0,0);
+      ImprimirTexto(orNormal, '2', 2, 2, 95, 55,   'Vol. 1/1');
+      ImprimirTexto(orNormal, '2', 1, 1, 102, 3, 'Nome: JOSE SANTOS');
+      ImprimirTexto(orNormal, '2', 1, 1, 106, 3, 'Rua do Bosque 1952');
+      ImprimirTexto(orNormal, '2', 1, 1, 110, 3, 'Bairro: Boqueirao');
+      ImprimirTexto(orNormal, '2', 1, 1, 114, 3, 'CEP: 99999-999 Curitiba PR');
+      ImprimirBarras(orNormal, barCODE128, 2, 2, 102, 45, '99999-999', 18);
+
+      ImprimirTexto(orNormal, '2', 1, 1, 128, 3, 'REMETENTE');
+      ImprimirTexto(orNormal, '2', 1, 1, 132, 3, 'Nome: MERCADO SHOPPING');
+      ImprimirTexto(orNormal, '2', 1, 1, 136, 3, 'Alameda Gen. Roque Brás 5203 - Sala 05');
+      ImprimirTexto(orNormal, '2', 1, 1, 140, 3, 'Bairro: Lapa');
+      ImprimirTexto(orNormal, '2', 1, 1, 144, 3, 'CEP: 99999-999 São Paulo - SP');
+      ImprimirTexto(orNormal, '2', 1, 2, 146, 1, '______________________________________________________');
+    end
+    else
+    begin
+      if (Modelo = etqEscLabel) then
+        DefinirDimensoes(104, 150, 0, 0);
+
+      ImprimirImagem(1,7,4,edNomeImg.Text);
+      ImprimirQRCode( 2, 55, 'www.projetoacbr.com.br', 8 );
+      ImprimirTexto(orNormal, '0', 30, 20, 22, 1, 'www.projetoacbr.com.br');
+      ImprimirTexto(orNormal, '0', 20, 20, 29, 1,  '___________________________________________________________________');
+
+      ImprimirTexto(orNormal, '0', 25, 20, 35, 1,  'NF: 000025417');
+      ImprimirTexto(orNormal, '0', 25, 20, 35, 30, 'Pedido: 0025482');
+      ImprimirTexto(orNormal, '0', 25, 20, 35, 60, 'Peso(g): 500.00');
+      ImprimirBarras(orNormal, barCODE128, 3, 3, 41, 0, 'SL 600 370 126 BR', 18, becSIM);
+      ImprimirTexto(orNormal, '0', 20, 20, 72, 1,  'Nome.: _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _');
+      ImprimirTexto(orNormal, '0', 20, 20, 76, 1,  'Ass.: _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _Doc.: _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _');
+
+      ImprimirCaixa(85,0,82,6,5,0);
+      ImprimirTexto(orNormal, '0', 40, 40, 86, 3,  'DESTINATÁRIO', 0, True);
+
+      ImprimirCaixa(91,0,82,35,0,0);
+      ImprimirTexto(orNormal, 'T', 30, 20, 95, 60, 'Vol. 1 / 1');
+      ImprimirTexto(orNormal, '0', 20, 20, 102, 3, 'Nome: JOSE SANTOS');
+      ImprimirTexto(orNormal, '0', 20, 20, 106, 3, 'Rua do Bosque 1952');
+      ImprimirTexto(orNormal, '0', 20, 20, 110, 3, 'Bairro: Boqueirao');
+      ImprimirTexto(orNormal, '0', 20, 20, 114, 3, 'CEP: 99999-999 Curitiba PR');
+      ImprimirBarras(orNormal, barCODE128, 2, 2, 102, 45, '99999-999', 18);
+
+      ImprimirTexto(orNormal, '0', 30, 20, 128, 3, 'REMETENTE');
+      ImprimirTexto(orNormal, '0', 20, 20, 132, 3, 'Nome: MERCADO SHOPPING');
+      ImprimirTexto(orNormal, '0', 20, 20, 136, 3, 'Alameda Gen. Roque Brás 5203 - Sala 05');
+      ImprimirTexto(orNormal, '0', 20, 20, 140, 3, 'Bairro: Lapa');
+      ImprimirTexto(orNormal, '0', 20, 20, 144, 3, 'CEP: 99999-999 São Paulo - SP');
+      ImprimirTexto(orNormal, '0', 20, 20, 146, 1, '___________________________________________________________________');
+
+    end;
+    ImprimirEtiquetaComCopiasEAvanco;
+    Desativar;
+
+  end ;
+end;
+
 procedure TFPrincipal.cbModeloChange(Sender : TObject) ;
 begin
    edAvanco.Enabled := (cbModelo.ItemIndex = 1);
@@ -458,12 +581,14 @@ begin
      Modelo := TACBrETQModelo(cbModelo.ItemIndex);
      Porta := cbPorta.Text;
      LimparMemoria := ckMemoria.Checked;
+     Guilhotina := ckGuilhotina.Checked;
      Temperatura := StrToIntDef(edTemperatura.Text,10);
      Velocidade := StrToIntDef(edVelocidade.Text,-1);
      BackFeed := TACBrETQBackFeed(cbBackFeed.ItemIndex);
      Unidade := etqMilimetros; //etqDecimoDeMilimetros;
      MargemEsquerda := StrToIntDef(edMargemEsquerda.Text, 0);
      Origem := TACBrETQOrigem(cbOrigem.ItemIndex);
+     DeteccaoEtiqueta := TACBrETQDeteccaoEtiqueta(cbDeteccaoEtiqueta.ItemIndex);
      PaginaDeCodigo := TACBrETQPaginaCodigo(cbPagCodigo.ItemIndex);
 
      Ativar;
@@ -494,7 +619,9 @@ begin
     cbBackFeed.ItemIndex := INI.ReadInteger('ETQ', 'BackFeed', Integer(ACBrETQ.BackFeed));
     cbPagCodigo.ItemIndex := INI.ReadInteger('ETQ','PaginaDeCodigo', Integer(ACBrETQ.PaginaDeCodigo));
     cbOrigem.ItemIndex := INI.ReadInteger('ETQ','Origem', Integer(ACBrETQ.Origem));
+    cbDeteccaoEtiqueta.ItemIndex := INI.ReadInteger('ETQ','DeteccaoEtiqueta', Integer(ACBrETQ.DeteccaoEtiqueta));
     ckMemoria.Checked  := INI.ReadBool('ETQ','Memoria', ACBrETQ.LimparMemoria);
+    ckGuilhotina.Checked := INI.ReadBool('ETQ','Guilhotina', ACBrETQ.Guilhotina);
   finally
      INI.Free ;
   end ;
@@ -518,11 +645,14 @@ begin
     INI.WriteInteger('ETQ', 'BackFeed', cbBackFeed.ItemIndex);
     INI.WriteInteger('ETQ','PaginaDeCodigo', cbPagCodigo.ItemIndex);
     INI.WriteInteger('ETQ','Origem', cbOrigem.ItemIndex);
+    INI.WriteInteger('ETQ','DeteccaoEtiqueta', cbDeteccaoEtiqueta.ItemIndex);
     INI.WriteBool('ETQ','Memoria', ckMemoria.Checked);
+    INI.WriteBool('ETQ','Guilhotina', ckGuilhotina.Checked);
   finally
      INI.Free ;
   end ;
 end;
 
 end.
+
 

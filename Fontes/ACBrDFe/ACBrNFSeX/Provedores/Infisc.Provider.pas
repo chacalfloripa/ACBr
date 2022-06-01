@@ -126,7 +126,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ACBrNFSeXNotasFiscais, Infisc.GravarXml, Infisc.LerXml;
 
@@ -141,6 +144,7 @@ begin
     Identificador := '';
     ModoEnvio := meLoteAssincrono;
     ConsultaPorFaixa := True;
+    DetalharServico := True;
   end;
 
   with ConfigWebServices do
@@ -299,9 +303,9 @@ procedure TACBrNFSeProviderInfisc.TratarRetornoConsultaLoteRps(
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
-  ANode: TACBrXmlNode;
-  {
   ANode, AuxNode: TACBrXmlNode;
+  {
+  ANode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
   NumRps: String;
@@ -331,18 +335,20 @@ begin
         Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('sit'), tcStr);
       end;
 
-      ANode := ANode.Childrens.FindAnyNs('NFSe');
+      AuxNode := ANode.Childrens.FindAnyNs('NFSe');
 
-      with Response do
+      if AuxNode <> nil then
       begin
-        Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('sit'), tcStr);
-        idNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('chvAcessoNFSe'), tcStr);
+        with Response do
+        begin
+          Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('sit'), tcStr);
+          idNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('chvAcessoNFSe'), tcStr);
+        end;
       end;
 
       ProcessarMensagemErros(ANode, Response);
 
       Response.Sucesso := (Response.Erros.Count = 0);
-
 
       {
       ANodeArray := ANode.Childrens.FindAllAnyNs('NFe');
@@ -729,6 +735,8 @@ procedure TACBrNFSeProviderInfisc201.Configuracao;
 begin
   inherited Configuracao;
 
+  ConfigGeral.DetalharServico := False;
+
   with ConfigAssinar do
   begin
     Rps := True;
@@ -746,6 +754,8 @@ begin
     VersaoDados := '2.01';
     VersaoAtrib := '2.01';
   end;
+
+  SetXmlNameSpace('');
 
   with ConfigMsgDados do
   begin
@@ -792,8 +802,8 @@ procedure TACBrNFSeProviderInfisc201.ValidarSchema(
 begin
   inherited ValidarSchema(Response, aMetodo);
 
-  Response.ArquivoEnvio := StringReplace(Response.ArquivoEnvio,
-         ' xmlns="http://www.abrasf.org.br/nfse.xsd"', '', [rfReplaceAll]);
+//  Response.ArquivoEnvio := StringReplace(Response.ArquivoEnvio,
+//         ' xmlns="http://www.abrasf.org.br/nfse.xsd"', '', [rfReplaceAll]);
 end;
 
 { TACBrNFSeXWebserviceInfisc }

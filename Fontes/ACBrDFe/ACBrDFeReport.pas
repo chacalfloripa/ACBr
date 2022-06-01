@@ -262,8 +262,9 @@ implementation
 
 uses
   Math,
-  ACBrUtil;
-  
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO;
+
 { TCasasDecimais }
 
 constructor TCasasDecimais.Create(AOwner: TComponent);

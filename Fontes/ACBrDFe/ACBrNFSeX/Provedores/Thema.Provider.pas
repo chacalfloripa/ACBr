@@ -38,9 +38,10 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrXmlBase, ACBrXmlDocument, ACBrNFSeXClass, ACBrNFSeXConversao,
-  ACBrNFSeXGravarXml, ACBrNFSeXLerXml, ACBrNFSeXWebservicesResponse,
-  ACBrNFSeXProviderABRASFv1, ACBrNFSeXWebserviceBase;
+  ACBrXmlBase, ACBrXmlDocument,
+  ACBrNFSeXClass, ACBrNFSeXConversao,
+  ACBrNFSeXProviderABRASFv1, ACBrNFSeXGravarXml, ACBrNFSeXLerXml,
+  ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
 
 type
   TACBrNFSeXWebserviceThema = class(TACBrNFSeXWebserviceSoap11)
@@ -74,9 +75,12 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
-  ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
-  ACBrNFSeXNotasFiscais, Thema.GravarXml, Thema.LerXml;
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
+  ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts, ACBrNFSeXNotasFiscais,
+  Thema.GravarXml, Thema.LerXml;
 
 { TACBrNFSeXWebserviceThema }
 
@@ -93,8 +97,7 @@ begin
   Request := Request + '</recepcionarLoteRps>';
 
   Result := Executar('urn:recepcionarLoteRps', Request,
-                     ['return', 'EnviarLoteRpsResposta'],
-                     []);
+                     ['return', 'EnviarLoteRpsResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.RecepcionarSincrono(ACabecalho,
@@ -111,8 +114,7 @@ begin
   Request := Request + '</recepcionarLoteRpsLimitado>';
 
   Result := Executar('urn:recepcionarLoteRpsLimitado', Request,
-                     ['return', 'EnviarLoteRpsResposta'],
-                     []);
+                     ['return', 'EnviarLoteRpsResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.ConsultarLote(ACabecalho, AMSG: String): string;
@@ -125,7 +127,8 @@ begin
   Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
   Request := Request + '</consultarLoteRps>';
 
-  Result := Executar('urn:consultarLoteRps', Request, ['return'], []);
+  Result := Executar('urn:consultarLoteRps', Request,
+                     ['return', 'ConsultarLoteRpsResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.ConsultarSituacao(ACabecalho, AMSG: String): string;
@@ -139,8 +142,7 @@ begin
   Request := Request + '</consultarSituacaoLoteRps>';
 
   Result := Executar('urn:consultarSituacaoLoteRps', Request,
-                     ['return', 'ConsultarSituacaoLoteRpsResposta'],
-                     []);
+                     ['return', 'ConsultarSituacaoLoteRpsResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
@@ -154,8 +156,7 @@ begin
   Request := Request + '</consultarNfsePorRps>';
 
   Result := Executar('urn:consultarNfsePorRps', Request,
-                     ['return', 'ConsultarNfseRpsResposta'],
-                     []);
+                     ['return', 'ConsultarNfseRpsResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.ConsultarNFSe(ACabecalho, AMSG: String): string;
@@ -169,8 +170,7 @@ begin
   Request := Request + '</consultarNfse>';
 
   Result := Executar('urn:consultarNfse', Request,
-                     ['return', 'ConsultarNfseResposta'],
-                     []);
+                     ['return', 'ConsultarNfseResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.Cancelar(ACabecalho, AMSG: String): string;
@@ -184,8 +184,7 @@ begin
   Request := Request + '</cancelarNfse>';
 
   Result := Executar('urn:cancelarNfse', Request,
-                     ['return', 'CancelarNfseResposta'],
-                     []);
+                     ['return', 'CancelarNfseResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.TratarXmlRetornado(
@@ -196,6 +195,7 @@ begin
   Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderThema }
@@ -452,9 +452,14 @@ begin
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         if Assigned(ANota) then
-          ANota.XmlNfse := ANode.AsString
+          ANota.XmlNfse := ANode.OuterXml
         else
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.AsString);
+        begin
+          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+        end;
+
+        SalvarXmlNfse(ANota);
       end;
 
       Response.Sucesso := (Response.Erros.Count > 0);

@@ -1198,8 +1198,10 @@ var
 implementation
 
 Uses
-  strutils,
-  ACBrUtil, ACBrImage, ACBrDelphiZXingQRCode;
+  strutils, ACBrUtil, ACBrImage, ACBrDelphiZXingQRCode, ACBrUtil.Strings
+  {$ifndef FPC}
+    ,jpeg
+  {$ENDIF};
 
 {$ifdef FPC}
   {$R *.lfm}
@@ -1235,7 +1237,8 @@ var
   RLFiltro : TRLCustomSaveFilter;
   RLLayout: TRLReport;
   i: Integer;
-  Bitmap: TBitmap;
+  Bitmap : TBitmap;
+  JPEG: TJPEGImage;
 begin
   frACBrBoletoFortes := TACBrBoletoFCFortesFr.Create(Self);
   try
@@ -1304,8 +1307,17 @@ begin
                  Bitmap.Canvas.FillRect(Rect(0, 0, Bitmap.Width, Bitmap.Height));
 
                  RLLayout.Pages[i].PaintTo(Bitmap.Canvas, Rect(0, 0, Bitmap.Width, Bitmap.Height));
+
                  NomeArquivo := ChangeFileExt(NomeArquivo, '');
-                 Bitmap.SaveToFile(NomeArquivo + FormatCurr('000', I+1) + '.bmp');
+
+                 JPEG := TJPEGImage.Create;
+                 try
+                   JPEG.CompressionQuality := 100;
+                   JPEG.Assign(Bitmap);
+                   JPEG.SaveToFile(NomeArquivo + FormatCurr('000', I+1) + '.jpeg');
+                 finally
+                   JPEG.Free;
+                 end;
                end;
                exit;
              end;

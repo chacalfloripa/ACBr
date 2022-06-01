@@ -152,7 +152,7 @@ implementation
 
 uses
   pcnConsts,
-  ACBrUtil,
+  ACBrUtil.Strings,
   ACBrXmlBase,
   ACBrNFSeXConversao, ACBrNFSeXConsts;
 
@@ -309,7 +309,7 @@ begin
                                     NFSe.IdentificacaoRps.Serie, DSC_SERIERPS));
 
   Result.AppendChild(AddNode(tcStr, '#3', 'Tipo', 1, 1, 1,
-                        TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), DSC_TIPORPS));
+               FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), DSC_TIPORPS));
 end;
 
 function TNFSeW_ABRASFv1.GerarRPSSubstituido: TACBrXmlNode;
@@ -328,7 +328,7 @@ begin
                                    NFSe.RpsSubstituido.Serie, DSC_SERIERPSSUB));
 
     Result.AppendChild(AddNode(tcStr, '#3', 'Tipo', 1, 1, 1,
-                       TipoRPSToStr(NFSe.RpsSubstituido.Tipo), DSC_TIPORPSSUB));
+              FpAOwner.TipoRPSToStr(NFSe.RpsSubstituido.Tipo), DSC_TIPORPSSUB));
   end;
 end;
 
@@ -364,7 +364,7 @@ begin
                        (NFSe.Prestador.Endereco.CodigoMunicipio <> '3304557')));
 }
   Result.AppendChild(AddNode(tcStr, '#', 'InformacoesComplementares', 1, 255, NrOcorrInformacoesComplemetares,
-                                                   NFSe.OutrasInformacoes, ''));
+                                           NFSe.InformacoesComplementares, ''));
 
   Result.AppendChild(GerarServicoCodigoMunicipio);
 

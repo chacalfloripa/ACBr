@@ -102,7 +102,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   Equiplano.GravarXml, Equiplano.LerXml;
 
@@ -116,6 +119,7 @@ begin
   begin
     ModoEnvio := meLoteAssincrono;
     FpCodigoCidade := Params.ValorParametro('CodigoCidade');
+    DetalharServico := True;
   end;
 
   with ConfigAssinar do

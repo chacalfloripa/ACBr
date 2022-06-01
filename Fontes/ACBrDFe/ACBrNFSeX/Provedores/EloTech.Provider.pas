@@ -93,7 +93,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ACBrNFSeXNotasFiscais, EloTech.GravarXml, EloTech.LerXml;
 
 { TACBrNFSeProviderEloTech203 }
@@ -107,6 +109,7 @@ begin
     UseCertificateHTTP := False;
     Identificador := '';
     CancPreencherCodVerificacao := True;
+    DetalharServico := True;
   end;
 
   with ConfigWebServices do

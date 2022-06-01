@@ -77,7 +77,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, Coplan.GravarXml, Coplan.LerXml;
 
 { TACBrNFSeProviderCoplan201 }
@@ -85,6 +86,8 @@ uses
 procedure TACBrNFSeProviderCoplan201.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
 
   with ConfigAssinar do
   begin

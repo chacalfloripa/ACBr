@@ -475,7 +475,7 @@ begin
       Add('LogoPrefExpandido', ftString, 1);
       Add('LogoPrefCarregado', ftBlob);
       Add('Nome_Prefeitura', ftString, 256);
-      Add('Mensagem0', ftString, 50);
+      Add('Mensagem0', ftString, 60);
       Add('Sistema', ftString, 150);
       Add('Usuario', ftString, 50);
       Add('Site', ftString, 50);
@@ -909,7 +909,7 @@ begin
         with Servico do
         begin
           FieldByName('CodigoMunicipio').AsString := CodIBGEToCidade(StrToIntDef(IfThen(CodigoMunicipio <> '', CodigoMunicipio, ''), 0));
-          FieldByName('ExigibilidadeISS').AsString := ExigibilidadeISSDescricao(ExigibilidadeISS);
+          FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(ExigibilidadeISS);
 
           if NaturezaOperacao = no2 then
             FieldByName('MunicipioIncidencia').AsString := 'Fora do Município'
@@ -940,7 +940,7 @@ begin
 
         with Servico do
         begin
-          FieldByName('ExigibilidadeISS').AsString := ExigibilidadeISSDescricao(ExigibilidadeISS);
+          FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(ExigibilidadeISS);
           FieldByName('TipoRecolhimento').AsString := TipoRecolhimento;
 
           if Provedor = proAdm then

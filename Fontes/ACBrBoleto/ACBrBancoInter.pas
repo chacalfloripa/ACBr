@@ -72,7 +72,7 @@ implementation
 
 uses
   {$ifdef COMPILER6_UP} DateUtils {$else} ACBrD5 {$endif}, StrUtils, Variants,
-  ACBrValidador, ACBrUtil ;
+  ACBrValidador, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime ;
 
 constructor TACBrBancoInter.Create(AOwner: TACBrBanco);
 begin
@@ -186,6 +186,7 @@ var
   ACodigoMoraJuros, ATipoCedente, ATipoSacado, ADataMoraJuros, ADataDesconto, wLinha,
   wCarteira, ValorMora, EspecieDoc, ADesconto, AMensagem : string;
   Boleto : TACBrBoleto;
+  ADataLimitePagamento : Byte;
 begin
   Boleto := ACBrTitulo.ACBrBoleto;
 
@@ -242,6 +243,11 @@ begin
   if EspecieDoc = 'DM' then
     EspecieDoc := '99';
 
+  ADataLimitePagamento := Round(ACBrTitulo.DataLimitePagto - ACBrTitulo.Vencimento);
+
+  if not (ADataLimitePagamento in [30,60]) then
+    ADataLimitePagamento := 0;
+
   AMensagem := Copy(stringreplace(ACBrTitulo.Mensagem.Text,sLineBreak,' ',[rfReplaceAll]), 1, 70) ;
   wCarteira := Trim(ACBrTitulo.Carteira);
 
@@ -260,7 +266,7 @@ begin
             PadRight(ACBrTitulo.NumeroDocumento, 10, ' ')                                                                                                + // 111 a 120 Nº do documento (Seu número)
             FormatDateTime('ddmmyy', ACBrTitulo.Vencimento)                                                                                              + // 121 a 126 Data do vencimento do título
             IntToStrZero(Round(ACBrTitulo.ValorDocumento * 100), 13)                                                                                     + // 127 a 139 Valor do título
-            IntToStrZero(Round(ACBrTitulo.DataLimitePagto - ACBrTitulo.Vencimento), 2)                                                                   + // 140 a 141 Data limite de pagamento
+            IntToStrZero(ADataLimitePagamento, 2)                                                                                                        + // 140 a 141 Data limite de pagamento
             Space(6)                                                                                                                                     + // 142 a 147 Branco
             PadLeft(EspecieDoc, 2, ' ')                                                                                                                  + // 148 a 149 Espécie do título
             'N'                                                                                                                                          + // 150 a 150 Identificação
@@ -353,6 +359,15 @@ begin
 
     Titulo := ACBrBanco.ACBrBoleto.CriarTituloNaLista;
 
+    if ACBrBanco.ACBrBoleto.LeCedenteRetorno then
+    begin
+      ACBrBanco.ACBrBoleto.Cedente.Nome    := rCedente;
+      Titulo.Carteira                      := copy(Linha, 21, 3);
+      ACBrBanco.ACBrBoleto.Cedente.Agencia := copy(Linha, 24, 4);
+      ACBrBanco.ACBrBoleto.Cedente.Conta   := copy(Linha, 28,10);
+    end;
+
+
     Titulo.SeuNumero               := copy(Linha, 38, 25);
     Titulo.NumeroDocumento         := copy(Linha, 98, 10);
     Titulo.Carteira                := copy(Linha, 87, 3);
@@ -441,7 +456,7 @@ begin
     toRetornoAlteracaoDadosBaixa                                       : Result := '05';
     toRetornoLiquidado                                                 : Result := '06';
     toRetornoLiquidadoEmCartorio                                       : Result := '08';
-    toRetornoBaixaSimples                                              : Result := '09';
+    toRetornoBaixaSimples                                              : Result := '07';
     toRetornoBaixaPorTerSidoLiquidado                                  : Result := '10';
     toRetornoTituloEmSer                                               : Result := '11';
     toRetornoAbatimentoConcedido                                       : Result := '12';

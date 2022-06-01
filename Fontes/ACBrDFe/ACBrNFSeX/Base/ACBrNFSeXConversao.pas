@@ -105,27 +105,27 @@ type
   TnfseProvedor = (proNenhum,
                    proAbaco, proABase, proActcon, proAdm, proADPM, proAEG,
                    proAgili, proAssessorPublico, proAsten, proBetha, proBHISS,
-                   proCenti, proCIGA, proCitta, proConam, proCoplan, proDataSmart,
-                   proDBSeller, proDeISS, proDesenvolve, proDigifred, proDSF,
-                   proeGoverneISS, proEL, proEloTech, proEquiplano,
-                   proeReceita, proFGMaiss, profintelISS, proFiorilli, proFisco,
-                   proFISSLex, proFuturize, proGeisWeb, progeNFe, proGiap,
+                   proCenti, proCIGA, proCitta, proConam, proCoplan, proCTA,
+                   proDataSmart, proDBSeller, proDeISS, proDesenvolve, proDigifred,
+                   proDSF, proeGoverneISS, proEL, proEloTech, proEquiplano,
+                   proeReceita, proEtherium, proFGMaiss, profintelISS, proFiorilli,
+                   proFisco, proFISSLex, proFuturize, proGeisWeb, progeNFe, proGiap,
                    proGinfes, proGiss, proGovBR, proGovDigital, proGoverna,
-                   proiiBrasil, proInfisc, proIPM, proISSCuritiba, proISSDigital,
-                   proISSDSF, proISSe, proISSFortaleza, proISSGoiania, proISSIntel,
-                   proISSJoinville, proISSLencois, proISSNatal, proISSNet,
-                   proISSPortoVelho, proISSRecife, proISSRio, proISSSalvador,
-                   proISSSaoPaulo, proISSSJP, proISSVitoria, proLexsom, proLink3,
-                   proMegaSoft, proMetropolisWeb, proMitra, proModernizacaoPublica,
-                   proNEAInformatica, proNFSeBrasil, proNotaInteligente,
-                   proProdata, proPronim, proPublica, proRLZ, proSaatri,
-                   proSafeWeb, proSH3, proSiam, proSiapNet, proSiapSistemas,
-                   proSiat, proSigCorp, proSigep, proSigISS, proSilTecnologia,
-                   proSimple, proSimplISS, proSintese, proSisPMJP, proSistemas4R,
-                   proSmarAPD, proSpeedGov, proSudoeste, proSystemPro,
-                   proTcheInfo, proTecnos, proThema, proTinus, proTiplan,
-                   proTributus, proVersaTecnologia, proVirtual, proWebFisco,
-                   proWebISS);
+                   proiiBrasil, proInfisc, proIPM, proISSBarueri, proISSCambe,
+                   proISSCuritiba, proISSDigital, proISSDSF, proISSe, proISSFortaleza,
+                   proISSGoiania, proISSIntel, proISSJoinville, proISSLencois,
+                   proISSNatal, proISSNet, proISSPortoVelho, proISSRecife, proISSRio,
+                   proISSSalvador, proISSSaoPaulo, proISSSJP, proISSVitoria,
+                   proLexsom, proLink3, proMegaSoft, proMetropolisWeb, proMitra,
+                   proModernizacaoPublica, proNEAInformatica, proNFSeBrasil,
+                   proNotaInteligente, proProdata, proPronim, proPublica, proRLZ,
+                   proSaatri, proSafeWeb, proSH3, proSiam, proSiapNet,
+                   proSiapSistemas, proSiat, proSigCorp, proSigep, proSigISS,
+                   proSilTecnologia, proSimple, proSimplISS, proSintese, proSisPMJP,
+                   proSistemas4R, proSmarAPD, proSoftPlan, proSpeedGov,
+                   proSSInformatica, proSudoeste, proSystemPro, proTcheInfo,
+                   proTecnos, proThema, proTinus, proTiplan, proTributus,
+                   proVersaTecnologia, proVirtual, proWebFisco, proWebISS);
 
   TnfseSituacaoTributaria = (stRetencao, stNormal, stSubstituicao);
 
@@ -176,7 +176,7 @@ type
                               filsSemFormatacaoSemZeroEsquerda);
 
   TSituacaoTrib = (tsTributadaNoPrestador, tsTibutadaNoTomador, tsIsenta, tsImune,
-                   tsNaoTributada);
+                   tsNaoTributada, tsFixo, tsOutroMunicipio);
 
   TTipoPessoa = (tpPFNaoIdentificada, tpPF, tpPJdoMunicipio, tpPJforaMunicipio,
                  tpPJforaPais);
@@ -191,6 +191,9 @@ type
 
   TtpXML = (txmlRPS, txmlNFSe);
 
+  TTipoLancamento = (tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador,
+                     tlSimplesNacional, tlIsentoImune, tlCancelado);
+
 function StatusRPSToStr(const t: TStatusRPS): string;
 function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS;
 
@@ -199,13 +202,6 @@ function StrToStatusNFSe(out ok: boolean; const s: string): TStatusNFSe;
 
 function NaturezaOperacaoToStr(const t: TnfseNaturezaOperacao): string;
 function StrToNaturezaOperacao(out ok: boolean; const s: string): TnfseNaturezaOperacao;
-
-function ExigibilidadeISSToStr(const t: TnfseExigibilidadeISS): string;
-function StrToExigibilidadeISS(out ok: boolean; const s: string): TnfseExigibilidadeISS;
-function ExigibilidadeISSDescricao(const t: TnfseExigibilidadeISS): string;
-
-function TipoRPSToStr(const t:TTipoRPS): string;
-function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS;
 
 function IndicacaoCpfCnpjToStr(const t: TIndicacaoCpfCnpj): string;
 function StrToIndicacaoCpfCnpj(out ok: boolean; const s: string): TIndicacaoCpfCnpj;
@@ -278,12 +274,6 @@ function SepararDados(const Astring: string; const Chave: string;
   const MantemChave : Boolean = False;
   const PermitePrefixo: Boolean = True): string;
 
-function SituacaoTribToStr(const t: TSituacaoTrib): string;
-function StrToSituacaoTrib(out ok: boolean; const s: string): TSituacaoTrib;
-
-function TipoPessoaToStr(const t: TTipoPessoa): string;
-function StrToTipoPessoa(out ok: boolean; const s: string): TTipoPessoa;
-
 function tpConsultaToStr(const t: TtpConsulta): string;
 function StrTotpConsulta(out ok: boolean; const s: string): TtpConsulta;
 
@@ -294,10 +284,15 @@ function MetodoToStr(const t: TMetodo): string;
 
 function ModoEnvioToStr(const t: TmodoEnvio): string;
 
+function TipoLancamentoToStr(const t: TTipoLancamento): string;
+function StrToTipoLancamento(out ok: boolean; const s: string): TTipoLancamento;
+
 implementation
 
 uses
-  ACBrUtil,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrUtil.FilesIO,
   ACBrXmlBase;
 
 
@@ -388,38 +383,6 @@ begin
                             no549, no551, no601, no611, no612, no613, no615, no616,
                             no621, no622, no701, no711, no712, no901, no902, no911,
                             no912, no921, no931, no951, no952, no971, no981, no991]);
-end;
-
-function ExigibilidadeISSToStr(const t: TnfseExigibilidadeISS): string;
-begin
-  Result := EnumeradoToStr(t,
-                           ['1', '2', '3', '4', '5', '6', '7', '8'],
-                           [exiExigivel, exiNaoIncidencia, exiIsencao, exiExportacao,
-                            exiImunidade, exiSuspensaDecisaoJudicial,
-                            exiSuspensaProcessoAdministrativo, exiISSFixo]);
-end;
-
-function StrToExigibilidadeISS(out ok: boolean; const s: string): TnfseExigibilidadeISS;
-begin
-  Result := StrToEnumerado(ok, s,
-                          ['1', '2', '3', '4', '5', '6', '7', '8'],
-                          [exiExigivel, exiNaoIncidencia, exiIsencao, exiExportacao,
-                           exiImunidade, exiSuspensaDecisaoJudicial,
-                           exiSuspensaProcessoAdministrativo,exiISSFixo]);
-end;
-
-function TipoRPSToStr(const t: TTipoRPS): string;
-begin
-  Result := EnumeradoToStr(t,
-                           ['1', '2', '3', '0'],
-                           [trRPS, trNFConjugada, trCupom, trNone]);
-end;
-
-function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS;
-begin
-  Result := StrToEnumerado(ok, s,
-                           ['1', '2', '3', '0'],
-                           [trRPS, trNFConjugada, trCupom, trNone]);
 end;
 
 function IndicacaoCpfCnpjToStr(const t: TIndicacaoCpfCnpj): string;
@@ -17965,12 +17928,12 @@ var
   vUF, vDataEmissao, vSerie, vNumero,
   vCodigo, vModelo: string;
 begin
-  vUF          := Poem_Zeros(AUF, 2);
+  vUF          := ACBrUtil.Strings.Poem_Zeros(AUF, 2);
   vDataEmissao := FormatDateTime('YYMM', ADataEmissao);
-  vModelo      := Poem_Zeros(AModelo, 2);
-  vSerie       := Poem_Zeros(ASerie, 3);
-  vNumero      := Poem_Zeros(ANumero, 9);
-  vCodigo      := Poem_Zeros(ACodigo, 9);
+  vModelo      := ACBrUtil.Strings.Poem_Zeros(AModelo, 2);
+  vSerie       := ACBrUtil.Strings.Poem_Zeros(ASerie, 3);
+  vNumero      := ACBrUtil.Strings.Poem_Zeros(ANumero, 9);
+  vCodigo      := ACBrUtil.Strings.Poem_Zeros(ACodigo, 9);
 
   Result := vUF + vDataEmissao + ACNPJ + vModelo + vSerie + vNumero + vCodigo;
 end;
@@ -17992,10 +17955,10 @@ function GerarNomeNFSe(AUF: Integer; ADataEmissao: TDateTime; const ACNPJ: strin
 var
   vUF, vDataEmissao, vNumero, vModelo: string;
 begin
-  vUF          := Poem_Zeros(AUF, 2);
+  vUF          := ACBrUtil.Strings.Poem_Zeros(AUF, 2);
   vDataEmissao := FormatDateTime('YYMM', ADataEmissao);
-  vModelo      := Poem_Zeros(AModelo, 2);
-  vNumero      := Poem_Zeros(ANumero, 15);
+  vModelo      := ACBrUtil.Strings.Poem_Zeros(AModelo, 2);
+  vNumero      := ACBrUtil.Strings.Poem_Zeros(ANumero, 15);
 
   Result := vUF + vDataEmissao + ACNPJ + vModelo + vNumero;
 end;
@@ -18049,22 +18012,6 @@ begin
     ttTributavelFixo      : Result := 'G - Tributável Fixo';
     ttTributavelSN        : Result := 'H - Tributável S.N.';
     ttMEI                 : Result := 'M - Micro Empreendedor Individual(MEI)';
-  else
-    Result := '';
-  end;
-end;
-
-function ExigibilidadeISSDescricao(const t: TnfseExigibilidadeISS): string;
-begin
-  case t of
-    exiExigivel                       : Result := '1 - Exigível';
-    exiNaoIncidencia                  : Result := '2 - Não Incidência';
-    exiIsencao                        : Result := '3 - Isenção';
-    exiExportacao                     : Result := '4 - Exportação';
-    exiImunidade                      : Result := '5 - Imunidade';
-    exiSuspensaDecisaoJudicial        : Result := '6 - Suspensa Decisao Judicial';
-    exiSuspensaProcessoAdministrativo : Result := '7 - Suspensa Processo Administrativo';
-    exiISSFixo                        : Result := '8 - ISS Fixo';
   else
     Result := '';
   end;
@@ -18275,38 +18222,6 @@ begin
     Result := copy(Astring, PosIni, PosFim - (PosIni + 1));
 end;
 
-function SituacaoTribToStr(const t: TSituacaoTrib): string;
-begin
-  Result := EnumeradoToStr(t,
-                           ['tp', 'tt', 'is', 'im', 'nt'],
-                           [tsTributadaNoPrestador, tsTibutadaNoTomador, tsIsenta,
-                            tsImune, tsNaoTributada]);
-end;
-
-function StrToSituacaoTrib(out ok: boolean; const s: string): TSituacaoTrib;
-begin
-  Result := StrToEnumerado(ok, s,
-                           ['tp', 'tt', 'is', 'im', 'nt'],
-                           [tsTributadaNoPrestador, tsTibutadaNoTomador, tsIsenta,
-                            tsImune, tsNaoTributada]);
-end;
-
-function TipoPessoaToStr(const t: TTipoPessoa): string;
-begin
-  Result := EnumeradoToStr(t,
-                           ['1', '2', '3', '4', '5'],
-                           [tpPFNaoIdentificada, tpPF, tpPJdoMunicipio,
-                            tpPJforaMunicipio, tpPJforaPais]);
-end;
-
-function StrToTipoPessoa(out ok: boolean; const s: string): TTipoPessoa;
-begin
-  Result := StrToEnumerado(ok, s,
-                           ['1', '2', '3', '4', '5'],
-                           [tpPFNaoIdentificada, tpPF, tpPJdoMunicipio,
-                            tpPJforaMunicipio, tpPJforaPais]);
-end;
-
 function tpConsultaToStr(const t: TtpConsulta): string;
 begin
   Result := EnumeradoToStr(t,
@@ -18361,6 +18276,20 @@ begin
                         'Gerar NFSe', 'Teste de Envio de Lote'],
                        [meAutomatico, meLoteAssincrono, meLoteSincrono,
                         meUnitario, meTeste]);
+end;
+
+function TipoLancamentoToStr(const t: TTipoLancamento): string;
+begin
+  Result := EnumeradoToStr(t, ['N', 'T', 'P', 'R', 'C'],
+                         [tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador,
+                          tlSimplesNacional, tlIsentoImune, tlCancelado]);
+end;
+
+function StrToTipoLancamento(out ok: boolean; const s: string): TTipoLancamento;
+begin
+  Result := StrToEnumerado(ok, s, ['N', 'T', 'P', 'R', 'C'],
+                         [tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador,
+                          tlSimplesNacional, tlIsentoImune, tlCancelado]);
 end;
 
 end.

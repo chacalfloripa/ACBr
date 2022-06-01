@@ -72,6 +72,7 @@ type
 
     function ComandoLimparMemoria: AnsiString; override;
     function ComandoAbertura: AnsiString; override;
+    function ComandoGuilhotina: AnsiString; override;
     function ComandoBackFeed: AnsiString; override;
     function ComandoTemperatura: AnsiString; override;
     function ComandoPaginaDeCodigo: AnsiString; override;
@@ -101,9 +102,9 @@ type
 
     function ComandoImprimirImagem(aMultImagem, aVertical, aHorizontal: Integer;
       aNomeImagem: String): AnsiString; override;
-
     function ComandoCarregarImagem(aStream: TStream; var aNomeImagem: String;
       aFlipped: Boolean; aTipo: String): AnsiString; override;
+    function ComandoApagarImagem(const NomeImagem: String = '*'): String; override;
   end;
 
 implementation
@@ -111,7 +112,8 @@ implementation
 uses
   math, SysUtils,
   {$IFDEF COMPILER6_UP} StrUtils {$ELSE} ACBrD5, Windows{$ENDIF},
-  ACBrUtil, ACBrImage, ACBrConsts, synautil;
+  ACBrImage, ACBrConsts, synautil,
+  ACBrUtil.Strings;
 
 { TACBrETQEpl2 }
 
@@ -183,7 +185,7 @@ end;
 
 function TACBrETQEpl2.AjustarNomeArquivoImagem(const aNomeImagem: String): String;
 begin
-  Result := UpperCase(LeftStr(OnlyAlphaNum(aNomeImagem), 16));
+  Result := UpperCase(LeftStr(OnlyAlphaNum(aNomeImagem), 8));
 end;
 
 function TACBrETQEpl2.ConverterUnidadeAlturaBarras(aAlturaBarras: Integer
@@ -272,7 +274,7 @@ end;
 
 function TACBrETQEpl2.ComandoOrigemCoordenadas: AnsiString;
 begin
-  if (fpOrigem = ogTop) then
+  if (Origem = ogTop) then
     Result := 'ZT'
   else
     Result := 'ZB';  // ACBr Default
@@ -324,7 +326,7 @@ end;
 
 function TACBrETQEpl2.ComandoBackFeed: AnsiString;
 begin
-  case fpBackFeed of
+  case BackFeed of
     bfOn : Result := 'JF';
     bfOff: Result := 'JB';
   else
@@ -335,6 +337,14 @@ end;
 function TACBrETQEpl2.ComandoAbertura: AnsiString;
 begin
   Result := 'R0,0';
+end;
+
+function TACBrETQEpl2.ComandoGuilhotina: AnsiString;
+begin
+  if Guilhotina then
+    Result := 'OC'  // thermal transfer, enables cutter and disables dispenser
+  else
+    Result := 'O';  // thermal transfer, disables cutter and dispenser
 end;
 
 function TACBrETQEpl2.ComandoImprimirTexto(aOrientacao: TACBrETQOrientacao;
@@ -440,7 +450,7 @@ begin
     aTipo := UpperCase(RightStr(aTipo, 3));
 
   if (aTipo <> 'PCX') or (not IsPCX(aStream, True)) then
-    raise Exception.Create(ACBrStr(cErrImgPCXMono));
+    raise Exception.Create(ACBrStr(cErrImgNotPCXMono));
 
   aStream.Position := 0;
   ImgData := ReadStrFromStream(aStream, aStream.Size);
@@ -451,6 +461,20 @@ begin
             'GM"' + aNomeImagem + '"' +         // Prepares printer to receive graphic "NomeImagem";
             IntToStr(aStream.Size) + LF +       // The Data Size
             ImgData;                            // The Image Data
+end;
+
+function TACBrETQEpl2.ComandoApagarImagem(const NomeImagem: String): String;
+var
+  s: String;
+begin
+  if (NomeImagem = '*') then
+    Result := 'GK"*"' + LF
+  else
+  begin
+    s := AjustarNomeArquivoImagem(NomeImagem);
+    Result := 'GK"' + s + '"' + LF +    // deletes graphic "NomeImagem" - Required
+              'GK"' + s + '"' + LF;     // second delete graphic - Required
+  end;
 end;
 
 end.

@@ -110,7 +110,7 @@ const
 implementation
 
 uses
-  synacode, strutils, DateUtils;
+  synacode, strutils, DateUtils, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 { TBoletoW_BancoBrasil_API }
 
@@ -645,10 +645,9 @@ begin
     begin
       JsonJuros := TJSONObject.Create;
       try
-        if (Titulos.DataMoraJuros > 0) then
+        if (Titulos.ValorMoraJuros > 0) then
         begin
           JsonJuros.Add('tipo').Value.AsInteger             := StrToIntDef(Titulos.CodigoMora, 3);
-          JsonJuros.Add('data').Value.AsString              := FormatDateBr(Titulos.DataMoraJuros, 'DD.MM.YYYY');
           case (StrToIntDef(Titulos.CodigoMora, 3)) of
             1 : JsonJuros.Add('valor').Value.AsNumber       := Titulos.ValorMoraJuros;
             2 : JsonJuros.Add('porcentagem').Value.AsNumber := Titulos.ValorMoraJuros;

@@ -92,13 +92,19 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = '';
                                      const AMessageTag: string = 'Msg'); override;
-
+  public
+    function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string; override;
+    function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao; override;
+    function RegimeEspecialTributacaoDescricao(const t: TnfseRegimeEspecialTributacao): string; override;
   end;
 
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   GeisWeb.GravarXml, GeisWeb.LerXml;
 
@@ -197,6 +203,37 @@ begin
   end;
 end;
 
+function TACBrNFSeProviderGeisWeb.RegimeEspecialTributacaoDescricao(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  case t of
+    retSimplesNacional           : Result := '1 - Simples Nacional';
+    retMicroempresarioIndividual : Result := '2 - Microempresário Individual (MEI)';
+    retImune                     : Result := '4 - Imune';
+    retOutros                    : Result := '6 - Outros/Sem Vinculo';
+  else
+    Result := '';
+  end;
+end;
+
+function TACBrNFSeProviderGeisWeb.RegimeEspecialTributacaoToStr(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '4', '6'],
+                           [retSimplesNacional, retMicroempresarioIndividual,
+                            retImune, retOutros]);
+end;
+
+function TACBrNFSeProviderGeisWeb.StrToRegimeEspecialTributacao(out ok: boolean;
+  const s: string): TnfseRegimeEspecialTributacao;
+begin
+  Result := StrToEnumerado(ok, s,
+                          ['1', '2', '4', '6'],
+                          [retSimplesNacional, retMicroempresarioIndividual,
+                           retImune, retOutros]);
+end;
+
 function TACBrNFSeProviderGeisWeb.PrepararRpsParaLote(
   const aXml: string): string;
 begin
@@ -280,25 +317,40 @@ begin
         end;
 
         ANode := AuxNode2;
+
+        with Response do
+        begin
+          Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataLancamento'), tcDatVcto);
+          Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('LinkConsulta'), tcStr);
+        end;
+
         AuxNode := ANode.Childrens.FindAnyNs('IdentificacaoNfse');
 
         if AuxNode <> nil then
+        begin
           NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
 
-        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+          with Response do
+          begin
+            NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
+            CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          end;
 
-        if Assigned(ANota) then
-          ANota.XmlNfse := ANode.OuterXml
-        else
-        begin
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+
+          if Assigned(ANota) then
+            ANota.XmlNfse := ANode.OuterXml
+          else
+          begin
+            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
+            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+          end;
+
+          ANota.NFSe.Numero := Response.NumeroNota;
+          ANota.NFSe.CodigoVerificacao := Response.CodVerificacao;
+
+          SalvarXmlNfse(ANota);
         end;
-
-        ANota.NFSe.Numero := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
-        ANota.NFSe.CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
-
-        SalvarXmlNfse(ANota);
       end;
     except
       on E:Exception do
@@ -797,6 +849,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := StrToXml(Result);
+  Result := RemoverIdentacao(Result);
   Result := string(NativeStringToUTF8(Result));
 end;
 

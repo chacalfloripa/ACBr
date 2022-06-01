@@ -51,7 +51,8 @@ type
 
   TACBrTipoCampo = (tcStr, tcInt, tcInt64, tcDat, tcDatHor, tcEsp, tcDe2, tcDe3,
                     tcDe4, tcDe5, tcDe6, tcDe7, tcDe8, tcDe10, tcHor, tcDatCFe,
-                    tcHorCFe, tcDatVcto, tcDatHorCFe, tcBool, tcStrOrig, tcNumStr);
+                    tcHorCFe, tcDatVcto, tcDatHorCFe, tcBool, tcStrOrig,
+                    tcNumStr, tcDatUSA);
 
 const
   LineBreak = #13#10;
@@ -74,12 +75,10 @@ function RemoverCDATA(const aXML: string): string;
 function RemoverPrefixos(const aXML: string; APrefixo: array of string): string;
 function RemoverPrefixosDesnecessarios(const aXML: string): string;
 function RemoverCaracteresDesnecessarios(const aXML: string): string;
+function NormatizarBoolean(const aBool: string): string;
 
 function ObterConteudoTag(const AAtt: TACBrXmlAttribute): string; overload;
 function ObterConteudoTag(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant; overload;
-
-function EncodeDataHora(const DataStr: string;
-  const FormatoData: string = 'YYYY/MM/DD'): TDateTime;
 
 function TipoEmissaoToStr(const t: TACBrTipoEmissao): string;
 function StrToTipoEmissao(out ok: boolean; const s: string): TACBrTipoEmissao;
@@ -90,7 +89,11 @@ function StrToTipoAmbiente(out ok: boolean; const s: string): TACBrTipoAmbiente;
 implementation
 
 uses
-  StrUtilsEx, ACBrUtil, DateUtils, MaskUtils;
+  StrUtilsEx,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrUtil.DateTime;
 
 function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String;
   RetirarAcentos: boolean; SubstituirQuebrasLinha: Boolean;
@@ -221,6 +224,18 @@ begin
   Result := FaststringReplace(Result, #13, '', [rfReplaceAll]);
 end;
 
+function NormatizarBoolean(const aBool: string): string;
+var
+  xBool: string;
+begin
+  xBool := LowerCase(aBool);
+
+  if xBool = 'true' then
+    Result := 'True'
+  else
+    Result := 'False';
+end;
+
 function ObterConteudoTag(const AAtt: TACBrXmlAttribute): string; overload;
 begin
   if not Assigned(AAtt) or (AAtt = nil) then
@@ -266,6 +281,14 @@ begin
       begin
         if length(ConteudoTag) > 0 then
           result := EncodeDataHora(ConteudoTag, 'DD/MM/YYYY')
+        else
+          result := 0;
+      end;
+
+    tcDatUSA:
+      begin
+        if length(ConteudoTag) > 0 then
+          result := EncodeDataHora(ConteudoTag, 'MM/DD/YYYY')
         else
           result := 0;
       end;
@@ -332,7 +355,10 @@ begin
     tcBool:
       begin
         if length(ConteudoTag) > 0 then
-          result := StrToBool(ConteudoTag)
+        begin
+          ConteudoTag := NormatizarBoolean(ConteudoTag);
+          result := StrToBool(ConteudoTag);
+        end
         else
           result := False;
       end;
@@ -352,31 +378,6 @@ begin
   else
     raise Exception.Create('Node <' + ANode.Name + '> com conteúdo inválido. ' +
                            ConteudoTag);
-  end;
-end;
-
-function EncodeDataHora(const DataStr: string;
-  const FormatoData: string = 'YYYY/MM/DD'): TDateTime;
-var
-  xData, xFormatoData: string;
-begin
-  xData := Trim(StringReplace(DataStr, '-', '/', [rfReplaceAll]));
-
-  if xData = '' then
-    Result := 0
-  else
-  begin
-    xFormatoData := FormatoData;
-
-    if xFormatoData = '' then
-      xFormatoData := 'YYYY/MM/DD';
-
-    case Length(xData) of
-      6: xData := FormatMaskText('!0000\/00;0;_', xData) + '/01';
-      8: xData := FormatMaskText('!0000\/00\/00;0;_', xData);
-    end;
-
-    Result := StringToDateTime(xData, xFormatoData);
   end;
 end;
 

@@ -273,7 +273,7 @@ implementation
 
 uses
   pcnConsts,
-  ACBrUtil,
+  ACBrUtil.Strings,
   ACBrXmlBase,
   ACBrNFSeXConversao, ACBrNFSeXConsts;
 
@@ -531,8 +531,11 @@ begin
 
   Result.AppendChild(GerarIdentificacaoRPS);
 
+  if NFSe.DataEmissaoRps = 0 then
+    NFSe.DataEmissaoRps := NFSe.DataEmissao;
+
   Result.AppendChild(AddNode(FormatoEmissao, '#4', 'DataEmissao', 19, 19, 1,
-                                                   NFSe.DataEmissao, DSC_DEMI));
+                                                NFSe.DataEmissaoRps, DSC_DEMI));
 
   Result.AppendChild(GerarStatus);
   Result.AppendChild(GerarRPSSubstituido);
@@ -568,7 +571,7 @@ begin
                                    NFSe.RpsSubstituido.Serie, DSC_SERIERPSSUB));
 
     Result.AppendChild(AddNode(tcStr, '#3', 'Tipo', 1, 1, 1,
-                       TipoRPSToStr(NFSe.RpsSubstituido.Tipo), DSC_TIPORPSSUB));
+              FpAOwner.TipoRPSToStr(NFSe.RpsSubstituido.Tipo), DSC_TIPORPSSUB));
   end;
 end;
 
@@ -624,7 +627,7 @@ begin
 
     Result.AppendChild(AddNode(tcInt, '#35', 'ExigibilidadeISS',
                                NrMinExigISS, NrMaxExigISS, NrOcorrExigibilidadeISS,
-    StrToInt(ExigibilidadeISSToStr(NFSe.Servico.ExigibilidadeISS)), DSC_INDISS));
+    StrToInt(FpAOwner.ExigibilidadeISSToStr(NFSe.Servico.ExigibilidadeISS)), DSC_INDISS));
 
     Result.AppendChild(AddNode(tcInt, '#36', 'MunicipioIncidencia', 7, 7, NrOcorrMunIncid,
                                 NFSe.Servico.MunicipioIncidencia, DSC_MUNINCI));
@@ -772,7 +775,7 @@ end;
 function TNFSeW_ABRASFv2.GerarTipoRPS: TACBrXmlNode;
 begin
   Result := AddNode(tcStr, '#3', 'Tipo', 1, 1, NrOcorrTipoRPS,
-                         TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), DSC_TIPORPS);
+                FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), DSC_TIPORPS);
 end;
 
 function TNFSeW_ABRASFv2.GerarTomador: TACBrXmlNode;
@@ -788,23 +791,24 @@ begin
   begin
     Result := CreateElement(FTagTomador);
 
-    if ((NFSe.Tomador.Endereco.UF <> 'EX') and
-        ((NFSe.Tomador.IdentificacaoTomador.CpfCnpj <> '') or
-         (NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal <> ''))) then
-    begin
-      Result.AppendChild(GerarIdentificacaoTomador);
-    end;
-
     if NFSe.Tomador.Endereco.UF = 'EX' then
       Result.AppendChild(AddNode(tcStr, '#38', 'NifTomador', 1, 40, NrOcorrNIFTomador,
-                                                      NFSe.Tomador.NifTomador));
+                                                       NFSe.Tomador.NifTomador))
+    else
+    begin
+      if (NFSe.Tomador.IdentificacaoTomador.CpfCnpj <> '') or
+         (NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal <> '') then
+        Result.AppendChild(GerarIdentificacaoTomador);
+    end;
 
     Result.AppendChild(AddNode(tcStr, '#38', 'RazaoSocial', 1, 115, 0,
                                           NFSe.Tomador.RazaoSocial, DSC_XNOME));
 
-    Result.AppendChild(GerarEnderecoExteriorTomador);
+    if NFSe.Tomador.Endereco.UF = 'EX' then
+      Result.AppendChild(GerarEnderecoExteriorTomador)
+    else
+      Result.AppendChild(GerarEnderecoTomador);
 
-    Result.AppendChild(GerarEnderecoTomador);
     Result.AppendChild(GerarContatoTomador);
 
     Result.AppendChild(AddNode(tcStr, '#', 'AtualizaTomador', 1, 1, NrOcorrAtualizaTomador,
@@ -834,8 +838,7 @@ function TNFSeW_ABRASFv2.GerarEnderecoExteriorTomador: TACBrXmlNode;
 begin
   Result := nil;
 
-  if GerarEnderecoExterior and (NFSe.Tomador.Endereco.Endereco <> '') and
-     (NFSe.Tomador.Endereco.UF = 'EX') then
+  if GerarEnderecoExterior and (NFSe.Tomador.Endereco.Endereco <> '') then
   begin
     Result := CreateElement('EnderecoExterior');
 

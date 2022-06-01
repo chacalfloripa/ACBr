@@ -103,7 +103,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   DSF.GravarXml, DSF.LerXml;
 
 { TACBrNFSeXWebserviceDSF }
@@ -494,6 +496,11 @@ begin
   with ConfigAssinar do
   begin
     Rps := False;
+    ConsultarLote := True;
+    ConsultarNFSeRps := True;
+    ConsultarNFSePorFaixa := True;
+    ConsultarNFSeServicoPrestado := True;
+    ConsultarNFSeServicoTomado := True;
     CancelarNFSe := True;
     RpsGerarNFSe := True;
     RpsSubstituirNFSe := True;

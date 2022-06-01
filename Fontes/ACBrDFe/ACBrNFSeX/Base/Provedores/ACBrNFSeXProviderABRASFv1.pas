@@ -43,10 +43,10 @@ uses
 
 type
   TACBrNFSeProviderABRASFv1 = class(TACBrNFSeXProvider)
-  private
-    function PreencherNotaResposta(Node, parentNode: TACBrXmlNode): Boolean;
-
   protected
+    function PreencherNotaResposta(Node, parentNode: TACBrXmlNode): Boolean;
+    procedure LerCancelamento(ANode: TACBrXmlNode; Response: TNFSeConsultaNFSeporRpsResponse);
+
     procedure Configuracao; override;
 
     procedure PrepararEmitir(Response: TNFSeEmiteResponse); override;
@@ -94,7 +94,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrXmlBase,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrXmlBase,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais, ACBrNFSeXConsts,
   ACBrNFSeXConversao, ACBrNFSeXWebserviceBase;
 
@@ -816,7 +819,7 @@ end;
 procedure TACBrNFSeProviderABRASFv1.TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse);
 var
   Document: TACBrXmlDocument;
-  ANode, AuxNode, AuxNodeCanc: TACBrXmlNode;
+  ANode, AuxNode: TACBrXmlNode;
   AErro: TNFSeEventoCollectionItem;
   ANota: TNotaFiscal;
   NumNFSe, InfNfseID: String;
@@ -857,29 +860,13 @@ begin
 
       if AuxNode = nil then
       begin
-        AuxNodeCanc := ANode.Childrens.FindAnyNs('NfseCancelamento');
-
-        if AuxNodeCanc <> nil then
-        begin
-          AuxNodeCanc := AuxNodeCanc.Childrens.FindAnyNs('Confirmacao');
-
-          Response.Data := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('DataHora'), tcDatHor);
-          Response.DescSituacao := 'Nota Cancelada';
-        end;
+        LerCancelamento(ANode, Response);
 
         AuxNode := ANode.Childrens.FindAnyNs('Nfse')
       end
       else
       begin
-        AuxNodeCanc := AuxNode.Childrens.FindAnyNs('NfseCancelamento');
-
-        if AuxNodeCanc <> nil then
-        begin
-          AuxNodeCanc := AuxNodeCanc.Childrens.FindAnyNs('Confirmacao');
-
-          Response.Data := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('DataHora'), tcDatHor);
-          Response.DescSituacao := 'Nota Cancelada';
-        end;
+        LerCancelamento(AuxNode, Response);
 
         AuxNode := AuxNode.Childrens.FindAnyNs('Nfse');
       end;
@@ -1422,6 +1409,25 @@ procedure TACBrNFSeProviderABRASFv1.GerarMsgDadosSubstituiNFSe(
   Response: TNFSeSubstituiNFSeResponse; Params: TNFSeParamsResponse);
 begin
   raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.LerCancelamento(ANode: TACBrXmlNode;
+  Response: TNFSeConsultaNFSeporRpsResponse);
+var
+  AuxNodeCanc: TACBrXmlNode;
+begin
+  AuxNodeCanc := ANode.Childrens.FindAnyNs('NfseCancelamento');
+
+  if AuxNodeCanc <> nil then
+  begin
+    AuxNodeCanc := AuxNodeCanc.Childrens.FindAnyNs('Confirmacao');
+
+    Response.DataCanc := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('DataHora'), tcDatHor);
+    Response.DescSituacao := '';
+
+    if Response.DataCanc > 0 then
+      Response.DescSituacao := 'Nota Cancelada';
+  end;
 end;
 
 procedure TACBrNFSeProviderABRASFv1.TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse);

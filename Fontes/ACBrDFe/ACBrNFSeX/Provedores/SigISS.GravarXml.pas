@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   pcnAuxiliar, pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
@@ -72,6 +71,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -122,7 +124,7 @@ begin
                                             NFSe.ConstrucaoCivil.Art, DSC_ART));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'situacao', 1, 2, 1,
-                                     SituacaoTribToStr(NFSe.SituacaoTrib), ''));
+                            FpAOwner.SituacaoTribToStr(NFSe.SituacaoTrib), ''));
 
   Result.AppendChild(AddNode(tcDe4, '#1', 'valor', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));
@@ -134,7 +136,7 @@ begin
                                                NFSe.Servico.Discriminacao, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_tipo', 1, 1, 1,
-                  TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
+         FpAOwner.TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_cnpj', 1, 15, 1,
                     OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), ''));
@@ -188,7 +190,7 @@ begin
                                               NFSe.IdentificacaoRps.Serie, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_tipo', 1, 1, 0,
-                                 TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
+                        FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_dia', 1, 2, 0,
                                  FormatDateTime('dd',NFSe.DataEmissaoRps), ''));
@@ -333,7 +335,7 @@ begin
                                             NFSe.ConstrucaoCivil.Art, DSC_ART));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'situacao', 1, 2, 1,
-                                     SituacaoTribToStr(NFSe.SituacaoTrib), ''));
+                            FpAOwner.SituacaoTribToStr(NFSe.SituacaoTrib), ''));
 
   Result.AppendChild(AddNode(tcDe4, '#1', 'valor', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));
@@ -379,7 +381,7 @@ begin
                                                NFSe.Servico.Discriminacao, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_tipo', 1, 1, 1,
-                  TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
+         FpAOwner.TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_cnpj', 1, 15, 1,
                     OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), ''));
@@ -430,7 +432,7 @@ begin
                                               NFSe.IdentificacaoRps.Serie, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_tipo', 1, 1, 0,
-                                 TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
+                        FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_dia', 1, 2, 0,
                                  FormatDateTime('dd',NFSe.DataEmissaoRps), ''));

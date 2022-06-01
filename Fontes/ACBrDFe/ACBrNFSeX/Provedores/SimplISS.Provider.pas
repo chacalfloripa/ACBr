@@ -101,8 +101,12 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrXmlWriter, ACBrNFSeX, ACBrNFSeXConfiguracoes,
-  ACBrNFSeXNotasFiscais, SimplISS.GravarXml, SimplISS.LerXml;
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrXmlWriter,
+  ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrNFSeXNotasFiscais,
+  SimplISS.GravarXml, SimplISS.LerXml;
 
 { TACBrNFSeProviderSimplISS }
 
@@ -114,6 +118,7 @@ begin
   begin
     identificador := 'id';
     UseCertificateHTTP := False;
+    DetalharServico := True;
   end;
 
   SetXmlNameSpace('http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd');

@@ -92,7 +92,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrDFeException,
+  ACBrUtil.Base,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   WebFisco.GravarXml, WebFisco.LerXml;
 
@@ -106,6 +107,8 @@ begin
   begin
     Identificador := '';
     ModoEnvio := meUnitario;
+    UseCertificateHTTP := False;
+    DetalharServico := True;
   end;
 
   SetXmlNameSpace('');

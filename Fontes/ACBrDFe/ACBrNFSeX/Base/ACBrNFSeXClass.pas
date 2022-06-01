@@ -373,6 +373,10 @@ type
     FValorCargaTributaria: Double;
     FPercentualCargaTributaria: Double;
     FFonteCargaTributaria: string;
+    // Provedor ISSBarueri
+    FPrestadoEmViasPublicas: Boolean;
+    // Provedor GeisWeb
+    FTipoLancamento: TTipoLancamento;
 
     procedure SetItemServico(Value: TItemServicoCollection);
     procedure SetDeducao(const Value: TDeducaoCollection);
@@ -405,6 +409,10 @@ type
     property ValorCargaTributaria: Double read FValorCargaTributaria write FValorCargaTributaria;
     property PercentualCargaTributaria: Double read FPercentualCargaTributaria write FPercentualCargaTributaria;
     property FonteCargaTributaria: string read FFonteCargaTributaria write FFonteCargaTributaria;
+    // Provedor ISSBarueri
+    property PrestadoEmViasPublicas: Boolean read FPrestadoEmViasPublicas write FPrestadoEmViasPublicas;
+    // Provedor GeisWeb
+    property TipoLancamento: TTipoLancamento read FTipoLancamento write FTipoLancamento;
   end;
 
   TIdentificacaoPrestador = class(TObject)
@@ -478,8 +486,9 @@ type
     FcUF: Integer;
     Fcrc: string;
     Fcrc_estado: string;
-    FDataInicioAtividade: TDateTime;
     FValorReceitaBruta: Double;
+    FAnexo: string;
+    FDataInicioAtividade: TDateTime;
   public
     constructor Create;
     destructor Destroy; override;
@@ -496,6 +505,7 @@ type
     property crc_estado: string read Fcrc_estado write Fcrc_estado;
     // Provedor WebFisco
     property ValorReceitaBruta: Double read FValorReceitaBruta write FValorReceitaBruta;
+    property Anexo: string read FAnexo write FAnexo;
     property DataInicioAtividade: TDateTime read FDataInicioAtividade write FDataInicioAtividade;
   end;
 
@@ -834,6 +844,8 @@ type
     FNfseSubstituidora: string;
     // Provedor ISSDSF
     FMotivoCancelamento: string;
+    // Provedor ISSBarueri
+    FCodigoCancelamento: string;
     // Provedor Infisc
     FcNFSe: Integer;
 
@@ -928,6 +940,8 @@ type
     property NfseSubstituidora: string read FNfseSubstituidora write FNfseSubstituidora;
     // Provedor ISSDSF
     property MotivoCancelamento: string read FMotivoCancelamento write FMotivoCancelamento;
+    // Provedor ISSBarueri
+    property CodigoCancelamento: string read FCodigoCancelamento write FCodigoCancelamento;
     // Provedor Infisc
     property cNFSe: Integer read FcNFSe write FcNFSe;
     property refNF: string read FrefNF write FrefNF;
@@ -1022,6 +1036,7 @@ begin
   FItemServico := TItemServicoCollection.Create;
   FDeducao := TDeducaoCollection.Create;
   FDescricao := '';
+  FPrestadoEmViasPublicas := False;
 end;
 
 destructor TDadosServico.Destroy;
