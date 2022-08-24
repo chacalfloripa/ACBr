@@ -10,10 +10,8 @@ object frmACBrNFSe: TfrmACBrNFSe
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMenus: TPanel
     Left = 0
@@ -1848,7 +1846,7 @@ object frmACBrNFSe: TfrmACBrNFSe
         end
       end
       object tsConsServPrest: TTabSheet
-        Caption = 'Consultas Servi'#231'os Prestados'
+        Caption = 'Consultas Serv. Prestados'
         ImageIndex = 4
         object btnConsultarNFSeServicoPrestadoPorNumero: TButton
           Left = 3
@@ -1888,7 +1886,7 @@ object frmACBrNFSe: TfrmACBrNFSe
         end
       end
       object tsConsServTom: TTabSheet
-        Caption = 'Consultas Servi'#231'os Tomados'
+        Caption = 'Consultas Serv. Tomados'
         ImageIndex = 5
         object btnConsultarNFSeServicoTomadoPorNumero: TButton
           Left = 3
@@ -1976,6 +1974,19 @@ object frmACBrNFSe: TfrmACBrNFSe
           ParentFont = False
           ReadOnly = True
           TabOrder = 1
+        end
+      end
+      object tsOutros: TTabSheet
+        Caption = 'Outros'
+        ImageIndex = 6
+        object btnGerarToken: TButton
+          Left = 3
+          Top = 10
+          Width = 177
+          Height = 25
+          Caption = 'Gerar Token'
+          TabOrder = 0
+          OnClick = btnGerarTokenClick
         end
       end
     end
@@ -2079,7 +2090,7 @@ object frmACBrNFSe: TfrmACBrNFSe
     DefaultCharset = UTF_8
     IDECharset = CP1252
     Left = 336
-    Top = 272
+    Top = 280
   end
   object ACBrNFSeX1: TACBrNFSeX
     MAIL = ACBrMail1

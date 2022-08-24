@@ -1,0 +1,189 @@
+{******************************************************************************}
+{ Projeto: Componentes ACBr                                                    }
+{ Biblioteca multi plataforma de componentes Delphi para interação com equipa- }
+{ mentos de Automação Comercial utilizados no Brasil                           }
+{                                                                              }
+{  Você pode obter a última versão desse arquivo na página do Projeto ACBr     }
+{ Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
+{                                                                              }
+{  Esta biblioteca é software livre; você pode redistribuí-la e/ou modificá-la }
+{ sob os termos da Licença Pública Geral Menor do GNU conforme publicada pela  }
+{ Free Software Foundation; tanto a versão 2.1 da Licença, ou (a seu critério) }
+{ qualquer versão posterior.                                                   }
+{                                                                              }
+{  Esta biblioteca é distribuída na expectativa de que seja útil, porém, SEM   }
+{ NENHUMA GARANTIA; nem mesmo a garantia implícita de COMERCIABILIDADE OU      }
+{ ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA. Consulte a Licença Pública Geral Menor}
+{ do GNU para mais detalhes. (Arquivo LICENÇA.TXT ou LICENSE.TXT)              }
+{                                                                              }
+{  Você deve ter recebido uma cópia da Licença Pública Geral Menor do GNU junto}
+{ com esta biblioteca; se não, escreva para a Free Software Foundation, Inc.,  }
+{ no endereço 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.          }
+{ Você também pode obter uma copia da licença em:                              }
+{ http://www.opensource.org/licenses/lgpl-license.php                          }
+{                                                                              }
+{ Daniel Simões de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br}
+{       Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170         }
+{                                                                              }
+{******************************************************************************}
+Agradecimentos:
+
+* Administradores:
+- Daniel Simões de Almeida
+
+* Desenvolvedores:
+- Daniel Simões de Almeida - Doação do componente ao projeto ACBr
+- Elias César Vieira
+
+{******************************************************************************
+|* ACBrPIXCD
+|*
+|* PROPÓSITO: Registro de Alterações
+******************************************************************************}
+
+Símbolo : Significado
+
+[+]     : Novo recurso
+[*]     : Recurso modificado/melhorado
+[-]     : Correção de Bug (assim esperamos)
+
+15/08/2022
+-- ACBrBase --
+[*] Removida a unit 'fpjsons' do uses, pois não é mais utilizada.
+
+-- ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPItau, ACBrPIXPSPSantander, ACBrPIXPSPShipay, ACBrPIXPSPSicredi --
+[*] Alteração para possibilitar a utilização dos PSPs em todas as plataformas de compilação.
+    Por: Elias César
+
+15/08/2022
+-- ACBrPIXPSPSicredi --
+[*] Alteração para compatibilizar o retorno da API Pix Sicredi ao solicitar uma devolução
+    Por: Marcelo A. Rodrigues
+
+11/08/2022
+-- ACBrBase, ACBrSchemas... --
+[*] Adaptações para utilizar a nova unit ACBrJSON.
+
+-- ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPItau, ACBrPIXPSPSantander, ACBrPIXPSPShipay, ACBrPIXPSPSicredi --
+[*] Adaptações para utilizar a nova unit ACBrJSON.
+    Por: Elias César
+
+27/07/2022
+-- ACBrPIXPSPItau --
+[*] Revovendo parâmetros desnecessários ao Renovar Certificado e Gerar
+    Certificado CSR.
+    Por: Elias César
+
+25/07/2022
+-- ACBrPIXSchemasCobV --
+[*] Correções para envio correto do endpoint /cobv
+
+-- ACBrPIXCD --
+[+] Inclusão do endpoint /cobv
+    Por: Elias César
+	
+-- ACBrPIXPSPItau --
+[+] Inclusão de função para renovação do certificado
+[*] Alterações para incluir o certificado nas requisições em ambiente de produção
+    Por: Elias César
+
+21/070/2022
+-- ACBrPIXPSPBancoDoBrasil --
+[-] Correção para incluir delimitador nas requisições do endpoint /cob
+    https://www.projetoacbr.com.br/forum/topic/68247-erro-404-resource-not-found-pixcd-psp-bco-do-brasil/
+    Por: Elias César 
+
+20/07/2022
+-- ACBrShipaySchemas --
+[-] Correção de MemoryLeak ao utilizar a lista de descontos do componente Shipay
+    https://www.projetoacbr.com.br/forum/topic/68222-acbrpixcd-memory-leak/
+	Por: Elias César
+
+12/07/2022
+-- ACBrPIXPSPItau --
+[*] Ajuste para funcionamento correto em ambiente de testes. Alterado para incluir 
+    header 'x-sandbox-token' com o token gerado no momento da autenticação.
+[-] Correção das URLs.
+
+11/07/2022
+-- ACBrPIXSchemasCalendario, ACBrPIXSchemasPix --
+[+] Inclusão de propriedades Bias, responsáveis por armazenar os minutos de diferença 
+    entre o horário local e o TimeZone informado na resposta
+    Por: Elias César
+
+08/07/2022
+-- ACBrPIXCDReg --
+[+] Inclusão de novo PSP Sicredi
+    Por: sidnei_alves1
+
+06/07/2022
+-- ACBrPIXCD --
+[+] Inclusão de possibilidade dos PSP alterarem o Body antes da requisição.
+    Necessário para PSPs como a Shipay, onde o payload é diferente do padrão Bacen.
+[*] Ajuste para concatenar os parâmetros de query na URL sem delimitador. Caso o PSP
+    necessite(como o BB em homologação), deve incluí-lo em "CalcularEndPointPath()".
+	
+-- ACBrPIXPSPBancoDoBrasil --
+[*] Ajuste no retorno da função "CalcularEndPointPath()" para retornar Path com 
+    delimitador em homologação.
+	
+-- ACBrPIXPSPShipay --
+[+] Inclusão de função para converter OrderList em CobsConsultadas para que a
+    consulta de cobranças por período funcione corretamente;
+[*] Refatoração do método "QaundoAcessarEndPoint()" para que as informações da 
+    requisição sejam configuradas separadamente.
+	
+-- ACBrPIXSchemasCobV --
+[-] Correção na leitura do Json(Problema descoberto na execução dos testes unitários).
+
+-- ACBrPIXUtil --
+[*] Alteração na função "FormatarGUID()" para montar corretamente o OrderID.
+
+-- ACBrPIXSchemasTeste --
+[-] Correção dos testes unitários após alterações nos schemas
+
+28/06/2022
+-- ACBrPIXPSPBancoDoBrasil --
+[*] Ajustes para funcionamento da Consulta de Pix recebidos por período.
+    Por: Elias César
+	
+-- ACBrPixSchemasCobV, ACBrShipaySchemas --
+[-] Correções das units
+
+26/06/2022
+-- ACBrPixSchemasCobV --
+[*] Inclusão de tipos enumerados para os campos modalidades das classes de 
+    Desconto, Multa, Juros e Abatimento
+
+-- ACBrShipaySchemas -- 
+[*] Alteração das classes referentes ao Desconto, Multa, Juros e Abatimento para
+    herdarem das classes de ACBrPixSchemasCobV.
+[*] Alteração da classe referente ao Calendário para herdar de ACBrPixSchemasCobV
+    Por: Elias César
+
+17/06/2022
+-- ACBrPIXPSPBancoDoBrasil --
+[-] Correção para leitura correta do Pix Copia e Cola em SimularPagamentoPIX().
+    Por: Icozeira
+
+13/06/2022
+-- ACBrPIXCD --
+[*] Inclusão da constante cEndPointPix para o endpoint '/pix';
+[*] Alteração no modo em que os parâmetros de query são concatenados na URL
+
+-- ACBrPIXPSPBancoDoBrasil --
+[-] Ajuste em "TratarRetornoComErro" para não disparar exception em erros que não
+    possuem status.
+[*] Alteração para utilizar o endpoint '/cobqrcode' para criação de cobranças
+    em ambiente de homologação.
+	por: Icozeira
+	
+-- ACBrPIXPSPShipay --
+[-] Alteração para ler a chave corretamente de OrderCreated.
+
+-- ACBrShipaySchemas --
+[-] Correção de problema ao ler payload de uma ordem order_due_date.
+
+
+Data: 13/06/2022
+[+] Início do ChangeLog ACBrPIXCD

@@ -169,7 +169,13 @@ implementation
 uses
   dateutils, IniFiles,
   synautil,
-  ACBrMDFe, ACBrUtil, ACBrDFeUtil, pmdfeConversaoMDFe;
+  ACBrMDFe,
+  ACBrUtil.Base,
+  ACBrUtil.XMLHTML,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
+  ACBrDFeUtil, pmdfeConversaoMDFe;
 
 { Manifesto }
 
@@ -397,7 +403,7 @@ var
   end;
 
 begin
-  Agora := Now;
+  Agora := DataHoraTimeZoneModoDeteccao( TACBrMDFe(TManifestos(Collection).ACBrMDFe) );   //Converte o DateTime do Sistema para o TimeZone configurado, para evitar divergência de Fuso Horário.
   GravaLog('Inicio da Validação');
 
   with TACBrMDFe(TManifestos(Collection).ACBrMDFe) do

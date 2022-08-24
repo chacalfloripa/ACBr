@@ -33,8 +33,6 @@
 
 {$I ACBr.inc}
 
-{$I ACBr.inc}
-
 unit ACBrNFeNotasFiscais;
 
 interface
@@ -452,7 +450,7 @@ var
   end;
 
 begin
-  Inicio := Now;
+  Inicio := DataHoraTimeZoneModoDeteccao( TACBrNFe(TNotasFiscais(Collection).ACBrNFe ));   //Converte o DateTime do Sistema para o TimeZone configurado, para evitar divergência de Fuso Horário.
   Agora := IncMinute(Inicio, 5);  //Aceita uma tolerância de até 5 minutos, devido ao sincronismo de horário do servidor da Empresa e o servidor da SEFAZ.
   GravaLog('Inicio da Validação');
 
@@ -1332,10 +1330,11 @@ begin
 
     if not UFCons then
     begin
-      GravaLog('Validar: 772-Op.Interstadual e UF igual');
+      GravaLog('Validar: 772-Op.Interestadual e UF igual');
       if (nfe.Ide.idDest = doInterestadual) and
          (NFe.Dest.EnderDest.UF = NFe.Emit.EnderEmit.UF) and
-         (NFe.Dest.CNPJCPF <> NFe.Emit.CNPJCPF) then
+         (NFe.Dest.CNPJCPF <> NFe.Emit.CNPJCPF) and
+         (NFe.Entrega.UF = NFe.Emit.EnderEmit.UF) then
         AdicionaErro('772-Rejeição: Operação Interestadual e UF de destino igual à UF do emitente');
     end;
 
@@ -1608,6 +1607,7 @@ begin
       Ide.verProc  := INIRec.ReadString(  sSecao, 'verProc' ,'ACBrNFe');
       Ide.dhCont   := StringToDateTime(INIRec.ReadString( sSecao,'dhCont'  ,'0'));
       Ide.xJust    := INIRec.ReadString(  sSecao,'xJust' ,'' );
+      Ide.cMunFG   := INIRec.ReadInteger( sSecao,'cMunFG', 0);
 
       I := 1;
       while true do
@@ -1699,7 +1699,8 @@ begin
       Emit.EnderEmit.fone    := INIRec.ReadString(  sSecao,'Fone'    ,'');
 
       Ide.cUF    := INIRec.ReadInteger( sSecao,'cUF'       ,UFparaCodigo(Emit.EnderEmit.UF));
-      Ide.cMunFG := INIRec.ReadInteger( sSecao,'cMunFG' ,INIRec.ReadInteger( sSecao,'CidadeCod' ,Emit.EnderEmit.cMun));
+      if (Ide.cMunFG = 0) then
+        Ide.cMunFG := INIRec.ReadInteger( sSecao,'cMunFG' ,INIRec.ReadInteger( sSecao,'CidadeCod' ,Emit.EnderEmit.cMun));
 
       if INIRec.ReadString( 'Avulsa', 'CNPJ', '') <> '' then
       begin
@@ -2691,14 +2692,14 @@ begin
       INIRec.WriteString('infNFe', 'ID', infNFe.ID);
       INIRec.WriteString('infNFe', 'Versao', FloatToStr(infNFe.Versao));
       INIRec.WriteInteger('Identificacao', 'cUF', Ide.cUF);
-      INIRec.WriteInteger('Identificacao', 'Codigo', Ide.cNF);
+      INIRec.WriteInteger('Identificacao', 'cNF', Ide.cNF);
       INIRec.WriteString('Identificacao', 'natOp', Ide.natOp);
       INIRec.WriteString('Identificacao', 'indPag', IndpagToStr(Ide.indPag));
       INIRec.WriteInteger('Identificacao', 'Modelo', Ide.modelo);
       INIRec.WriteInteger('Identificacao', 'Serie', Ide.serie);
       INIRec.WriteInteger('Identificacao', 'nNF', Ide.nNF);
-      INIRec.WriteString('Identificacao', 'dEmi', DateTimeToStr(Ide.dEmi));
-      INIRec.WriteString('Identificacao', 'dSaiEnt', DateTimeToStr(Ide.dSaiEnt));
+      INIRec.WriteString('Identificacao', 'dhEmi', DateTimeToStr(Ide.dEmi));
+      INIRec.WriteString('Identificacao', 'dhSaiEnt', DateTimeToStr(Ide.dSaiEnt));
       INIRec.WriteString('Identificacao', 'tpNF', tpNFToStr(Ide.tpNF));
       INIRec.WriteString('Identificacao', 'idDest',
         DestinoOperacaoToStr(TpcnDestinoOperacao(Ide.idDest)));
@@ -3373,6 +3374,15 @@ begin
       INIRec.WriteString('Transportador', 'RNTC', Transp.veicTransp.RNTC);
       INIRec.WriteString('Transportador', 'vagao', Transp.vagao);
       INIRec.WriteString('Transportador', 'balsa', Transp.balsa);
+
+      for J := 0 to autXML.Count - 1 do
+      begin
+        sSecao := 'autXML' + IntToStrZero(J + 1, 2);
+        with autXML.Items[J] do
+        begin
+          INIRec.WriteString(sSecao, 'CNPJCPF', CNPJCPF);
+        end;
+      end;
 
       for J := 0 to Transp.Reboque.Count - 1 do
       begin

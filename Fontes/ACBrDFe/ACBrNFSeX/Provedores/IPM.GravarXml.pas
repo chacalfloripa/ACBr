@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
+  pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
 
 type
@@ -49,6 +49,7 @@ type
   private
     FpGerarID: Boolean;
     FpNrOcorrTagsTomador: Integer;
+    FpNrOcorrCodigoAtividade: Integer;
 
   protected
     procedure Configuracao; override;
@@ -156,6 +157,7 @@ begin
 
   FpGerarID := False;
   FpNrOcorrTagsTomador := 0;
+  FpNrOcorrCodigoAtividade := -1;
 end;
 
 function TNFSeW_IPM.GerarFormaPagamento: TACBrXmlNode;
@@ -307,6 +309,9 @@ begin
     Result[i].AppendChild(AddNode(tcStr, '#', 'codigo_item_lista_servico', 1, 9, 1,
                  OnlyNumber(NFSe.Servico.ItemServico[I].ItemListaServico), ''));
 
+    Result[i].AppendChild(AddNode(tcStr, '#', 'codigo_atividade', 1, 9, FpNrOcorrCodigoAtividade,
+                       OnlyNumber(NFSe.Servico.ItemServico[I].CodigoCnae), ''));
+
     Result[i].AppendChild(AddNode(tcStr, '#', 'descritivo', 1, 1000, 1,
       IfThen(NFSe.Servico.ItemServico[I].Descricao = '',
        NFSe.Servico.Discriminacao, NFSe.Servico.ItemServico[I].Descricao), ''));
@@ -321,13 +326,13 @@ begin
     Result[i].AppendChild(AddNode(tcInt, '#', 'situacao_tributaria', 1, 4, 1,
                            NFSe.Servico.ItemServico[I].SituacaoTributaria, ''));
 
-    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_tributavel', 1, 15, 1,
+    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_tributavel', 1, 15, 0,
                                    NFSe.Servico.ItemServico[I].ValorTotal, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_deducao', 1, 15, 0,
                                 NFSe.Servico.ItemServico[I].ValorDeducoes, ''));
 
-    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 0,
+    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 1,
                          NFSe.Servico.ItemServico[I].ValorISSRetido, DSC_VISS));
   end;
 
@@ -411,7 +416,8 @@ begin
   end
   else
   begin
-    if NFSe.Tomador.IdentificacaoTomador.Tipo in [tpPFNaoIdentificada, tpPF] then
+    if (NFSe.Tomador.IdentificacaoTomador.Tipo in [tpPFNaoIdentificada, tpPF]) and
+       (Length(OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj)) < 14) then
       Result.AppendChild(AddNode(tcStr, '#1', 'tipo', 1, 1, 1, 'F', ''))
     else
       Result.AppendChild(AddNode(tcStr, '#1', 'tipo', 1, 1, 1, 'J', ''));
@@ -523,6 +529,9 @@ begin
 
   FpGerarID := True;
   FpNrOcorrTagsTomador := 1;
+
+  if FpAOwner.ConfigGeral.Params.ParamTemValor('GerarTag', 'codigo_atividade') then
+    FpNrOcorrCodigoAtividade := 1;
 end;
 
 end.

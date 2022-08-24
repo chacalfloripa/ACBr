@@ -98,7 +98,7 @@ type
     procedure SetBufferSize(AValue: Integer);
 
   private
-    fPassword: AnsiString;
+    //fPassword: AnsiString;
     procedure FreeKeys;
     Procedure FreePrivateKey;
     Procedure FreePublicKey;
@@ -126,6 +126,11 @@ type
       OutputType: TACBrOpenSSLStrType = sttHexa; Sign: Boolean = False): AnsiString;
     function CalcHashFromFile(const AFile: String; Algorithm: TACBrOpenSSLAlgorithm;
       OutputType: TACBrOpenSSLStrType = sttHexa; Sign: Boolean = False): AnsiString;
+
+   function HMACFromString(const BinaryString: AnsiString; const aKey: AnsiString;
+      const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
+   function HMACFromFile(const aFile: String; const aKey: AnsiString;
+      const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
 
     function MD5FromFile(const AFile: String): String;
     function MD5FromString(const AString: AnsiString): String;
@@ -217,7 +222,9 @@ implementation
 uses
   Math, TypInfo,
   synacode, synautil,
-  ACBrUtil;
+  ACBrUtil.Math,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO;
 
 procedure InitOpenSSL;
 begin
@@ -277,6 +284,7 @@ Var
   s: AnsiString ;
 begin
   Result := '';
+  s := EmptyStr;
   SetLength(s, 1024);
   repeat
     n := BioRead(ABio, s, 1024);
@@ -296,7 +304,6 @@ begin
   InitOpenSSL;
   Modulus := '';
   Exponent := '';
-  Result := False;
   bio := BioNew(BioSMem);
   RsaKey := EvpPkeyGet1RSA(AKey);
   try
@@ -403,7 +410,6 @@ function ConvertOpenSSHToPEM(const AOpenSSHKey: String): String;
 var
   s, m, e: AnsiString;
   ps, pe: Integer;
-  bio: PBIO;
   key: PEVP_PKEY;
 begin
   ps := pos(' ', AOpenSSHKey);
@@ -451,8 +457,8 @@ var
 begin
   Result := '';
   bio := BioNew(BioSMem);
+  rsa := EvpPkeyGet1RSA(APrivKey);
   try
-    rsa := EvpPkeyGet1RSA(APrivKey);
     if (Password <> '') then
       ret := PEM_write_bio_RSAPrivateKey( bio, rsa,
                                           EVP_aes_256_cbc,
@@ -524,6 +530,7 @@ var
   e: LongInt;
   s: AnsiString;
 begin
+  s := EmptyStr;
   e := ErrGetError;
   SetLength(s,1024);
   ErrErrorString(e, s, 1024);
@@ -680,8 +687,8 @@ begin
 end;
 
 function TACBrOpenSSLUtils.CalcHashFromFile(const AFile: String;
-  Algorithm: TACBrOpenSSLAlgorithm; OutputType: TACBrOpenSSLStrType; Sign: Boolean
-  ): AnsiString;
+  Algorithm: TACBrOpenSSLAlgorithm; OutputType: TACBrOpenSSLStrType;
+  Sign: Boolean): AnsiString;
 Var
   fs: TFileStream ;
 begin
@@ -692,6 +699,49 @@ begin
   finally
     fs.Free ;
   end ;
+end;
+
+function TACBrOpenSSLUtils.HMACFromString(const BinaryString: AnsiString;
+  const aKey: AnsiString; const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
+var
+  ipad, opad, s, k: AnsiString;
+  n: Integer;
+begin
+  if (Length(AKey) > 64) then
+    k := CalcHashFromString(AKey, aDigest, sttBinary)
+  else
+    k := AKey;
+
+  ipad := StringOfChar(#$36, 64);
+  opad := StringOfChar(#$5C, 64);
+  for n := 1 to Length(k) do
+  begin
+    ipad[n] := AnsiChar(Byte(ipad[n]) xor Byte(k[n]));
+    opad[n] := AnsiChar(Byte(opad[n]) xor Byte(k[n]));
+  end;
+
+  s := CalcHashFromString(ipad + BinaryString, aDigest, sttBinary);
+  Result := LowerCase(CalcHashFromString(opad + s, aDigest, sttHexa));
+end;
+
+function TACBrOpenSSLUtils.HMACFromFile(const aFile: String;
+  const aKey: AnsiString; const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
+var
+  wStr: AnsiString;  
+  wMS: TMemoryStream;
+begin
+  wStr := EmptyStr;
+  wMS := TMemoryStream.Create;
+  try
+    wMS.LoadFromFile(aFile);
+    wMS.Position := 0;
+    SetLength(wStr, wMS.Size);
+    wMS.ReadBuffer(PAnsiChar(wStr)^, wMS.Size);
+  finally
+    wMS.Free;
+  end;
+
+  Result := HMACFromString(wStr, aKey, aDigest);
 end;
 
 function TACBrOpenSSLUtils.MD5FromFile(const AFile: String): String;
@@ -1203,35 +1253,3 @@ finalization
   FreeOpenSSL;
 
 end.
-
-property KeyPassword: String read fKeyPassword write fKeyPassword;
-
-property PFXFile: String read fPFXFile write fPFXFile;
-property CertificateFile: String read fCertificateFile write fCertificateFile;
-property PrivateKeyFile: String read fPrivateKeyFile write fPrivateKeyFile;
-property PublicKeyFile: String read fPublicKeyFile write fPublicKeyFile;
-
-property PFXStr: AnsiString read fPFXStr write fPFXStr;
-property CertificateStr: AnsiString read fCertificateStr write fCertificateStr;
-property PrivateKeyStr: AnsiString read fPrivateKeyStr write fPrivateKeyStr;
-property PublicKeyStr: AnsiString read fPublicKeyStr write fPublicKeyStr;
-
-fCertificateFile: String;
-fCertificateStr: AnsiString;
-fPFXFile: String;
-fPFXStr: AnsiString;
-fPrivateKeyFile: String;
-fPrivateKeyStr: AnsiString;
-fPublicKeyFile: String;
-fPublicKeyStr: AnsiString;
-
-fKeyPassword := '';
-fCertificateFile := '';
-fCertificateStr := '';
-fPFXFile := '';
-fPFXStr := '';
-fPrivateKeyFile := '';
-fPrivateKeyStr := '';
-fPublicKeyFile := '';
-fPublicKeyStr := '';
-

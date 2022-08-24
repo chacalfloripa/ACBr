@@ -55,6 +55,7 @@ type
     function FormataNossoNumero(const ACBrTitulo :TACBrTitulo): String;
     function RetornaCodCarteira(const Carteira: string; const ACBrTitulo : TACBrTitulo): integer;
     function DefineCodigoCedente(const ACBrCedente :TACBrCedente): String;
+    function ConverteModalidadeEmCodCarteira(const Modalidade: Integer): String;
    public
     Constructor create(AOwner: TACBrBanco);
     function CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo ): String; override;
@@ -304,6 +305,18 @@ begin
     Result := PadLeft(  ACBrCedente.CodigoCedente, 7, '0')
   else
     Result := PadLeft(  ACBrCedente.CodigoCedente, 6, '0');
+end;
+
+function TACBrCaixaEconomica.ConverteModalidadeEmCodCarteira(
+  const Modalidade: Integer): String;
+begin
+  case Modalidade of
+    11, 14: Result:= 'RG';
+    21, 24: Result:= 'SR';
+  else
+    raise Exception.Create( ACBrStr('Código de Modalidade Inválido para Carteira "RG" ou "SR"') ) ;
+  end;
+
 end;
 
 procedure TACBrCaixaEconomica.EhObrigatorioAgenciaDV;
@@ -1273,7 +1286,7 @@ begin
               02:Sacado.Pessoa:=pJuridica;
             end;
             Sacado.CNPJCPF              := copy(Linha,134,15);
-	    Sacado.NomeSacado           := copy(Linha,149,40);
+	          Sacado.NomeSacado           := copy(Linha,149,40);
             //05 = Liquidação Sem Registro
             TempData := Copy(Linha,74,2) + '/' + Copy(Linha,76,2) + '/' + Copy(Linha,80,2);
 
@@ -1282,8 +1295,12 @@ begin
 
             ValorDocumento       := StrToFloatDef(Copy(Linha,82,15),0)/100;
             ValorDespesaCobranca := StrToFloatDef(Copy(Linha,199,15),0)/100;
-            NossoNumero          := Copy(Linha,42,15);  
-            Carteira             := Copy(Linha,40,2);
+            NossoNumero          := Copy(Linha,42,15);
+
+            if StrToIntDef(Copy(Linha,40,2),0) <> 0 then
+              Carteira := ConverteModalidadeEmCodCarteira( StrToIntDef(Copy(Linha,40,2),0))
+            else
+              Carteira := ''; //TK2780
 
             if (CodOcorrencia  = '06' ) or (CodOcorrencia  = '09' ) or
                (CodOcorrencia  = '17' ) then
@@ -1963,7 +1980,10 @@ begin
        ValorRecebido        := StrToFloatDef(Copy(Linha,254,13),0)/100;
        ValorMoraJuros       := StrToFloatDef(Copy(Linha,267,13),0)/100;
        ValorOutrosCreditos  := StrToFloatDef(Copy(Linha,280,13),0)/100;
-       Carteira             := Copy(Linha,57,2);
+       if StrToIntDef(Copy(Linha,57,2),0) <> 0 then
+         Carteira := ConverteModalidadeEmCodCarteira( StrToIntDef(Copy(Linha,57,2),0))
+       else
+         Carteira := ''; //TK2844
        NossoNumero          := Copy(Linha,59,15);
        ValorDespesaCobranca := StrToFloatDef(Copy(Linha,176,13),0)/100;
 

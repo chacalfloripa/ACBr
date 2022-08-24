@@ -48,6 +48,7 @@ type
   protected
     procedure Configuracao; override;
 
+    procedure DefinirIDRps; override;
   end;
 
   { TNFSeW_Abaco204 }
@@ -60,6 +61,9 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Strings;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
 //     Abaco
@@ -71,9 +75,15 @@ procedure TNFSeW_Abaco.Configuracao;
 begin
   inherited Configuracao;
 
-  FormatoItemListaServico := filsSemFormatacao;
+  FormatoItemListaServico := filsSemFormatacaoSemZeroEsquerda;
   DivAliq100 := True;
   NrOcorrCodPaisTomador := -1;
+end;
+
+procedure TNFSeW_Abaco.DefinirIDRps;
+begin
+  NFSe.InfID.ID := OnlyNumber(NFSe.IdentificacaoRps.Numero) +
+                     NFSe.IdentificacaoRps.Serie;
 end;
 
 { TNFSeW_Abaco204 }

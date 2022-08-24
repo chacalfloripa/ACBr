@@ -1,7 +1,7 @@
 object FrmACBrMonitor: TFrmACBrMonitor
-  Left = 338
+  Left = 340
   Height = 691
-  Top = 233
+  Top = 191
   Width = 1228
   HelpType = htKeyword
   HelpKeyword = 'ACBrMonitor/Monitor.html'
@@ -17316,12 +17316,12 @@ object FrmACBrMonitor: TFrmACBrMonitor
         Height = 408
         Top = 1
         Width = 1008
-        ActivePage = tsACBrBoleto
+        ActivePage = tsMonitor
         Align = alClient
         Font.Height = -13
         Images = ImageList1
         ParentFont = False
-        TabIndex = 11
+        TabIndex = 0
         TabOrder = 0
         OnChange = pgConfigChange
         object tsMonitor: TTabSheet
@@ -27839,19 +27839,10 @@ object FrmACBrMonitor: TFrmACBrMonitor
                     Font.Height = -13
                     ParentFont = False
                   end
-                  object Label152: TLabel
+                  object Label153: TLabel
                     Left = 6
                     Height = 17
-                    Top = 52
-                    Width = 19
-                    Caption = 'Fax'
-                    Font.Height = -13
-                    ParentFont = False
-                  end
-                  object Label153: TLabel
-                    Left = 175
-                    Height = 17
-                    Top = 52
+                    Top = 48
                     Width = 195
                     Caption = 'Logo Marca NF-e / CT-e / MDF-e'
                     Font.Height = -13
@@ -27900,23 +27891,14 @@ object FrmACBrMonitor: TFrmACBrMonitor
                     ParentFont = False
                     TabOrder = 1
                   end
-                  object edtFaxEmpresa: TEdit
+                  object edtLogoMarca: TEdit
                     Left = 6
                     Height = 25
                     Top = 68
-                    Width = 164
+                    Width = 427
                     Font.Height = -13
                     ParentFont = False
                     TabOrder = 2
-                  end
-                  object edtLogoMarca: TEdit
-                    Left = 175
-                    Height = 25
-                    Top = 68
-                    Width = 258
-                    Font.Height = -13
-                    ParentFont = False
-                    TabOrder = 3
                   end
                   object edtLogoMarcaNFCeSAT: TEdit
                     Left = 6
@@ -27925,7 +27907,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
                     Width = 427
                     Font.Height = -13
                     ParentFont = False
-                    TabOrder = 4
+                    TabOrder = 3
                   end
                   object Label163: TLabel
                     Left = 6
@@ -28919,6 +28901,19 @@ object FrmACBrMonitor: TFrmACBrMonitor
                       'A5'
                     )
                     ParentFont = False
+                    TabOrder = 0
+                  end
+                end
+                object tsImpMDFe: TTabSheet
+                  Caption = 'MDF-e'
+                  ClientHeight = 318
+                  ClientWidth = 984
+                  object ckbExibirMunicipioDescarregamento: TCheckBox
+                    Left = 16
+                    Height = 21
+                    Top = 24
+                    Width = 221
+                    Caption = 'Exibir Municipio Descarregamento'
                     TabOrder = 0
                   end
                 end
@@ -33843,6 +33838,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
     Cancelada = False
     Encerrado = False
     ImprimeDadosExtras = [deValorTotal, deRelacaoDFe]
+    ExibirMunicipioDescarregamento = False
     PrintDialog = False
     Left = 456
     Top = 488
@@ -33907,6 +33903,7 @@ object FrmACBrMonitor: TFrmACBrMonitor
     Configuracoes.Geral.SSLHttpLib = httpNone
     Configuracoes.Geral.SSLXmlSignLib = xsNone
     Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
+    Configuracoes.Geral.VersaoDF = veS01_00_00
     Configuracoes.Arquivos.OrdenacaoPath = <>
     Configuracoes.WebServices.UF = 'SP'
     Configuracoes.WebServices.AguardarConsultaRet = 0

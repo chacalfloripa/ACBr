@@ -108,6 +108,7 @@ type
     procedure GerarIdeEstabVinc(pIdeEstabVinc: TIdeEstabVinc);
     procedure GerarIdeTrabSubstituido(pIdeTrabSubstituido: TIdeTrabSubstituidoCollection);
     procedure GerarIdVersao(pIdEsocial: TeSocial);
+    procedure GerarIdeVinculo2206(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
     procedure GerarIdeVinculo(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
     procedure GerarInfoAtivDesemp(pInfoAtivDesemp: TInfoAtivDesemp);
     procedure GerarInfoDeficiencia(pInfoDeficiencia: TInfoDeficiencia; pTipo: integer = 0);
@@ -174,7 +175,7 @@ type
     constructor Create(AACBreSocial: TObject); reintroduce; virtual; //->recebe a instancia da classe TACBreSocial
     destructor Destroy; override;
 
-    function  GerarXML: boolean; virtual; abstract;
+    function  GerarXML: boolean; virtual;
     procedure SaveToFile(const CaminhoArquivo: string);
     function  Assinar(const XMLEvento, NomeEvento: String): AnsiString;
     function  GerarChaveEsocial(const emissao: TDateTime;
@@ -219,7 +220,7 @@ uses
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
-  ACBreSocial, ACBrDFeSSL, ACBrDFeUtil;
+  ACBreSocial, ACBrDFeSSL, ACBrDFeUtil, ACBrDFeConfiguracoes;
 
 {TeSocialEvento}
 
@@ -430,13 +431,13 @@ begin
       Result := Result + copy(OnlyNumber(Copy(CNPJF, 1, 8)) + '00000000000000', 1, 14);
   end;
 
-  Result := Result + IntToStrZero(nAno, 4);
-  Result := Result + IntToStrZero(nMes, 2);
-  Result := Result + IntToStrZero(nDia, 2);
-  Result := Result + IntToStrZero(nHora, 2);
-  Result := Result + IntToStrZero(nMin, 2);
-  Result := Result + IntToStrZero(nSeg, 2);
-  Result := Result + IntToStrZero(sequencial, 5);
+  Result := Result + pcnAuxiliar.IntToStrZero(nAno, 4);
+  Result := Result + pcnAuxiliar.IntToStrZero(nMes, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nDia, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nHora, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nMin, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nSeg, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(sequencial, 5);
 end;
 
 procedure TeSocialEvento.GerarCNH(pCnh: TCNH);
@@ -852,7 +853,7 @@ end;
 
 procedure TeSocialEvento.GerarSucessaoVinc(pSucessaoVinc: TSucessaoVinc);
 begin
-  if pSucessaoVinc.cnpjEmpregAnt <> EmptyStr then
+  if pSucessaoVinc.nrInsc <> EmptyStr then
   begin
     Gerador.wGrupo('sucessaoVinc');
 
@@ -1334,7 +1335,7 @@ begin
     Gerador.wAlerta('', 'ideTrabSubstituido', 'Lista de Trabalhadores Substituido', ERR_MSG_MAIOR_MAXIMO + '9');
 end;
 
-procedure TeSocialEvento.GerarIdeVinculo(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
+procedure TeSocialEvento.GerarIdeVinculo2206(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
 begin
   Gerador.wGrupo('ideVinculo');
 
@@ -1351,6 +1352,30 @@ begin
 
   if (IntToTpProf(pIdeVinculo.codCateg) = ttpProfissionalEmpregado) then
           Gerador.wCampo(tcStr, '', 'matricula', 1, 30, 0, pIdeVinculo.matricula);
+  
+  if not(pCessao) then
+    if (pcodCateg) then
+      Gerador.wCampo(tcInt, '', 'codCateg',  3,  3, 0, pIdeVinculo.codCateg);
+
+  Gerador.wGrupo('/ideVinculo');
+end;
+
+procedure TeSocialEvento.GerarIdeVinculo(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
+begin
+  Gerador.wGrupo('ideVinculo');
+
+  Gerador.wCampo(tcStr, '', 'cpfTrab', 11, 11, 1, pIdeVinculo.cpfTrab);
+
+  if not(pCessao) then
+    if VersaoDF <= ve02_05_00 then
+    begin
+      if ((pIdeVinculo.codCateg = 901) or (pIdeVinculo.codCateg = 903) or (pIdeVinculo.codCateg = 904)) then
+        Gerador.wCampo(tcStr, '', 'nisTrab', 1, 11, 0, pIdeVinculo.nisTrab)
+      else
+        Gerador.wCampo(tcStr, '', 'nisTrab', 1, 11, 1, pIdeVinculo.nisTrab);
+    end;
+
+  Gerador.wCampo(tcStr, '', 'matricula', 0, 30, 0, pIdeVinculo.matricula);
   
   if not(pCessao) then
     if (pcodCateg) then
@@ -1500,7 +1525,7 @@ begin
       Gerador.wCampo(tcDat, '', 'dtExercicio', 10, 10, 1, pInfoEstatutario.dtExercicio);
 
     if pInfoEstatutario.tpPlanRP <> prpNenhum then
-      Gerador.wCampo(tcInt, '', 'tpPlanRP', 0, 1, 0,  eSTpPlanRPToStr(pInfoEstatutario.tpPlanRP));
+      Gerador.wCampo(tcStr, '', 'tpPlanRP', 0, 1, 0,  eSTpPlanRPToStr(pInfoEstatutario.tpPlanRP));
 
     if VersaoDF <= ve02_05_00 then
       GerarInfoDecJud(pInfoEstatutario.infoDecJud)
@@ -2101,6 +2126,19 @@ begin
     Gerador.wCampo(tcDat, '', 'dtIniCessao',  10, 10, 1, obj.dtIniCessao);
 
     Gerador.wGrupo('/cessao');
+  end;
+end;
+
+function TeSocialEvento.GerarXML: boolean;
+begin
+  Result := False;
+  with TACBreSocial(FACBreSocial).Configuracoes.Geral do
+  begin
+    Self.VersaoDF := VersaoDF;
+    Self.Gerador.Opcoes.FormatoAlerta := FormatoAlerta;
+    Self.Gerador.Opcoes.RetirarAcentos := RetirarAcentos;
+    Self.Gerador.Opcoes.RetirarEspacos := RetirarEspacos;
+    Self.Gerador.Opcoes.IdentarXML := IdentarXML;
   end;
 end;
 

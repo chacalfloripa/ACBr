@@ -61,6 +61,7 @@ uses
   geNFe.Provider,
   Ginfes.Provider,
   GovBr.Provider,
+  Horus.Provider,
   ISSCuritiba.Provider,
   ISSFortaleza.Provider,
   ISSIntel.Provider,
@@ -88,7 +89,6 @@ uses
   Centi.Provider,
   Citta.Provider,
   Coplan.Provider,
-  CTA.Provider,
   DataSmart.Provider,
   DeISS.Provider,
   Desenvolve.Provider,
@@ -157,6 +157,8 @@ uses
   Agili.Provider,
   AssessorPublico.Provider,
   Conam.Provider,
+  CTA.Provider,
+  CTAConsult.Provider,
   eGoverneISS.Provider,
   Equiplano.Provider,
   FGMaiss.Provider,
@@ -169,6 +171,7 @@ uses
   ISSDSF.Provider,
   ISSLencois.Provider,
   ISSSaoPaulo.Provider,
+  Siappa.Provider,
   Siat.Provider,
   SigISS.Provider,
   Simple.Provider,
@@ -232,7 +235,11 @@ begin
       proCitta:     Result := TACBrNFSeProviderCitta203.Create(ACBrNFSe);
       proConam:     Result := TACBrNFSeProviderConam.Create(ACBrNFSe);
       proCoplan:    Result := TACBrNFSeProviderCoplan201.Create(ACBrNFSe);
-      proCTA:       Result := TACBrNFSeProviderCTA203.Create(ACBrNFSe);
+      proCTA:       Result := TACBrNFSeProviderCTA200.Create(ACBrNFSe);
+
+      proCTAConsult:
+        Result := TACBrNFSeProviderCTAConsult.Create(ACBrNFSe);
+
       proDataSmart: Result := TACBrNFSeProviderDataSmart202.Create(ACBrNFSe);
       proDBSeller:  Result := TACBrNFSeProviderDBSeller.Create(ACBrNFSe);
       proDeISS:     Result := TACBrNFSeProviderDeISS203.Create(ACBrNFSe);
@@ -299,6 +306,7 @@ begin
       proGovBr:      Result := TACBrNFSeProviderGovBr.Create(ACBrNFSe);
       proGovDigital: Result := TACBrNFSeProviderGovDigital200.Create(ACBrNFSe);
       proGoverna:    Result := TACBrNFSeProviderGoverna.Create(ACBrNFSe);
+      proHorus:      Result := TACBrNFSeProviderHorus.Create(ACBrNFSe);
       proiiBrasil:   Result := TACBrNFSeProvideriiBrasil204.Create(ACBrNFSe);
 
       proInfisc:
@@ -309,6 +317,7 @@ begin
             ve101: Result := TACBrNFSeProviderInfisc101.Create(ACBrNFSe);
             // Layout ABRASF
             ve201: Result := TACBrNFSeProviderInfisc201.Create(ACBrNFSe);
+            ve203: Result := TACBrNFSeProviderInfisc203.Create(ACBrNFSe);
           else
             Result := nil;
           end;
@@ -335,7 +344,7 @@ begin
 
       proISSDigital: Result := TACBrNFSeProviderISSDigital200.Create(ACBrNFSe);
       proISSDSF:     Result := TACBrNFSeProviderISSDSF.Create(ACBrNFSe);
-      proISSe:       Result := TACBrNFSeProviderISSe200.Create(ACBrNFSe);
+      proISSe:       Result := TACBrNFSeProviderISSe201.Create(ACBrNFSe);
 
       proISSFortaleza:
         Result := TACBrNFSeProviderISSFortaleza.Create(ACBrNFSe);
@@ -411,6 +420,7 @@ begin
       proSH3:     Result := TACBrNFSeProviderSH3200.Create(ACBrNFSe);
       proSiam:    Result := TACBrNFSeProviderSiam200.Create(ACBrNFSe);
       proSiapNet: Result := TACBrNFSeProviderSiapNet200.Create(ACBrNFSe);
+      proSiappa:  Result := TACBrNFSeProviderSiappa.Create(ACBrNFSe);
 
       proSiapSistemas:
         Result := TACBrNFSeProviderSiapSistemas203.Create(ACBrNFSe);

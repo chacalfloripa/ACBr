@@ -266,7 +266,9 @@ type
 implementation
 
 uses
-  ACBrPIXUtil, ACBrUtil;
+  ACBrPIXUtil,
+  ACBrUtil.Strings,
+  ACBrUtil.Base;
 
 { TACBrTLV }
 
@@ -397,7 +399,6 @@ procedure TACBrEMVList.ReadNextEMVChunk(const AData: String; var p: Integer;
   out AId: byte; out AValue: String);
 var
   l, t: Integer;
-  tlv: TACBrTLV;
 begin
   t := StrToIntDef(copy(AData, p, 2), -1);
   if (t < 0) then

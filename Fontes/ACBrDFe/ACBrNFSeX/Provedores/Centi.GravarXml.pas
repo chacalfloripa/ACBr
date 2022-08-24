@@ -66,12 +66,21 @@ begin
   FormatoEmissao := tcDatHor;
   FormatoCompetencia := tcDatHor;
   FormatoAliq := tcDe2;
+  FormatoItemListaServico := filsSemFormatacaoSemZeroEsquerda;
 
   NrOcorrCodTribMun_1 := 1;
 
   NrOcorrValorISS := -1;
   NrOcorrDescCond := -1;
   NrOcorrRespRetencao := -1;
+
+  NrOcorrIssRetido := -1;
+  NrOcorrExigibilidadeISS := -1;
+  NrOcorrCodigoCNAE := -1;
+
+  NrOcorrCompetencia := -1;
+  NrOcorrOptanteSimplesNacional := -1;
+  NrOcorrIncentCultural := -1;
 
   GerarIDDeclaracao := False;
 end;

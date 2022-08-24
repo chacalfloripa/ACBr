@@ -45,8 +45,7 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrShipaySchemas,
-  ACBrPIXBase, ACBrPIXSchemasProblema;
+  ACBrPIXCD, ACBrShipaySchemas, ACBrBase, ACBrPIXBase, ACBrPIXSchemasProblema;
 
 const
   cShipayURLStaging = 'https://api-staging.shipay.com.br';
@@ -55,8 +54,8 @@ const
   cShipayEndPointRefreshToken = '/refresh-token';
   cShipayEndPointWallets = '/v1/wallets';
   cShipayEndPointOrder = '/order';
-  cShipayEndPointOrders = '/orders';
   cShipayEndPointOrdersList = '/orders/list';
+  cShipayEndPointOrderDueDate = '/v1/bacen/order-due-date';
   cShipayEndPointOrderV = '/orderv';
   cShipayPathRefund = 'refund';
   cShipayWalletPix = 'pix';
@@ -75,18 +74,26 @@ type
   TShipayQuandoEnviarOrder = procedure(ShipayOrder: TShipayOrder) of object;
 
   { TACBrPSPShipay }
-
+  
+  {$IFDEF RTL230_UP}
+  [ComponentPlatformsAttribute(piacbrAllPlatforms)]
+  {$ENDIF RTL230_UP}
   TACBrPSPShipay = class(TACBrPSP)
   private
     fAccessKey: String;
     fOrder: TShipayOrder;
     fOrderCreated: TShipayOrderCreated;
+    fOrderDueDate: TShipayOrderDueDate;
+    fOrderError: TShipayOrderError;
     fOrderInfo: TShipayOrderInfo;
     fOrderList: TShipayOrdersList;
     fQuandoEnviarOrder: TShipayQuandoEnviarOrder;
     fWallets: TShipayWalletArray;
     function GetSecretKey: String;
     procedure SetSecretKey(AValue: String);
+
+    procedure DoPostOrder(aEndPoint: String; IsEOrder: Boolean);
+    procedure DoGetOrderInfo(aEndPoint, order_id: String);
 
     procedure ProcessarAutenticacao(const AURL: String; ResultCode: Integer;
       const RespostaHttp: AnsiString);
@@ -95,14 +102,19 @@ type
     procedure QuandoReceberRespostaEndPoint(const AEndPoint, AURL, AMethod: String;
       var AResultCode: Integer; var RespostaHttp: AnsiString);
 
-    function ConverterJSONCobSolicitadaParaShipayOrder(const CobSolicitadaJSON: String;
-      const TxId: String): String;
+    function ConverterJSONCobSolicitadaParaShipayOrder(const CobSolicitadaJSON: String): String;
     function ConverterJSONOrderCreatedParaCobGerada(const OrderCreatedJSON: String): String;
     function ConverterJSONOrderInfoParaCobCompleta(const OrderInfoJSON: String): String;
+    function ConverterJSONOrdersListParaCobsConsultadas(const OrdersList: String): String;
 
     function ShiPayStatusToCobStatus(AShipayStatus: TShipayOrderStatus): TACBrPIXStatusCobranca;
   protected
+    function CalcularEndPointPath(const aMethod, aEndPoint: String): String; override;
     function ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String; override;
+    
+    procedure ConfigurarBody(const aMethod, aEndPoint: String; var aBody: String); override;
+    procedure ConfigurarPathParameters(const aMethod, aEndPoint: String); override;
+    procedure ConfigurarQueryParameters(const aMethod, aEndPoint: String); override;
     procedure TratarRetornoComErro(ResultCode: Integer; const RespostaHttp: AnsiString;
       Problema: TACBrPIXProblema); override;
   public
@@ -112,20 +124,30 @@ type
 
     procedure Autenticar; override;
     procedure RenovarToken; override;
-
     procedure GetWallets;
+
     procedure PostOrder(IsEOrder: Boolean = False);
+    procedure PostOrderV(IsEOrder: Boolean = False);
+
     function DeleteOrder(const order_id: String): Boolean;
     function RefundOrder(const order_id: String; ValorReembolso: Currency): Boolean;
-    procedure GetOrderInfo(const order_id: String; Wallet: String = '');
+
+    procedure GetOrderInfo(const order_id: String);
+    procedure GetOrderVInfo(const order_id: String);
     procedure GetOrdersList(start_date: TDateTime; end_date: TDateTime = 0;
       offset: Integer = 0; limit: Integer = 0);
 
+    procedure PostOrderDueDate;
+    function PatchOrderDueDate(const order_id: String): Boolean;   // Cancelar OrderDueDate
+    function DeleteOrderDueDate(const order_id: String): Boolean;  // Estornar OrderDueDate
+
     property Wallets: TShipayWalletArray read fWallets;
     property Order: TShipayOrder read fOrder;
+    property OrderDueDate: TShipayOrderDueDate read fOrderDueDate;
     property OrderCreated: TShipayOrderCreated read fOrderCreated;
     property OrderInfo: TShipayOrderInfo read fOrderInfo;
     property OrderList: TShipayOrdersList read fOrderList;
+    property OrderError: TShipayOrderError read fOrderError;
   published
     property ClientID;
     property SecretKey: String read GetSecretKey write SetSecretKey;
@@ -138,16 +160,9 @@ type
 implementation
 
 uses
-  StrUtils,
-  synautil,
+  StrUtils, synautil, DateUtils, ACBrJSON,
   ACBrUtil.DateTime, ACBrUtil.Strings, ACBrUtil.Base, ACBrUtil.FilesIO,
-  ACBrPIXUtil, ACBrPIXSchemasCob, ACBrPIXBRCode,
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-   JsonDataObjects_ACBr
-  {$Else}
-   Jsons
-  {$EndIf},
-  DateUtils;
+  ACBrPIXUtil, ACBrPIXSchemasCob, ACBrPIXBRCode, ACBrPIXSchemasCobsConsultadas;
 
 { TACBrPSPShipay }
 
@@ -155,10 +170,12 @@ constructor TACBrPSPShipay.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   fWallets := TShipayWalletArray.Create('wallets');
-  fOrder := TShipayOrder.Create('');
-  fOrderCreated := TShipayOrderCreated.Create('');
-  fOrderInfo := TShipayOrderInfo.Create('');
-  fOrderList := TShipayOrdersList.Create('');
+  fOrder := TShipayOrder.Create;
+  fOrderDueDate := TShipayOrderDueDate.Create;
+  fOrderCreated := TShipayOrderCreated.Create;
+  fOrderInfo := TShipayOrderInfo.Create;
+  fOrderList := TShipayOrdersList.Create;
+  fOrderError := TShipayOrderError.Create;
   fAccessKey := '';
   fQuandoEnviarOrder := Nil;
   fpQuandoAcessarEndPoint := QuandoAcessarEndPoint;
@@ -169,9 +186,11 @@ destructor TACBrPSPShipay.Destroy;
 begin
   fWallets.Free;
   fOrder.Free;
+  fOrderDueDate.Free;
   fOrderCreated.Free;
   fOrderInfo.Free;
   fOrderList.Free;
+  fOrderError.Free;
   inherited Destroy;
 end;
 
@@ -179,9 +198,11 @@ procedure TACBrPSPShipay.Clear;
 begin
   inherited Clear;
   fOrder.Clear;
+  fOrderDueDate.Clear;
   fOrderCreated.Clear;
   fOrderInfo.Clear;
   fOrderList.Clear;
+  fOrderError.Clear;
 end;
 
 function TACBrPSPShipay.GetSecretKey: String;
@@ -194,37 +215,87 @@ begin
   ClientSecret := AValue;
 end;
 
+procedure TACBrPSPShipay.DoPostOrder(aEndPoint: String; IsEOrder: Boolean);
+var
+  Body, aURL: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+  Ok: Boolean;
+begin
+  Body := Trim(fOrder.AsJSON);
+  if EstaVazio(Body) then
+    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido),
+      [PathWithoutDelim(aEndPoint)]));
+
+  fOrderCreated.Clear;
+  PrepararHTTP;
+  if IsEOrder then
+    Http.Headers.Add(cShipayHeaderOrderType+' '+cShipayEOrder);
+  WriteStrToStream(Http.Document, Body);
+  Http.MimeType := CContentTypeApplicationJSon;
+  Ok := AcessarEndPoint(ChttpMethodPOST, aEndPoint, ResultCode, RespostaHttp);
+  Ok := Ok and ((ResultCode = HTTP_OK) or (ResultCode = HTTP_CREATED));
+
+  if Ok then
+    fOrderCreated.AsJSON := String(RespostaHttp)
+  else
+  begin
+    OrderError.AsJSON := String(RespostaHttp);
+    aURL := CalcularURLEndPoint(ChttpMethodPOST, aEndPoint);
+    DispararExcecao(EACBrPixHttpException.CreateFmt(sErroHttp, [Http.ResultCode, ChttpMethodPOST, aURL]));
+  end;
+end;
+
+procedure TACBrPSPShipay.DoGetOrderInfo(aEndPoint, order_id: String);
+var
+  AURL: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+  OK: Boolean;
+
+begin
+  if EstaVazio(Trim(order_id)) then
+    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['order_id']));
+
+  Clear;
+  PrepararHTTP;
+  URLPathParams.Add(order_id);
+  AcessarEndPoint(ChttpMethodGET, aEndPoint, ResultCode, RespostaHttp);
+  OK := (ResultCode = HTTP_OK);
+
+  if OK then
+  begin
+    fOrderInfo.AsJSON := String(RespostaHttp);
+    if (fOrderInfo.order_id <> Trim(order_id)) then
+      DispararExcecao(EACBrPixException.Create(sErrOrderIdDifferent));
+  end
+  else
+  begin
+    OrderError.AsJSON := String(RespostaHttp);
+    AURL := CalcularURLEndPoint(ChttpMethodGET, aEndPoint);
+    DispararExcecao(EACBrPixHttpException.CreateFmt(sErroHttp, [Http.ResultCode, ChttpMethodGET, AURL]));
+  end;
+end;
+
 procedure TACBrPSPShipay.Autenticar;
 var
   AURL, Body: String;
   RespostaHttp: AnsiString;
   ResultCode: Integer;
-  js: TJsonObject;
+  js: TACBrJSONObject;
 begin
   LimparHTTP;
   AURL := ObterURLAmbiente( ACBrPixCD.Ambiente ) + cShipayEndPointAuth;
 
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-   js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
+   js := TACBrJSONObject.Create;
    try
-     js.S['access_key'] := AccessKey;
-     js.S['secret_key'] := SecretKey;
-     js.S['client_id'] := ClientID;
-     Body := js.ToJSON();
+     js.AddPair('access_key', AccessKey);
+     js.AddPair('secret_key', SecretKey);
+     js.AddPair('client_id', ClientID);
+     Body := js.ToJSON;
    finally
      js.Free;
    end;
-  {$Else}
-   js := TJsonObject.Create;
-   try
-     js['access_key'].AsString := AccessKey;
-     js['secret_key'].AsString := SecretKey;
-     js['client_id'].AsString := ClientID;
-     Body := js.Stringify;
-   finally
-     js.Free;
-   end;
-  {$EndIf}
 
   WriteStrToStream(Http.Document, Body);
   Http.MimeType := CContentTypeApplicationJSon;
@@ -272,45 +343,19 @@ begin
 end;
 
 procedure TACBrPSPShipay.PostOrder(IsEOrder: Boolean);
-var
-  Body, AURL, ep: String;
-  RespostaHttp: AnsiString;
-  ResultCode: Integer;
-  Ok: Boolean;
 begin
-  Body := Trim(fOrder.AsJSON);
-  if (Body = '') then
-    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['Order']));
-
-  if (LowerCase(fOrder.wallet) = cShipayWalletPix) then
-  begin
-    ep := cShipayEndPointOrderV;
-    if (fOrder.expiration = 0) then
-      fOrder.expiration := 3600;
-  end
-  else
-    ep := cShipayEndPointOrder;
-
-  fOrderCreated.Clear;
-  PrepararHTTP;
-  if IsEOrder then
-    Http.Headers.Add(cShipayHeaderOrderType+' '+cShipayEOrder);
-  WriteStrToStream(Http.Document, Body);
-  Http.MimeType := CContentTypeApplicationJSon;
-  Ok := AcessarEndPoint(ChttpMethodPOST, ep, ResultCode, RespostaHttp);
-  Ok := Ok and (ResultCode = HTTP_OK);
-
-  if Ok then
-    fOrderCreated.AsJSON := String(RespostaHttp)
-  else
-  begin
-    AURL := CalcularURLEndPoint(ChttpMethodPOST, ep);
-    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
-       [Http.ResultCode, ChttpMethodPOST, AURL]));
-  end;
+  DoPostOrder(cShipayEndPointOrder, IsEOrder);
 end;
 
-// Retorna Verdadeiro se a Ordeer foi cancelada com sucesso //
+procedure TACBrPSPShipay.PostOrderV(IsEOrder: Boolean);
+begin
+  if (fOrder.expiration <= 0) then
+    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroPropriedadeNaoDefinida),['expiration']));
+
+  DoPostOrder(cShipayEndPointOrderV, IsEOrder);
+end;
+
+// Retorna Verdadeiro se a Order foi cancelada com sucesso //
 function TACBrPSPShipay.DeleteOrder(const order_id: String): Boolean;
 var
   AURL: String;
@@ -336,6 +381,7 @@ begin
   end
   else
   begin
+    OrderError.AsJSON := String(RespostaHttp);
     AURL := CalcularURLEndPoint(ChttpMethodDELETE, cShipayEndPointOrder);
     DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
        [Http.ResultCode, ChttpMethodDELETE, AURL]));
@@ -348,7 +394,7 @@ var
   AURL, Body: String;
   RespostaHttp: AnsiString;
   ResultCode: Integer;
-  js: TJsonObject;
+  js: TACBrJSONObject;
 begin
   if (Trim(order_id) = '') then
     DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['order_id']));
@@ -356,30 +402,132 @@ begin
   if (ValorReembolso <= 0) then
     DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['ValorReembolso']));
 
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-   js := TJsonObject.Create();
-   try
-     js.F['amount'] := ValorReembolso;
-     Body := js.ToJSON();
-   finally
-     js.Free;
-   end;
-  {$Else}
-   js := TJsonObject.Create;
-   try
-     js['amount'].AsNumber := ValorReembolso;
-     Body := js.Stringify;
-   finally
-     js.Free;
-   end;
-  {$EndIf}
+  js := TACBrJSONObject.Create;
+  try
+    js.AddPair('amount', ValorReembolso);
+    Body := js.ToJSON;
+  finally
+    js.Free;
+  end;
 
   Clear;
   PrepararHTTP;
   URLPathParams.Add(order_id);
   URLPathParams.Add(cShipayPathRefund);
   WriteStrToStream(Http.Document, Body);
+  Http.MimeType := CContentTypeApplicationJSon;
   AcessarEndPoint(ChttpMethodDELETE, cShipayEndPointOrder, ResultCode, RespostaHttp);
+  Result := (ResultCode = HTTP_OK);
+
+  if Result then
+  begin
+    fOrderInfo.AsJSON := String(RespostaHttp);
+    if (fOrderInfo.order_id <> Trim(order_id)) then
+      DispararExcecao(EACBrPixException.Create(sErrOrderIdDifferent));
+
+    Result := (fOrderInfo.status in [spsCancelled, spsRefunded, spsRefundPending]);
+  end
+  else
+  begin
+    OrderError.AsJSON := String(RespostaHttp);
+    AURL := CalcularURLEndPoint(ChttpMethodDELETE, cShipayEndPointOrder);
+    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
+       [Http.ResultCode, ChttpMethodDELETE, AURL]));
+  end;
+end;
+
+procedure TACBrPSPShipay.GetOrderInfo(const order_id: String);
+begin
+  DoGetOrderInfo(cShipayEndPointOrder, order_id);
+end;
+
+procedure TACBrPSPShipay.GetOrderVInfo(const order_id: String);
+begin
+  DoGetOrderInfo(cShipayEndPointOrderV, order_id);
+end;
+
+procedure TACBrPSPShipay.GetOrdersList(start_date: TDateTime;
+  end_date: TDateTime; offset: Integer; limit: Integer);
+var
+  AURL, wStartDate, wEndDate: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+  OK: Boolean;
+begin
+  Clear;
+  PrepararHTTP;
+
+  wStartDate := DateTimeToIso8601(start_date);
+  SetLength(wStartDate, Length(wStartDate) - 5);
+  URLQueryParams.Values['start_date'] := wStartDate;
+
+  if (end_date <> 0) then
+  begin
+    wEndDate := DateTimeToIso8601(end_date);
+    SetLength(wEndDate, Length(wEndDate) - 5);
+    URLQueryParams.Values['end_date'] := wEndDate;
+  end;
+
+  if (limit <> 0) then
+    URLQueryParams.Values['limit'] := IntToStr(limit);
+  if (offset <> 0) then
+    URLQueryParams.Values['offset'] := IntToStr(offset);
+
+  AcessarEndPoint(ChttpMethodGET, cShipayEndPointOrdersList, ResultCode, RespostaHttp);
+  OK := (ResultCode = HTTP_OK);
+
+  if OK then
+    fOrderList.AsJSON := String(RespostaHttp)
+  else
+  begin
+    OrderError.AsJSON := String(RespostaHttp);
+    AURL := CalcularURLEndPoint(ChttpMethodGET, cShipayEndPointOrdersList);
+    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
+       [Http.ResultCode, ChttpMethodGET, AURL]));
+  end;
+end;
+
+procedure TACBrPSPShipay.PostOrderDueDate;
+var
+  Body, AURL: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+  Ok: Boolean;
+begin
+  Body := Trim(OrderDueDate.AsJSON);
+  if (Body = '') then
+    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['OrderDueDate']));
+
+  fOrderCreated.Clear;
+  PrepararHTTP;
+  WriteStrToStream(Http.Document, Body);
+  Http.MimeType := CContentTypeApplicationJSon;
+  Ok := AcessarEndPoint(ChttpMethodPOST, cShipayEndPointOrderDueDate, ResultCode, RespostaHttp);
+  Ok := Ok and (ResultCode = HTTP_CREATED);
+
+  if Ok then
+    fOrderCreated.AsJSON := String(RespostaHttp)
+  else
+  begin
+    OrderError.AsJSON := String(RespostaHttp);
+    AURL := CalcularURLEndPoint(ChttpMethodPOST, cShipayEndPointOrderDueDate);
+    DispararExcecao(EACBrPixHttpException.CreateFmt(sErroHttp, [Http.ResultCode, ChttpMethodPOST, AURL]));
+  end;
+end;
+
+function TACBrPSPShipay.PatchOrderDueDate(const order_id: String): Boolean;
+var
+  AURL: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+begin
+  if (Trim(order_id) = '') then
+    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['order_id']));
+
+  Clear;
+  PrepararHTTP;
+  URLPathParams.Add(order_id);
+  AcessarEndPoint(ChttpMethodPATCH,cShipayEndPointOrderDueDate, ResultCode, RespostaHttp);
   Result := (ResultCode = HTTP_OK);
 
   if Result then
@@ -392,119 +540,58 @@ begin
   end
   else
   begin
-    AURL := CalcularURLEndPoint(ChttpMethodDELETE, cShipayEndPointOrder);
-    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
-       [Http.ResultCode, ChttpMethodDELETE, AURL]));
+    OrderError.AsJSON := String(RespostaHttp);
+    AURL := CalcularURLEndPoint(ChttpMethodPATCH, cShipayEndPointOrderDueDate);
+    DispararExcecao(EACBrPixHttpException.CreateFmt(sErroHttp, [Http.ResultCode, ChttpMethodPATCH, AURL]));
   end;
 end;
 
-procedure TACBrPSPShipay.GetOrderInfo(const order_id: String; Wallet: String);
-var
-  AURL, ep: String;
-  RespostaHttp: AnsiString;
-  ResultCode: Integer;
-  OK: Boolean;
-
-  function DoGetOrderInfo: Boolean;
-  begin
-    Clear;
-    PrepararHTTP;
-    URLPathParams.Add(order_id);
-    AcessarEndPoint(ChttpMethodGET, ep, ResultCode, RespostaHttp);
-    Result := (ResultCode = HTTP_OK);
-  end;
-
-begin
-  if (Trim(order_id) = '') then
-    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['order_id']));
-
-  if (LowerCase(Wallet) = cShipayWalletPix) then
-    ep := cShipayEndPointOrderV
-  else
-    ep := cShipayEndPointOrder;
-
-  Ok := DoGetOrderInfo;
-  if (not Ok) and (ResultCode = HTTP_NOT_FOUND) then
-  begin
-    if (ep = cShipayEndPointOrderV) then
-      ep := cShipayEndPointOrder
-    else
-      ep := cShipayEndPointOrderV;
-
-    Ok := DoGetOrderInfo;
-  end;
-
-  if OK then
-  begin
-    fOrderInfo.AsJSON := String(RespostaHttp);
-    if (fOrderInfo.order_id <> Trim(order_id)) then
-      DispararExcecao(EACBrPixException.Create(sErrOrderIdDifferent));
-  end
-  else
-  begin
-    AURL := CalcularURLEndPoint(ChttpMethodGET, ep);
-    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
-       [Http.ResultCode, ChttpMethodGET, AURL]));
-  end;
-end;
-
-procedure TACBrPSPShipay.GetOrdersList(start_date: TDateTime;
-  end_date: TDateTime; offset: Integer; limit: Integer);
+function TACBrPSPShipay.DeleteOrderDueDate(const order_id: String): Boolean;
 var
   AURL: String;
   RespostaHttp: AnsiString;
   ResultCode: Integer;
-  OK: Boolean;
 begin
+  if (Trim(order_id) = '') then
+    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['order_id']));
+
   Clear;
   PrepararHTTP;
-  URLQueryParams.Values['start_date'] := DateTimeToIso8601(start_date);
-  if (end_date <> 0) then
-    URLQueryParams.Values['end_date'] := DateTimeToIso8601(end_date);
-  if (limit <> 0) then
-    URLQueryParams.Values['limit'] := IntToStr(limit);
-  if (offset <> 0) then
-    URLQueryParams.Values['offset'] := IntToStr(offset);
-  URLPathParams.Add('list');
-  AcessarEndPoint(ChttpMethodGET, cShipayEndPointOrder, ResultCode, RespostaHttp);
-  OK := (ResultCode = HTTP_OK);
+  URLPathParams.Add(order_id);
+  AcessarEndPoint(ChttpMethodDELETE, cShipayEndPointOrderDueDate, ResultCode, RespostaHttp);
+  Result := (ResultCode = HTTP_OK);
 
-  if OK then
-    fOrderList.AsJSON := String(RespostaHttp)
+  if Result then
+  begin
+    fOrderInfo.AsJSON := String(RespostaHttp);
+    if (fOrderInfo.order_id <> Trim(order_id)) then
+      DispararExcecao(EACBrPixException.Create(sErrOrderIdDifferent));
+
+    Result := (fOrderInfo.status in [spsCancelled, spsRefunded, spsRefundPending]);
+  end
   else
   begin
-    AURL := CalcularURLEndPoint(ChttpMethodDELETE, cShipayEndPointOrder);
-    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
-       [Http.ResultCode, ChttpMethodDELETE, AURL]));
+    OrderError.AsJSON := String(RespostaHttp);
+    AURL := CalcularURLEndPoint(ChttpMethodDELETE, cShipayEndPointOrderDueDate);
+    DispararExcecao(EACBrPixHttpException.CreateFmt(sErroHttp, [Http.ResultCode, ChttpMethodDELETE, AURL]));
   end;
 end;
 
 procedure TACBrPSPShipay.ProcessarAutenticacao(const AURL: String;
   ResultCode: Integer; const RespostaHttp: AnsiString);
 var
-  js: TJsonObject;
+  js: TACBrJSONObject;
 begin
   Wallets.Clear;
   if (ResultCode = HTTP_OK) then
   begin
-   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
+    js := TACBrJSONObject.Parse(RespostaHttp);
     try
-      fpToken := js.S['access_token'];
-      fpRefreshToken := js.S['refresh_token'];
+      fpToken := js.AsString['access_token'];
+      fpRefreshToken := js.AsString['refresh_token'];
     finally
       js.Free;
     end;
-   {$Else}
-    js := TJsonObject.Create;
-    try
-      js.Parse(RespostaHttp);
-      fpToken := js['access_token'].AsString;
-      fpRefreshToken := js['refresh_token'].AsString;
-    finally
-      js.Free;
-    end;
-   {$EndIf}
 
     if (Trim(fpToken) = '') then
       DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
@@ -523,99 +610,14 @@ end;
 
 procedure TACBrPSPShipay.QuandoAcessarEndPoint(const AEndPoint: String;
   var AURL: String; var AMethod: String);
-const
-  SDateFormat: string = 'yyyy''-''mm''-''dd''T''hh'':''nn'':''ss';
-var
-  Body, ep, TxId, uMethod, QueryParams: String;
-  p: Integer;
-  QP: TACBrQueryParams;
-  inicio, fim: TDateTime;
-  offset, limit: Integer;
-
-  procedure ExtractTxIdFromURL;
-  begin
-    p := Pos(cEndPointCob, AURL);
-    if (p > 0) then
-    begin
-      p := PosEx('/', AURL, p + Length(cEndPointCob));
-      if (p > 0) then
-      begin
-        TxId := Copy(AURL, p+1, Length(AURL));
-        AURL := copy(AURL, 1, p-1);
-      end;
-    end;
-  end;
-
-  procedure ExtractQueryParamsFromURL;
-  begin
-    p := PosLast('?', AURL);
-    if (p > 0) then
-    begin
-      QueryParams := copy(AURL, p+1, Length(AURL));
-      AURL := copy(AURL, 1, p-1);
-    end;
-  end;
-
 begin
-  TxId := '';
-  uMethod := UpperCase(AMethod);
   if (AEndPoint = cEndPointCob) then
   begin
-    if (pos(uMethod, ChttpMethodPOST+','+ChttpMethodPUT) > 0) then
-    begin
-      if (AMethod = ChttpMethodPUT) then
-        ExtractTxIdFromURL;
-
+    if (Pos(aMethod, ChttpMethodPOST+','+ChttpMethodPUT) > 0) then
       AMethod := ChttpMethodPOST;
-      Body := ConverterJSONCobSolicitadaParaShipayOrder( String(StreamToAnsiString(Http.Document)), TxId );
-      if (fOrder.wallet = cShipayWalletPix) then
-        ep := cShipayEndPointOrderV
-      else
-        ep := cShipayEndPointOrder;
 
-      AURL := StringReplace(AURL, cEndPointCob, ep, []);
-      Http.Document.Clear;
-      WriteStrToStream(Http.Document, Body);
-    end
-
-    else if (uMethod = ChttpMethodGET) then
-    begin
-      ExtractQueryParamsFromURL;
-      ExtractTxIdFromURL;
-
-      if (QueryParams <> '') and (TxId = '') then  // GET /cob
-      begin
-        QP := TACBrQueryParams.Create;
-        try
-          QP.AsURL := QueryParams;
-          inicio := Iso8601ToDateTime(QP.Values['inicio']);
-          fim := Iso8601ToDateTime(QP.Values['fim']);
-          limit := StrToIntDef(QP.Values['paginacao.itensPorPagina'], -1);
-          offset := StrToIntDef(QP.Values['paginacao.paginaAtual'], -1);
-          QP.Clear;
-          QP.Values['start_date'] := FormatDateTime(SDateFormat, inicio);
-          QP.Values['end_date'] := FormatDateTime(SDateFormat, fim);
-          if (limit > 0) then
-            QP.Values['limit'] := IntToStr(limit);
-          if (offset > 0) then
-            QP.Values['offset'] := IntToStr(offset);
-          QueryParams := qp.AsURL;
-        finally
-          QP.Free;
-        end;
-        AURL := StringReplace(AURL, cEndPointCob, cShipayEndPointOrdersList, []) +'?'+ QueryParams;
-      end
-      else
-      begin                                        // GET /cob/{txid}
-        TxId := LowerCase(TxId);
-        if (pos('-', TxId) = 0) then
-          FormatarGUID(TxId);
-        if (Length(Trim(TxId)) <> 36) then
-          DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErrOrderIdInvalid),[TxId]));
-
-        AURL := StringReplace(AURL, cEndPointCob, cShipayEndPointOrder, []) +'/'+ TxId;
-      end;
-    end;
+    if (AMethod = ChttpMethodPATCH) then
+      AMethod := ChttpMethodDELETE;
   end;
 end;
 
@@ -649,14 +651,15 @@ begin
         end;
 
         if (AResultCode = HTTP_OK) then
-          RespostaHttp := ConverterJSONOrderInfoParaCobCompleta( RespostaHttp );
-      end;
+          RespostaHttp := ConverterJSONOrderInfoParaCobCompleta(RespostaHttp);
+      end
+      else if (AResultCode = HTTP_OK) then
+        RespostaHttp := ConverterJSONOrdersListParaCobsConsultadas(RespostaHttp);
     end;
   end
 end;
 
-function TACBrPSPShipay.ConverterJSONCobSolicitadaParaShipayOrder(
-  const CobSolicitadaJSON: String; const TxId: String): String;
+function TACBrPSPShipay.ConverterJSONCobSolicitadaParaShipayOrder(const CobSolicitadaJSON: String): String;
 const
   cACBrOrderRefSufixo = '-acbr';
 var
@@ -677,14 +680,9 @@ begin
     fOrder.pix_dict_key := Cob.chave;
     fOrder.expiration := Cob.calendario.expiracao;
 
-    if (TxId <> '') then
-      fOrder.order_ref := TxId
-    else
-    begin
-      ia := Cob.infoAdicionais.Find('order_ref');
-      if (ia <> Nil) then
-        fOrder.order_ref := ia.valor;
-    end;
+    ia := Cob.infoAdicionais.Find('order_ref');
+    if (ia <> Nil) then
+      fOrder.order_ref := ia.valor;
 
     ia := Cob.infoAdicionais.Find('wallet');
     if (ia <> Nil) then
@@ -711,7 +709,7 @@ begin
       end;
     until (ia = Nil) ;
 
-    // Chama Evento, para permitir ao usuário, informar a Wallet e os Items
+    // Chama Evento, para permitir ao usuário informar OrderRef, Wallet e Items
     if Assigned(fQuandoEnviarOrder) then
       fQuandoEnviarOrder(fOrder);
 
@@ -755,14 +753,6 @@ begin
       end;
     end;
 
-    //with fOrder.items.New do
-    //begin
-    //  sku := 'ACBr';
-    //  item_title := 'ACBrPIXCD';
-    //  quantity := 0;
-    //  unit_price := 0;
-    //end;
-
     if (fOrder.wallet <> cShipayWalletPix) then
       fOrder.expiration := 0
     else
@@ -793,6 +783,7 @@ begin
     Cob.txId := StringReplace(fOrderCreated.order_id, '-', '', [rfReplaceAll]);
     Cob.status := ShiPayStatusToCobStatus(fOrderCreated.status);
     Cob.pixCopiaECola := fOrderCreated.qr_code_text;
+    Cob.chave := fOrderCreated.pix_dict_key;
     with Cob.infoAdicionais.New do
     begin
       nome := 'order_id';
@@ -836,7 +827,6 @@ begin
     else
       Cob.devedor.cpf := fOrder.buyer.cpf_cnpj;
     Cob.valor.original := fOrder.total;
-    Cob.chave := fOrder.pix_dict_key;
     with Cob.infoAdicionais.New do
     begin
       nome := 'order_ref';
@@ -897,6 +887,46 @@ begin
   end;
 end;
 
+function TACBrPSPShipay.ConverterJSONOrdersListParaCobsConsultadas(
+  const OrdersList: String): String;
+var
+  wCobs: TACBrPIXCobsConsultadas;
+  I: Integer;
+begin
+  fOrderList.AsJSON := OrdersList;
+  wCobs := TACBrPIXCobsConsultadas.Create('');
+  try
+    for I := 0 to fOrderList.count - 1 do
+    with wCobs.cobs.New do
+    begin
+      calendario.criacao := fOrderList.data[I].order_created_at;
+      if (fOrderList.data[I].order_expiration_date = 0) then
+        fOrderList.data[I].order_expiration_date := IncMinute(fOrderList.data[I].order_created_at, 60);
+      calendario.expiracao := SecondsBetween(calendario.criacao, fOrderList.data[I].order_expiration_date);
+      valor.original := fOrderList.data[I].total_order;
+      txId := StringReplace(fOrderList.data[I].order_id, '-', '', [rfReplaceAll]);
+      status := ShiPayStatusToCobStatus(fOrderList.data[I].status);
+      with infoAdicionais.New do
+      begin
+        nome := 'order_id';
+        valor := fOrderList.data[I].order_id;
+      end;
+      if NaoEstaVazio(fOrderList.data[I].wallet_payment_id) then
+      begin
+        with infoAdicionais.New do
+        begin
+          nome := 'wallet_payment_id';
+          valor := fOrderList.data[I].wallet_payment_id;
+        end;
+      end;
+    end;
+
+    Result := wCobs.AsJSON;
+  finally
+    wCobs.Free;
+  end;
+end;
+
 function TACBrPSPShipay.ShiPayStatusToCobStatus(
   AShipayStatus: TShipayOrderStatus): TACBrPIXStatusCobranca;
 begin
@@ -912,6 +942,22 @@ begin
   end;
 end;
 
+function TACBrPSPShipay.CalcularEndPointPath(const aMethod, aEndPoint: String): String;
+begin
+  Result := Trim(aEndPoint);
+
+  if (aEndPoint = cEndPointCob) then
+  begin
+    // Possui mais de um parâmetro de query?  ...Então é consulta por período
+    if (URLQueryParams.Count > 1) then
+      Result := cShipayEndPointOrdersList
+    else if (aMethod = ChttpMethodPATCH) or (aMethod = ChttpMethodDELETE) then
+      Result := cShipayEndPointOrder
+    else
+      Result := cShipayEndPointOrderV;
+  end;
+end;
+
 function TACBrPSPShipay.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;
 begin
   if (Ambiente = ambProducao) then
@@ -920,35 +966,133 @@ begin
     Result := cShipayURLStaging;
 end;
 
+procedure TACBrPSPShipay.ConfigurarBody(const aMethod, aEndPoint: String;
+  var aBody: String);
+begin
+  if (aEndPoint = cEndPointCob) then
+  begin
+    if ((aMethod = ChttpMethodPUT) or (aMethod = ChttpMethodPOST)) then
+      aBody := ConverterJSONCobSolicitadaParaShipayOrder(aBody);
+
+    // Shipay não possui Body ao cancelar ordem
+    if ((aMethod = ChttpMethodDELETE) or (aMethod = ChttpMethodPATCH)) and
+       (Pos(PIXStatusCobrancaToString(stcREMOVIDA_PELO_USUARIO_RECEBEDOR), aBody) > 0) then
+      aBody := EmptyStr;
+  end;
+end;
+
+procedure TACBrPSPShipay.ConfigurarPathParameters(const aMethod,
+  aEndPoint: String);
+var
+  wP, wName: String;
+  wSL: TStringList;
+  I: Integer;
+begin
+  if (URLPathParams.Count <= 0) then
+    Exit;
+
+  // Shipay não utiliza parâmetros de Path para métodos POST/PUT
+  if (aMethod = ChttpMethodPOST) or (aMethod = ChttpMethodPUT) then
+  begin
+    URLPathParams.Clear;
+    Exit;
+  end;
+
+  wSL := TStringList.Create;
+  try
+    for I := 0 to URLPathParams.Count - 1 do
+    begin
+      wName := URLPathParams.Names[I];
+
+      // Ignora parâmetros não utilizados pela Shipay
+      if (Pos(wName, 'revisao') > 0) then
+        Continue;
+
+      if EstaVazio(wName) then
+        wP := URLPathParams[I]
+      else
+        wP := URLPathParams.Values[wName];
+
+      // É order_id sem formatação?  ... Insere caracteres '-'
+      if (aEndPoint = cEndPointCob) and (Length(wP) = 32) then
+        wP := FormatarGUID(wP);
+        
+      if EstaVazio(wName) then
+        wSL.Add(WP)
+      else
+        wSL.Values[wName] := wP;
+
+      if (NivelLog > 1) and (wP <> URLPathParams[I]) then
+        RegistrarLog('Parametro(Path) alterado: ' + URLPathParams[I] + ' => ' + wP);
+    end;
+
+    URLPathParams.Text := wSL.Text;
+  finally
+    wSL.Free;
+  end;
+end;
+
+procedure TACBrPSPShipay.ConfigurarQueryParameters(const aMethod,
+  aEndPoint: String);
+const
+  SDateFormat: string = 'yyyy''-''mm''-''dd''T''hh'':''nn'':''ss';
+var
+  I: Integer;
+  wSL: TStringList;
+  wName, wValue: String;
+begin
+  if (URLQueryParams.Count <= 0) then
+    Exit;
+
+  wSL := TStringList.Create;
+  try
+    for I := 0 to URLQueryParams.Count - 1 do
+    begin
+      wName := LowerCase(URLQueryParams.Names[I]);
+      wValue:= URLQueryParams.Values[wName];
+
+      // Ignora parâmetros não utilizados pela Shipay
+      if (Pos(wName, 'cpf,cnpj,locationPresente,status') > 0) then
+        Continue;
+
+      if (wName = 'inicio') then
+        wSL.Values['start_date'] := FormatDateTime(SDateFormat, Iso8601ToDateTime(wValue))
+      else if (wName = 'fim') then
+        wSL.Values['end_date'] := FormatDateTime(SDateFormat, Iso8601ToDateTime(wValue))
+      else if (wName = 'paginacao.paginaatual') then
+        wSL.Values['offset'] := wValue
+      else if (wName = 'paginacao.itensporpagina') then
+        wSL.Values['limit'] := wValue
+      else
+        Continue;
+
+      RegistrarLog('Parametro(Query) alterado: ' + URLQueryParams[I] + ' => ' + wSL[wSL.Count-1]);
+    end;
+
+    if (wSL.Count > 0) then
+      URLQueryParams.Text := wSL.Text;
+  finally
+    wSL.Free;
+  end;
+end;
+
 procedure TACBrPSPShipay.TratarRetornoComErro(ResultCode: Integer;
   const RespostaHttp: AnsiString; Problema: TACBrPIXProblema);
 var
-  js: TJsonObject;
+  js: TACBrJSONObject;
 begin
   if (pos('"message"', RespostaHttp) > 0) then   // Erro no formato próprio da ShiPay
   begin
      (* Exemplo de Retorno
        {"code":404,"message":"Order not Found"}
      *)
-    {$IfDef USE_JSONDATAOBJECTS_UNIT}
-     js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
-     try
-       Problema.status := js.I['code'];
-       Problema.detail := js.S['message'];
-     finally
-       js.Free;
-     end;
-    {$Else}
-     js := TJsonObject.Create;
-     try
-       js.Parse(RespostaHttp);
-       Problema.status := js['code'].AsInteger;
-       Problema.detail := js['message'].AsString;
-     finally
-       js.Free;
-     end;
-     Problema.title := 'Error '+IntToStr(Problema.status);
-    {$EndIf}
+    js := TACBrJSONObject.Parse(RespostaHttp);
+    try
+      Problema.status := js.AsInteger['code'];
+      Problema.detail := js.AsString['message'];
+    finally
+      js.Free;
+    end;
   end
   else
     inherited TratarRetornoComErro(ResultCode, RespostaHttp, Problema);

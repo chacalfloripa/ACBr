@@ -44,6 +44,33 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+17/08/2022
+--- DoBoletoUnit ---
+[*] Atualização das chamadas de envio por API e atualização das classes resposta baseado no refactory do componente boleto
+
+17/08/2022
+---DoACBreSocialUnit---
+[*] Refatoração das Respostas baseado na classe da ACBrLibeSocial
+
+11/07/2022
+[*] Remoção de Warning @deprecated ref. ACBrUtils do ACBrLib
+
+28/06/2022
+--- ACBrMonitor1, ACBrMonitorConfig, ACBrMonitorConsts---
+[+] Adicionado propriedade ExibirMunicipioDescarregamento para impressão do DAMDFe
+
+20/06/2022
+--- DoCNPJUnit---
+[*] Ajustes de leitura do retorno usando métodos unificados da ACBrLib.
+
+15/06/2022
+--- ACBrMonior1 ---
+[*] Remoção do campo FAX por estar em desuso.
+
+13/06/2022
+--- ACBrMoniorConfig ---
+[*] Alterado a versão do layout padrão do e-social
+
 02/05/2022
 --- ACBrMonior1 ---
 [+] Reincluída aba de NCMs, possibilitando consultar um código NCM e salvar a lista de arquivos.

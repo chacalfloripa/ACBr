@@ -35,7 +35,7 @@ unit ACBrMonitorConfig;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, ACBrMonitorConsts, ACBrUtil, Graphics;
+  Classes, SysUtils, IniFiles, ACBrMonitorConsts, Graphics;
 
 type
 
@@ -356,6 +356,10 @@ type
     TamanhoPapel                     : Integer;
   end;
 
+  TDAMFE = record
+    ExibirMunicipioDescarregamento   : Boolean;
+  end;
+
   TDFeDiretorios = record
     Salvar                       : Boolean;
     PastaMensal                  : Boolean;
@@ -400,6 +404,7 @@ type
     DANFE       : TDANFE;
     NFCe        : TNFCe;
     DACTE       : TDACTE;
+    DAMFE       : TDAMFe;
   end;
 
   TeSocial = record
@@ -1205,6 +1210,11 @@ begin
       Ini.WriteInteger( CSecDACTE,  CKeyDACTETamanhoPapel           , TamanhoPapel );
     end;
 
+    with DFe.Impressao.DAMFE do
+    begin
+      Ini.WriteBool( CSecDAMFE,  CKeyDAMFEExibirMunicipioDescar, ExibirMunicipioDescarregamento );
+    end;
+
     with DFe.Diretorios do
     begin
       Ini.WriteBool(CSecArquivos,    CKeyArquivosSalvar,                      Salvar                      );
@@ -1921,6 +1931,11 @@ begin
       TamanhoPapel              :=  Ini.ReadInteger( CSecDACTE,  CKeyDACTETamanhoPapel , TamanhoPapel );
     end;
 
+    with DFe.Impressao.DAMFE do
+    begin
+      ExibirMunicipioDescarregamento := Ini.ReadBool( CSecDAMFE,  CKeyDAMFEExibirMunicipioDescar, ExibirMunicipioDescarregamento );
+    end;
+
     with DFe.Diretorios do
     begin
       Salvar                     := Ini.ReadBool( CSecArquivos,    CKeyArquivosSalvar,                      Salvar                      );
@@ -2478,7 +2493,7 @@ begin
     Versao                    := '4.00';
     VersaoCTe                 := '3.00';
     VersaoMDFe                := '3.00';
-    VersaoeSocial             := '02_04_02';
+    VersaoeSocial             := 'S01_00_00';
     VersaoReinf               := '1_03_02';
     VersaoQRCode              := '0';
     VersaoBPe                 := '1.00';
@@ -2625,6 +2640,11 @@ begin
   with DFe.Impressao.DACTE do
   begin
     TamanhoPapel              :=  0;
+  end;
+
+  with DFe.Impressao.DAMFE do
+  begin
+    ExibirMunicipioDescarregamento :=  False;
   end;
 
   with DFe.Diretorios do

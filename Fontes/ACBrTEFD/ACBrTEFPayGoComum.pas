@@ -315,7 +315,10 @@ implementation
 
 uses
   Math, DateUtils, StrUtils,
-  ACBrTEFPayGoRedes, ACBrConsts, ACBrUtil;
+  ACBrTEFPayGoRedes, ACBrConsts,
+  ACBrUtil.Math,
+  ACBrUtil.Strings,
+  ACBrUtil.Base;
 
 procedure ConteudoToPropertyPayGoWeb(AACBrTEFResp: TACBrTEFResp);
 
@@ -487,6 +490,7 @@ begin
           AInt := Linha.Informacao.AsInteger;
           Credito := (AInt = 1);
           Debito := (AInt = 2);
+          Voucher := (Aint = 4);
         end;
 
         PWINFO_CARDENTMODE:

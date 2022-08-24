@@ -69,8 +69,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base,
-  ACBrUtil.Strings;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -116,6 +115,9 @@ begin
           aValor := ObterConteudo(ANodes[i].Childrens.FindAnyNs('unidade_codigo'), tcStr);
           TipoUnidade := StrToUnidade(Ok, aValor);
 
+          aValor := ObterConteudo(ANodes[i].Childrens.FindAnyNs('codigo_atividade'), tcStr);
+          CodigoCnae := PadLeft(aValor, 9, '0');
+
           Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('unidade_quantidade'), tcDe3);
           ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('unidade_valor_unitario'), tcDe2);
           Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('descritivo'), tcStr);
@@ -126,6 +128,7 @@ begin
           ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_tributavel'), tcDe2);
           ValorDeducoes := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_deducao'), tcDe2);
           BaseCalculo := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_tributavel'), tcDe2);
+          ValorIssRetido := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_issrf'), tcDe2);
           ValorISS := BaseCalculo * Aliquota / 100;
 
           Valores.ValorIssRetido := Valores.ValorIssRetido +
@@ -206,7 +209,6 @@ begin
   begin
     with NFSe do
     begin
-
       with Prestador.IdentificacaoPrestador do
       begin
         CpfCnpj := OnlyNumber(ObterConteudo(AuxNode.Childrens.FindAnyNs('cpfcnpj'), tcStr));
@@ -235,6 +237,7 @@ begin
               ObterConteudo(AuxNode.Childrens.FindAnyNs('hora_emissao_recibo_provisorio'), tcStr);
 
     NFSe.DataEmissao := StrToDateTimeDef(aValor, 0);
+    NFSe.DataEmissaoRps := StrToDateTimeDef(aValor, 0);
 
     with NFSe.IdentificacaoRps do
     begin
@@ -256,21 +259,7 @@ begin
     with NFSe.Tomador do
     begin
       RazaoSocial := ObterConteudo(AuxNode.Childrens.FindAnyNs('nome_razao_social'), tcStr);
-
       NomeFantasia := ObterConteudo(AuxNode.Childrens.FindAnyNs('sobrenome_nome_fantasia'), tcStr);
-
-      with IdentificacaoTomador do
-      begin
-        CpfCnpj := OnlyNumber(ObterConteudo(AuxNode.Childrens.FindAnyNs('cpfcnpj'), tcStr));
-        aValor  := ObterConteudo(AuxNode.Childrens.FindAnyNs('tipo'), tcStr);
-
-        if ((aValor = 'J') or (aValor = '2')) then
-          CpfCnpj := PadLeft(CpfCnpj, 14, '0')
-        else
-          CpfCnpj := PadLeft(CpfCnpj, 11, '0');
-
-        InscricaoEstadual := ObterConteudo(AuxNode.Childrens.FindAnyNs('ie'), tcStr);
-      end;
 
       with Endereco do
       begin
@@ -280,6 +269,29 @@ begin
         Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('bairro'), tcStr);
         CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr);
         CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
+      end;
+
+      with IdentificacaoTomador do
+      begin
+        CpfCnpj := OnlyNumber(ObterConteudo(AuxNode.Childrens.FindAnyNs('cpfcnpj'), tcStr));
+        aValor  := ObterConteudo(AuxNode.Childrens.FindAnyNs('tipo'), tcStr);
+
+        if ((aValor = 'J') or (aValor = '2')) then
+        begin
+          CpfCnpj := PadLeft(CpfCnpj, 14, '0');
+
+          if Endereco.CodigoMunicipio = NFSe.Prestador.Endereco.CodigoMunicipio then
+            Tipo := tpPJdoMunicipio
+          else
+            Tipo := tpPJforaMunicipio;
+        end
+        else
+        begin
+          CpfCnpj := PadLeft(CpfCnpj, 11, '0');
+          Tipo    := tpPF;
+        end;
+
+        InscricaoEstadual := ObterConteudo(AuxNode.Childrens.FindAnyNs('ie'), tcStr);
       end;
 
       with Contato do

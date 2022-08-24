@@ -399,7 +399,8 @@ begin
   if (pInfoCeletista.TpRegJor = rjSubmetidosHorarioTrabalho) then
     GerarHorContratual(objInfoContrato.HorContratual);
 
-  GerarFiliacaoSindical(objInfoContrato.FiliacaoSindical);
+  if VersaoDF < veS01_00_00 then
+     GerarFiliacaoSindical(objInfoContrato.FiliacaoSindical);
   GerarAlvaraJudicial(objInfoContrato.AlvaraJudicial);
   GerarObservacoes(objInfoContrato.observacoes);
 
@@ -426,7 +427,7 @@ begin
 
     GerarIdeEvento2(self.IdeEvento);
     GerarIdeEmpregador(self.IdeEmpregador);
-    GerarIdeVinculo(Self.IdeVinculo, False);
+    GerarIdeVinculo2206(Self.IdeVinculo, False);
     GerarAltContratual(FAltContratual);
 
     Gerador.wGrupo('/evtAltContratual');
