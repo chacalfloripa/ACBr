@@ -447,6 +447,7 @@ type
   end;
 
   TSATExtrato = record
+    MostrarStatus               : Boolean;
     ParamsString                : String;
     ImprimeDescAcrescItem       : Boolean;
     ImprimeEmUmaLinha           : Boolean;
@@ -645,6 +646,8 @@ type
     CodTransmissao             : String ;
     RemoveAcentos              : Boolean;
     PrefixArqRemessa           : String;
+    VersaoArquivo              : String;
+    VersaoLote                 : String;
   end;
 
   TBoletoRelatorio = record
@@ -1269,6 +1272,7 @@ begin
 
     with SAT.SATImpressao.SATExtrato do
     begin
+      ini.WriteBool(    CSecSATExtrato, CKeySATExtMostrarStatus           , MostrarStatus        );
       ini.WriteString(  CSecSATExtrato, CKeySATExtParamsString           , ParamsString          );
       ini.WriteBool(    CSecSATExtrato, CKeySATExtImprimeDescAcrescItem  , ImprimeDescAcrescItem );
       ini.WriteBool(    CSecSATExtrato, CKeySATExtImprimeEmUmaLinha      , ImprimeEmUmaLinha     );
@@ -1452,6 +1456,8 @@ begin
       ini.WriteString( CSecBOLETO, CKeyBOLETOCodTransmissao,CodTransmissao);
       Ini.WriteBool(   CSecBOLETO, CKeyBOLETORemoveAcentos, RemoveAcentos      );
       ini.WriteString( CSecBOLETO, CKeyBoletoPrefixArqRemessa, PrefixArqRemessa );
+      ini.WriteString( CSecBOLETO, CKeyBOLETOVersaoArquivo, VersaoArquivo);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOVersaoLote, VersaoLote);
     end;
 
     with BOLETO.Relatorio do
@@ -2011,6 +2017,7 @@ begin
 
     with SAT.SATImpressao.SATExtrato do
     begin
+      MostrarStatus          := ini.ReadBool(  CSecSATExtrato, CKeySATExtMostrarStatus          , MostrarStatus         );
       ParamsString           := ini.ReadString(  CSecSATExtrato, CKeySATExtParamsString           , ParamsString          );
       ImprimeDescAcrescItem  := ini.ReadBool(    CSecSATExtrato, CKeySATExtImprimeDescAcrescItem  , ImprimeDescAcrescItem );
       ImprimeEmUmaLinha      := ini.ReadBool(    CSecSATExtrato, CKeySATExtImprimeEmUmaLinha      , ImprimeEmUmaLinha     );
@@ -2196,6 +2203,8 @@ begin
       CodTransmissao         :=  ini.ReadString( CSecBOLETO, CKeyBOLETOCodTransmissao,     ini.ReadString( CSecBOLETO,CKeyBOLETOCedenteCodTransmissao,'') );
       RemoveAcentos          :=  Ini.ReadBool(   CSecBOLETO, CKeyBOLETORemoveAcentos,      RemoveAcentos      );
       PrefixArqRemessa       :=  Ini.ReadString( CSecBOLETO, CKeyBoletoPrefixArqRemessa,   PrefixArqRemessa );
+      VersaoArquivo          :=  ini.ReadString( CSecBOLETO, CKeyBOLETOVersaoArquivo,       VersaoArquivo);
+      VersaoLote             :=  Ini.ReadString( CSecBOLETO, CKeyBOLETOVersaoLote,          VersaoLote);
     end;
 
     with BOLETO.Relatorio do
@@ -2721,6 +2730,7 @@ begin
 
   with SAT.SATImpressao.SATExtrato do
   begin
+    MostrarStatus          := False;
     ParamsString           := '';
     ImprimeDescAcrescItem  := True;
     ImprimeEmUmaLinha      := False;

@@ -82,7 +82,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings;
+  ACBrUtil.Strings, ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -139,8 +139,8 @@ begin
   xmlNode := GerarDadosTomador;
   NFSeNode.AppendChild(xmlNode);
 
-  if (NFSe.IntermediarioServico.RazaoSocial<>'') or
-     (NFSe.IntermediarioServico.CpfCnpj <> '') then
+  if (NFSe.Intermediario.RazaoSocial<>'') or
+     (NFSe.Intermediario.Identificacao.CpfCnpj <> '') then
   begin
     xmlNode := GerarIntermediarioServico;
     NFSeNode.AppendChild(xmlNode);
@@ -257,7 +257,8 @@ end;
 
 function TNFSeW_EL.GerarEnderecoPrestador: TACBrXmlNode;
 var
-  xMun: String;
+  xMun, xUF: String;
+  CodigoIBGE: Integer;
 begin
   Result := CreateElement('Endereco');
 
@@ -281,8 +282,12 @@ begin
 
   if (Trim(NFSe.Prestador.Endereco.xMunicipio) = '') then
   begin
-    xMun := CodIBGEToCidade(StrToIntDef(NFSe.Prestador.Endereco.CodigoMunicipio, 0));
-    xMun := Copy(xMun,1,Length(xMun)-3);
+    CodigoIBGE := StrToIntDef(NFSe.Prestador.Endereco.CodigoMunicipio, 0);
+
+    xMun := '';
+
+    if CodigoIBGE > 0 then
+      xMun := ObterNomeMunicipio(CodigoIBGE, xUF);
 
     Result.AppendChild(AddNode(tcStr, '#1', 'Municipio', 1, 100, 0,
                                                           UpperCase(xMun), ''));
@@ -300,7 +305,8 @@ end;
 
 function TNFSeW_EL.GerarEnderecoTomador: TACBrXmlNode;
 var
-  xMun: String;
+  xMun, xUF: String;
+  CodigoIBGE: Integer;
 begin
   Result := CreateElement('Endereco');
 
@@ -324,8 +330,12 @@ begin
 
   if (Trim(NFSe.Tomador.Endereco.xMunicipio) = '') then
   begin
-    xMun := CodIBGEToCidade(StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0));
-    xMun := Copy(xMun,1,Length(xMun)-3);
+    CodigoIBGE := StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0);
+
+    xMun := '';
+
+    if CodigoIBGE > 0 then
+      xMun := ObterNomeMunicipio(CodigoIBGE, xUF);
 
     Result.AppendChild(AddNode(tcStr, '#1', 'Municipio', 1, 100, 0,
                                                           UpperCase(xMun), ''));
@@ -399,12 +409,12 @@ begin
   Result := CreateElement('IntermediarioServico');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'RazaoSocial', 1, 115, 0,
-                                    NFSe.IntermediarioServico.RazaoSocial, ''));
+                                           NFSe.Intermediario.RazaoSocial, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'CpfCnpj', 14, 14, 1,
-                            OnlyNumber(NFSe.IntermediarioServico.CpfCnpj), ''));
+                     OnlyNumber(NFSe.Intermediario.Identificacao.CpfCnpj), ''));
 
-  if Length(OnlyNumber(NFSe.IntermediarioServico.CpfCnpj)) <= 11 then
+  if Length(OnlyNumber(NFSe.Intermediario.Identificacao.CpfCnpj)) <= 11 then
     Result.AppendChild(AddNode(tcStr, '#1', 'IndicacaoCpfCnpj', 1, 1, 1,
                                                                        '1', ''))
   else
@@ -412,7 +422,7 @@ begin
                                                                       '2', ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'InscricaoMunicipal', 1, 15, 0,
-                             NFSe.IntermediarioServico.InscricaoMunicipal, ''));
+                      NFSe.Intermediario.Identificacao.InscricaoMunicipal, ''));
 end;
 
 function TNFSeW_EL.GerarRpsSubstituido: TACBrXmlNode;

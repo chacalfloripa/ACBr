@@ -102,7 +102,6 @@ function TNFSeR_WebFisco.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
 var
   i: Integer;
   aValor: string;
-  Ok: Boolean;
 begin
   Result := True;
 
@@ -118,7 +117,11 @@ begin
     DataEmissao := EncodeDataHora(aValor);
 
     CodigoVerificacao := ObterConteudo(ANode.Childrens.FindAnyNs('nfeautenticacao'), tcStr);
-    SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('nfestatus'), tcStr));
+
+    SituacaoNfse := snNormal;
+
+    if UpperCase(ObterConteudo(ANode.Childrens.FindAnyNs('nfestatus'), tcStr)) = 'SIM' then
+      SituacaoNfse := snCancelado;
 
 //      <xsd:element name="nfecontrole" type="xsd:string"/>
 
@@ -138,7 +141,7 @@ begin
 
     Link := ObterConteudo(ANode.Childrens.FindAnyNs('nfelink'), tcStr);
 
-    OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('nfeobservacoes'), tcStr);
+    MotivoCancelamento := ObterConteudo(ANode.Childrens.FindAnyNs('nfeobservacoes'), tcStr);
 
     with Tomador do
     begin

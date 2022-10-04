@@ -186,8 +186,6 @@ type
     rllMsgTeste: TRLLabel;
     rbOutrasInformacoes: TRLBand;
     rlmDadosAdicionais: TRLMemo;
-    rllDataHoraImpressao: TRLLabel;
-    rllSistema: TRLLabel;
     RLLabel6: TRLLabel;
     rlbCanhoto: TRLBand;
     RLLabel26: TRLLabel;
@@ -228,6 +226,9 @@ type
     rlmDescCodTributacaoMunicipio: TRLMemo;
     RLLabel69: TRLLabel;
     rllPrestInscEstadual: TRLLabel;
+    RLBand1: TRLBand;
+    rllDataHoraImpressao: TRLLabel;
+    rllSistema: TRLLabel;
 
     procedure rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure rlbItensServicoBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -246,7 +247,7 @@ type
     function ManterAliquota(dAliquota: Double): String;
   public
     { Public declarations }
-    class procedure QuebradeLinha(const sQuebradeLinha: String);
+    class procedure QuebradeLinha(const sQuebradeLinha: String); override;
   end;
 
 var
@@ -256,8 +257,8 @@ implementation
 
 uses
   StrUtils, DateUtils,
-  ACBrUtil.Base,
-  ACBrUtil.Strings,
+  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrDFeUtil,
   ACBrNFSeX, ACBrNFSeXClass, ACBrNFSeXInterface,
   ACBrValidador, ACBrDFeReportFortes;
 
@@ -364,6 +365,9 @@ begin
 end;
 
 procedure TfrlXDANFSeRLRetrato.rlbCabecalhoBeforePrint(Sender: TObject; var PrintIt: Boolean);
+var
+  CodigoIBGE: Integer;
+  xMunicipio, xUF: string;
 begin
   inherited;
 
@@ -381,11 +385,22 @@ begin
     rllCompetencia.Caption := IfThen(Competencia > 0, FormatDateTime('mm/yyyy', Competencia), '');
 
     rllNumeroRPS.Caption := IdentificacaoRps.Numero;
+
+    if IdentificacaoRps.Serie <> '' then
+      rllNumeroRPS.Caption := rllNumeroRPS.Caption + '/' + IdentificacaoRps.Serie;
+
     rllNumNFSeSubstituida.Caption := NfseSubstituida;
 
-	// Será necessário uma analise melhor para saber em que condições devemos usar o código do municipio
-	// do tomador em vez do que foi informado em Serviço.
-    rllMunicipioPrestacaoServico.Caption := CodIBGEToCidade(StrToIntDef(Servico.CodigoMunicipio, 0));
+    // Será necessário uma analise melhor para saber em que condições devemos usar o código do municipio
+    // do tomador em vez do que foi informado em Serviço.
+    CodigoIBGE := StrToIntDef(Servico.CodigoMunicipio, 0);
+    xMunicipio := '';
+    xUF := '';
+
+    if CodigoIBGE >= 1100015 then
+      xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+    rllMunicipioPrestacaoServico.Caption := xMunicipio;
   end;
 end;
 
@@ -507,6 +522,9 @@ begin
 end;
 
 procedure TfrlXDANFSeRLRetrato.rlbPrestadorBeforePrint(Sender: TObject; var PrintIt: Boolean);
+var
+  CodigoIBGE: Integer;
+  xUF: string;
 begin
   inherited;
 
@@ -543,10 +561,18 @@ begin
           rllPrestMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio
         else
         begin
-          if xMunicipio <> '' then
-            rllPrestMunicipio.Caption := xMunicipio
-          else
-            rllPrestMunicipio.Caption := CodigoMunicipio;
+          xUF := '';
+          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+          if CodigoIBGE >= 1100015 then
+          begin
+            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+            if UF = '' then
+              UF := xUF;
+          end;
+
+          rllPrestMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio;
         end;
       end
       else
@@ -576,6 +602,9 @@ end;
 
 procedure TfrlXDANFSeRLRetrato.rlbTomadorBeforePrint(Sender: TObject;
   var PrintIt: Boolean);
+var
+  CodigoIBGE: Integer;
+  xUF: string;
 begin
   inherited;
 
@@ -616,10 +645,18 @@ begin
           rllTomaMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio
         else
         begin
-          if xMunicipio <> '' then
-            rllTomaMunicipio.Caption := xMunicipio
-          else
-            rllTomaMunicipio.Caption := CodigoMunicipio;
+          xUF := '';
+          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+          if CodigoIBGE >= 1100015 then
+          begin
+            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+            if UF = '' then
+              UF := xUF;
+          end;
+
+          rllTomaMunicipio.Caption := CodigoMunicipio + ' - ' + xMunicipio;
         end;
       end;
 

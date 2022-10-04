@@ -880,6 +880,8 @@ end;
 procedure TACBrNFSeXDANFSeFR.CarregaParametros(ANFSe: TNFSe);
 var
   FProvider: IACBrNFSeXProvider;
+  CodigoIBGE: Integer;
+  xMunicipio, xUF: string;
 begin
   FProvider := TACBrNFSeX(FACBrNFSe).Provider;
 
@@ -909,7 +911,12 @@ begin
 
         with Servico do
         begin
-          FieldByName('CodigoMunicipio').AsString := CodIBGEToCidade(StrToIntDef(IfThen(CodigoMunicipio <> '', CodigoMunicipio, ''), 0));
+          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+          if CodigoIBGE >= 1100015 then
+            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+          FieldByName('CodigoMunicipio').AsString := xMunicipio;
           FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(ExigibilidadeISS);
 
           if NaturezaOperacao = no2 then
@@ -947,12 +954,12 @@ begin
           if Provedor = proAdm then
           begin
             FieldByName('CodigoMunicipio').AsString := CodigoMunicipio;
-            FieldByName('MunicipioIncidencia').AsString := CodIBGEToCidade(MunicipioIncidencia);
+            FieldByName('MunicipioIncidencia').AsString := ObterNomeMunicipio(MunicipioIncidencia, xUF);
           end
           else
           begin
-            FieldByName('CodigoMunicipio').AsString := CodIBGEToCidade(StrToIntDef(IfThen(CodigoMunicipio <> '', CodigoMunicipio, ''), 0));
-            FieldByName('MunicipioIncidencia').AsString := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0)); // Antes:
+            FieldByName('CodigoMunicipio').AsString := CodigoMunicipio;
+            FieldByName('MunicipioIncidencia').AsString := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF);
           end;
         end;
       end;
@@ -1086,7 +1093,7 @@ begin
       FieldByName('NumeroProcesso').AsString := NumeroProcesso;
       FieldByName('Descricao').AsString := Descricao;
       FieldByName('ResponsavelRetencao').AsString := FProvider.ResponsavelRetencaoToStr(ResponsavelRetencao);
-      FieldByName('Tributacao').AsString := TributacaoToStr(Tributacao);
+      FieldByName('Tributacao').AsString := FProvider.TributacaoToStr(Tributacao);
 
       with Valores do
       begin

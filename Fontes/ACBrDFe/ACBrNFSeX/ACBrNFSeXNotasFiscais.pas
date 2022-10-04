@@ -342,7 +342,7 @@ begin
           Numero := INIRec.ReadString(sSecao, 'Numero', '');
           Bairro := INIRec.ReadString(sSecao, 'Bairro', '');
           CodigoMunicipio := INIRec.ReadString(sSecao, 'CodigoMunicipio', '');
-          xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
+          xMunicipio := INIRec.ReadString(sSecao, 'xMunicipio', '');
           UF := INIRec.ReadString(sSecao, 'UF', '');
           CodigoPais := INIRec.ReadInteger(sSecao, 'CodigoPais', 0);
           xPais := INIRec.ReadString(sSecao, 'xPais', '');
@@ -378,7 +378,7 @@ begin
           Complemento := INIRec.ReadString(sSecao, 'Complemento', '');
           Bairro := INIRec.ReadString(sSecao, 'Bairro', '');
           CodigoMunicipio := INIRec.ReadString(sSecao, 'CodigoMunicipio', '');
-          xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
+          xMunicipio := INIRec.ReadString(sSecao, 'xMunicipio', '');
           UF := INIRec.ReadString(sSecao, 'UF', '');
           CodigoPais := INIRec.ReadInteger(sSecao, 'CodigoPais', 0);
           CEP := INIRec.ReadString(sSecao, 'CEP', '');
@@ -398,10 +398,10 @@ begin
 
       sSecao := 'Intermediario';
 
-      with IntermediarioServico do
+      with Intermediario do
       begin
-        CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
-        InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
+        Identificacao.CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
+        Identificacao.InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
         RazaoSocial := INIRec.ReadString(sSecao, 'RazaoSocial', '');
       end;
 

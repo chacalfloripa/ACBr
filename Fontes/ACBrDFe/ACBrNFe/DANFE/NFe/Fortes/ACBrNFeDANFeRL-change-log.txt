@@ -46,6 +46,24 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+03/10/2022
+-- ACBrNFeDANFeRLPaisagem ACBrNFeDANFeRLRetrato --
+[*] TK-3097 ACBrNFe - Ocultar info De Olho no Imposto do quadro do calculo dos tributos ImprimeTributos <> trbNormal
+  por : Pandaaa / infocity
+
+
+05/09/2022
+-- ACBrNFeDANFeRLRetrato --
+[*] Correção, estava duplicando o titulo das colunas Valor Total e Desconto.
+   Por: Italo Giurizzato Junior
+
+02/09/2022
+-- ACBrNFeDANFeRLRetrato --
+[*] Alteração para destacar corretamente no DANFE as NFes Canceladas, quando é 
+    utilizada a impressão em lote.
+    https://www.projetoacbr.com.br/forum/topic/68732-impressão-em-lote-com-nf-e-cancelada-fortes
+    por: Diego Ricardo Baptista
+
 08/08/2022
 -- ACBrNFeDANFeRLClass --
 [*] Alterado o método ImprimirDANFSePDF para utilizar a função DefinirNomeArquivo, que

@@ -913,6 +913,8 @@ begin
         begin
           rllXmotivo.Caption := 'NF-e CANCELADA';
           rllDadosVariaveis3_Descricao.Caption := ACBrStr('PROTOCOLO DE HOMOLOGAÇÃO DE CANCELAMENTO');
+          rlbCanceladaDenegada.Visible := True;
+          RLLCanceladaDenegada.Caption := 'NF-e CANCELADA';
         end;
 
         110, 205, 301, 302:
@@ -1258,7 +1260,7 @@ begin
     //115 460 143
     // Exibe o Valor total dos tributos se vTotTrib for informado
     // e ajusta a posição dos outros campos para "abrir espaço" para ele.
-    if (vTotTrib > 0) then
+    if (vTotTrib > 0) and (fpDANFe.ImprimeTributos = trbNormal)  then
     begin
       rllTotalTributos.Caption := FormatFloatBr(vTotTrib);
       rliDivImposto4.Visible := True;
@@ -1993,7 +1995,8 @@ begin
   end;
   }
   lblPercValorDesc.Caption := 'DESCONTO';
-  lblValorTotal.Caption := 'VALOR';
+  lblPercValorDesc1.Caption := '';
+//  lblValorTotal.Caption := 'VALOR';
 end;
 
 function TfrlDANFeRLRetrato.ManterBandinfAdProd(const sInforAdicProduto: String): String;

@@ -47,6 +47,49 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+20/09/2022
+-- ACBrPIXPSPSicoob --
+[-] Correção para tratar corretamente o retorno do Sicoob ao Solicitar uma devolução
+
+19/09/2022
+-- ACBrPIXCDReg --
+[+] Inclusão de novo PSP Sicoob
+    Por: Huenes
+
+05/09/2022
+-- ACBrPIXCD --
+[*] Inclusão dos parâmetros TxID e Valor na procedure "GerarQRCodeDinamico()",  para 
+    possibilitar informar esses valores à título de informação no Copia e Cola, pois 
+    os valores válidos sempre serão os da URL.
+	
+-- ACBrPIXBRCode --
+[*] Alteração para os tipos de QRCodes validarem o TxID de maneira diferente:
+    - QRCodeEstatico = Tamanho TxID até 25 caracteres;
+    - QRCodeDinamico = Tamanho TxID de 26 a 35 caracteres.
+    Por: Elias César
+
+01/09/2022
+-- ACBrPIXPSPSantander --
+[+] Inclusão de propriedades para certificado PFX e senha. 
+    Necessário para utilizar em ambiente de produção.
+    Por: Washington
+    
+-- ACBrPIXBRCode --
+[*] Criada função "GetPixKeyType()" para carregar corretamente o tipo da chave quando o 
+    QRCode é lido através do "AsString";
+[-] Alteração na maneira que é lido o campo "TransactionAmount", pois o valor estava sempre
+    retornando como zero.
+    Por: Elias César
+
+31/08/2022
+-- ACBrPIXCD --
+[+] Inclusão de nova classe TACBrPSPCertificate para centralizar o controle/envio de Certificados e 
+    Chaves Privadas dos PSPs.
+	
+-- ACBrPIXPSPItau, ACBrPIXPSPSicredi --
+[*] Alteração para herdar de nova classe TACBrPSPCertificate;
+
+
 15/08/2022
 -- ACBrBase --
 [*] Removida a unit 'fpjsons' do uses, pois não é mais utilizada.

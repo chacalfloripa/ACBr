@@ -60,7 +60,8 @@ uses
   DoNcmUnit, DoLCBUnit, DoDISUnit, DoSedexUnit, DoETQUnit, DoACBrGNReUnit,
   DoPosPrinterUnit, DoECFUnit, DoECFObserver, DoECFBemafi32, DoSATUnit,
   DoACBreSocialUnit, DoACBrBPeUnit, ACBrLibResposta, DoACBrUnit, DoCNPJUnit,
-  DoCPFUnit, ACBrBoletoConversao, FormConsultaCNPJ, ACBrMonitorMenu, ACBrDFeReport;
+  DoCPFUnit, ACBrBoletoConversao, FormConsultaCNPJ, ACBrMonitorMenu,
+  ACBrDFeReport, ACBrGTIN, DoACBrGTINUnit;
 
 const
   CEstados: array[TACBrECFEstado] of string =
@@ -122,6 +123,7 @@ type
     ACBrGIF1: TACBrGIF;
     ACBrGNRE1: TACBrGNRE;
     ACBrGNREGuiaRL1: TACBrGNREGuiaRL;
+    ACBrGTIN1: TACBrGTIN;
     ACBrIBGE1: TACBrIBGE;
     ACBrIntegrador1: TACBrIntegrador;
     ACBrMail1: TACBrMail;
@@ -255,6 +257,7 @@ type
     btnStatusServ: TButton;
     btnStatusServCTe: TButton;
     btnStatusServMDFe: TButton;
+    btnConsultarGTIN: TButton;
     btnTC: TPanel;
     btnUser: TPanel;
     btnValidarXML: TButton;
@@ -385,6 +388,7 @@ type
     cbxImprimirDescAcresItemSAT: TCheckBox;
     cbxImprimirItem1LinhaNFCe: TCheckBox;
     cbxImprimirItem1LinhaSAT: TCheckBox;
+    cbxMostrarStatusSAT: TCheckBox;
     cbxImprimirLogoLateralNFCe: TCheckBox;
     cbxImprimeItens: TCheckBox;
     cbxImprimirNomeFantasiaNFCe: TCheckBox;
@@ -442,6 +446,7 @@ type
     chECFDescrGrande: TCheckBox;
     chECFIgnorarTagsFormatacao: TCheckBox;
     chECFSinalGavetaInvertido: TCheckBox;
+    cbNCMForcarDownload: TCheckBox;
     ckbExibirMunicipioDescarregamento: TCheckBox;
     ChkPix: TCheckBox;
     chgDescricaoPagamento: TCheckGroup;
@@ -491,6 +496,9 @@ type
     edEmailUsuario: TEdit;
     edEntTXT: TEdit;
     edIBGECodNome: TEdit;
+    edConsultarGTIN: TEdit;
+    edtVersaoArquivo: TEdit;
+    edtVersaoLote: TEdit;
     edNCMCodigo: TEdit;
     edNCMDiasValidade: TSpinEdit;
     edNCMDiretorio: TDirectoryEdit;
@@ -777,6 +785,9 @@ type
     Label109: TLabel;
     Label114: TLabel;
     Label118: TLabel;
+    Label152: TLabel;
+    Label260: TLabel;
+    lbConsultarGTIN: TLabel;
     Label254: TLabel;
     lblPrefixRemessa: TLabel;
     Label255: TLabel;
@@ -1128,8 +1139,8 @@ type
     mRFDINI: TMemo;
     mRSAKey: TMemo;
     mTCConexoes: TMemo;
-    Panel1: TPanel;
-    Panel2: TPanel;
+    pnTestesDFe: TPanel;
+    pnTestesResposta: TPanel;
     Panel3: TPanel;
     Panel4: TPanel;
     pnlPesquisa: TPanel;
@@ -1317,6 +1328,7 @@ type
     SynXMLSyn1: TSynXMLSyn;
     TabControl1: TTabControl;
     TabSheet1: TTabSheet;
+    tsTesteGTIN: TTabSheet;
     tsImpMDFe: TTabSheet;
     tsNCM: TTabSheet;
     tsWebBoleto: TTabSheet;
@@ -1438,6 +1450,7 @@ type
     procedure btNCMValidadeHelpClick(Sender: TObject);
     procedure btnConsultarClick(Sender: TObject);
     procedure btnConsultarCTeClick(Sender: TObject);
+    procedure btnConsultarGTINClick(Sender: TObject);
     procedure btnConsultarMDFeClick(Sender: TObject);
     procedure btnConsultasClick(Sender: TObject);
     procedure btnDFeCertificadosClick(Sender: TObject);
@@ -1837,6 +1850,7 @@ type
     FDoBPe: TACBrObjetoBPe;
     FDoCNPJ: TACBrObjetoConsultaCNPJ;
     FDoCPF: TACBrObjetoConsultaCPF;
+    FDoGTIN: TACBrObjetoGTIN;
 
     FMenuTreeView: TMenu;
 
@@ -1968,8 +1982,9 @@ uses
   ConfiguraSerial, SelecionarCertificado, ACBrSATExtratoClass,
   ACBrNFeConfiguracoes, ACBrNFeDANFEClass, ACBrCTeConfiguracoes,
   ACBrMDFeConfiguracoes, ACBrGNREConfiguracoes, ACBreSocialConfiguracoes,
-  ACBrReinfConfiguracoes, ACBrDFeDANFeReport, ACBrBPeConfiguracoes, ACBrETQClass,
-  ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.Math;
+  ACBrReinfConfiguracoes, ACBrGTINConfiguracoes, ACBrBPeConfiguracoes,
+  ACBrDFeDANFeReport, ACBrETQClass, ACBrUtil.Base, ACBrUtil.FilesIO,
+  ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.Math;
 
 {$R *.lfm}
 
@@ -2117,6 +2132,8 @@ begin
   FDoBPe := TACBrObjetoBPe.Create(MonitorConfig, ACBrBPe1);
   FDoBPe.OnAntesDeImprimir := @AntesDeImprimir;
   FDoBPe.OnDepoisDeImprimir := @DepoisDeImprimir;
+
+  FDoGTIN := TACBrObjetoGTIN.Create(MonitorConfig, ACBrGTIN1);
 
 // Seta as definições iniciais para navegação
   SetColorButtons(btnMonitor);
@@ -3409,7 +3426,7 @@ begin
     with ACBrNCMs1 do
     begin
       CacheDiasValidade := edNCMDiasValidade.Value;
-      ObterNCMs;
+      ObterNCMs(cbNCMForcarDownload.Checked);
       NCMS.SaveToFile(aDiretorio);
     end;
   finally
@@ -3461,6 +3478,25 @@ begin
     ACBrCTe1.Consultar;
     ExibeResp(ACBrCTe1.WebServices.Consulta.RetWS);
   end;
+end;
+
+procedure TFrmACBrMonitor.btnConsultarGTINClick(Sender: TObject);
+var
+  wGTIN: String;
+begin
+  wGTIN := Trim(edConsultarGTIN.Text);
+  ACBrGTIN1.Consultar(wGTIN);
+
+  mResposta.Lines.Clear;
+  mResposta.Lines.Add('GTIN Consultado: ' + wGTIN);
+  mResposta.Lines.Add('--- Retorno ---');
+  mResposta.Lines.Add('Retorno..: ' + DateTimeToStr(ACBrGTIN1.WebServices.Consulta.dhResp));
+  mResposta.Lines.Add('Status...: ' + IntToStr(ACBrGTIN1.WebServices.Consulta.cStat));
+  mResposta.Lines.Add('Motivo...: ' + ACBrGTIN1.WebServices.Consulta.xMotivo);
+  mResposta.Lines.Add('Tipo GTIN: ' + IntToStr(ACBrGTIN1.WebServices.Consulta.tpGTIN));
+  mResposta.Lines.Add('Produto..: ' + ACBrGTIN1.WebServices.Consulta.xProd);
+  mResposta.Lines.Add('NCM......: ' + ACBrGTIN1.WebServices.Consulta.NCM);
+  mResposta.Lines.Add('CEST.....: ' + ACBrGTIN1.WebServices.Consulta.CEST);
 end;
 
 procedure TFrmACBrMonitor.btnConsultarMDFeClick(Sender: TObject);
@@ -4280,6 +4316,7 @@ begin
       ACBreSocial1.Configuracoes.Geral.SSLXmlSignLib := TSSLXmlSignLib(cbXmlSignLib.ItemIndex);
       ACBrReinf1.Configuracoes.Geral.SSLXmlSignLib := TSSLXmlSignLib(cbXmlSignLib.ItemIndex);
       ACBrBPe1.Configuracoes.Geral.SSLXmlSignLib := TSSLXmlSignLib(cbXmlSignLib.ItemIndex);
+      ACBrGTIN1.Configuracoes.Geral.SSLXmlSignLib := TSSLXmlSignLib(cbXmlSignLib.ItemIndex);
     end;
   finally
     AtualizaSSLLibsCombo;
@@ -4410,6 +4447,7 @@ begin
   ACBreSocial1.Configuracoes.WebServices.TimeZoneConf.Assign( ACBrNFe1.Configuracoes.WebServices.TimeZoneConf );
   ACBrReinf1.Configuracoes.WebServices.TimeZoneConf.Assign( ACBrNFe1.Configuracoes.WebServices.TimeZoneConf );
   ACBrBPe1.Configuracoes.WebServices.TimeZoneConf.Assign( ACBrNFe1.Configuracoes.WebServices.TimeZoneConf );
+  ACBrGTIN1.Configuracoes.WebServices.TimeZoneConf.Assign( ACBrNFe1.Configuracoes.WebServices.TimeZoneConf );
 end;
 
 procedure TFrmACBrMonitor.cbxUTF8Change(Sender: TObject);
@@ -4917,6 +4955,7 @@ begin
   FDoGNRe.Free;
   FDoPosPrinter.Free;
   FDoBPe.Free;
+  FDoGTIN.Free;
 
   FMenuTreeView.Free;
 
@@ -5518,6 +5557,8 @@ begin
       chkLerBeneficiarioRetorno.Checked     := LerCedenteRetorno;
       chkRemoveAcentos.Checked         := RemoveAcentos;
       edtPrefixRemessa.Text            := PrefixArqRemessa;
+      edtVersaoArquivo.Text            := VersaoArquivo;
+      edtVersaoLote.Text               := VersaoLote;
     end;
 
     with Layout do
@@ -5873,6 +5914,7 @@ begin
     SetComumConfig(ACBreSocial1.Configuracoes);
     SetComumConfig(ACBrReinf1.Configuracoes);
     SetComumConfig(ACBrBPe1.Configuracoes);
+    SetComumConfig(ACBrGTIN1.Configuracoes);
 
     AtualizaSSLLibsCombo;
 
@@ -7111,6 +7153,7 @@ begin
 
       with SATImpressao.SATExtrato do
       begin
+        MostrarStatus                  := cbxMostrarStatusSAT.Checked;
         ParamsString                   := ACBrSATExtratoESCPOS1.PosPrinter.Device.ParamsString;
         ImprimeDescAcrescItem          := cbxImprimirDescAcresItemSAT.Checked;
         ImprimeEmUmaLinha              := cbxImprimirItem1LinhaSAT.Checked;
@@ -7347,6 +7390,8 @@ begin
        CodTransmissao           := edtCodTransmissao.Text;
        RemoveAcentos            := chkRemoveAcentos.Checked;
        PrefixArqRemessa         := edtPrefixRemessa.Text;
+       VersaoArquivo            := edtVersaoArquivo.Text;
+       VersaoLote               := edtVersaoLote.Text;
      end;
 
      with Email do
@@ -7644,7 +7689,9 @@ begin
         else if fsCmd.Objeto = 'BPE' then
           FDoBPe.Executar(fsCmd)
         else if fsCmd.Objeto = 'ESCPOS' then
-          FDoPosPrinter.Executar(fsCmd);
+          FDoPosPrinter.Executar(fsCmd)
+        else if fsCmd.Objeto = 'GTIN' then
+          FDoGTIN.Executar(fsCmd);
 
         // Atualiza Memo de Entrada //
         mCmd.Lines.Assign(fsProcessar);
@@ -9920,7 +9967,8 @@ begin
      or (AfsCmd.Objeto = 'ESOCIAL')
      or (AfsCmd.Objeto = 'REINF')
      or (AfsCmd.Objeto = 'GNRE')
-     or (AfsCmd.Objeto = 'BPE') then
+     or (AfsCmd.Objeto = 'BPE')
+     or (AfsCmd.Objeto = 'GTIN') then
        MsgErro :=  VerificarErrosConfiguracaoDFe;
 
   if (AfsCmd.Objeto = 'SAT') then
@@ -11519,8 +11567,14 @@ begin
 
     PathSchemaDFe := edtPathSchemasDFe.Text + PathDelim + 'Reinf';
     if DirectoryExists(PathSchemaDFe) then
-      TConfiguracoesReinf(Configuracoes).Arquivos.PathSchemas:= PathSchemaDFe ;
+      TConfiguracoesReinf(Configuracoes).Arquivos.PathSchemas:= PathSchemaDFe;
   end
+  else if Configuracoes is TConfiguracoesGTIN then
+  begin
+    PathSchemaDFe := edtPathSchemasDFe.Text + PathDelim + 'GTIN';
+    if DirectoryExists(PathSchemaDFe) then
+      TConfiguracoesReinf(Configuracoes).Arquivos.PathSchemas:= PathSchemaDFe;
+  end;
 
 end;
 
@@ -11747,6 +11801,7 @@ begin
       ACBreSocial1.Configuracoes.Geral.SSLCryptLib := TSSLCryptLib(cbCryptLib.ItemIndex);
       ACBrReinf1.Configuracoes.Geral.SSLCryptLib := TSSLCryptLib(cbCryptLib.ItemIndex);
       ACBrBPe1.Configuracoes.Geral.SSLCryptLib := TSSLCryptLib(cbCryptLib.ItemIndex);
+      ACBrGTIN1.Configuracoes.Geral.SSLCryptLib := TSSLCryptLib(cbCryptLib.ItemIndex);
     end;
   finally
     AtualizaSSLLibsCombo;
@@ -11766,6 +11821,7 @@ begin
       ACBreSocial1.Configuracoes.Geral.SSLHttpLib := TSSLHttpLib(cbHttpLib.ItemIndex);
       ACBrReinf1.Configuracoes.Geral.SSLHttpLib := TSSLHttpLib(cbHttpLib.ItemIndex);
       ACBrBPe1.Configuracoes.Geral.SSLHttpLib := TSSLHttpLib(cbHttpLib.ItemIndex);
+      ACBrGTIN1.Configuracoes.Geral.SSLHttpLib := TSSLHttpLib(cbHttpLib.ItemIndex);
     end;
   finally
     AtualizaSSLLibsCombo;
@@ -11845,7 +11901,8 @@ begin
       ACBrBlocoX1.Configuracoes.Geral.SSLLib := TSSLLib(cbSSLLib.ItemIndex);
       ACBreSocial1.Configuracoes.Geral.SSLLib:= TSSLLib(cbSSLLib.ItemIndex);
       ACBrReinf1.Configuracoes.Geral.SSLLib  := TSSLLib(cbSSLLib.ItemIndex);
-      ACBrBPe1.Configuracoes.Geral.SSLLib  := TSSLLib(cbSSLLib.ItemIndex);
+      ACBrBPe1.Configuracoes.Geral.SSLLib  := TSSLLib(cbSSLLib.ItemIndex);  
+      ACBrGTIN1.Configuracoes.Geral.SSLLib  := TSSLLib(cbSSLLib.ItemIndex);
     end;
   finally
     AtualizaSSLLibsCombo;
@@ -12203,7 +12260,8 @@ begin
   ACBrBlocoX1.SSL.SSLType := TSSLType( cbSSLType.ItemIndex );
   ACBreSocial1.SSL.SSLType:= TSSLType( cbSSLType.ItemIndex );
   ACBrReinf1.SSL.SSLType  := TSSLType( cbSSLType.ItemIndex );
-  ACBrBPe1.SSL.SSLType  := TSSLType( cbSSLType.ItemIndex );
+  ACBrBPe1.SSL.SSLType    := TSSLType( cbSSLType.ItemIndex );
+  ACBrGTIN1.SSL.SSLType   := TSSLType( cbSSLType.ItemIndex );
 end;
 
 procedure TFrmACBrMonitor.SetColorSubButtons(Sender: TObject);

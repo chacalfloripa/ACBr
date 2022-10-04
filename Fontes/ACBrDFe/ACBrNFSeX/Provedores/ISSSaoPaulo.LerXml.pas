@@ -65,7 +65,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings;
+  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -117,10 +118,10 @@ begin
 
   if AuxNode <> nil then
   begin
-    NFSe.IntermediarioServico.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('CNPJ'), tcStr);
+    NFSe.Intermediario.Identificacao.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('CNPJ'), tcStr);
 
-    if NFSe.IntermediarioServico.CpfCnpj = '' then
-      NFSe.IntermediarioServico.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('CPF'), tcStr);
+    if NFSe.Intermediario.Identificacao.CpfCnpj = '' then
+      NFSe.Intermediario.Identificacao.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('CPF'), tcStr);
   end;
 end;
 
@@ -152,6 +153,8 @@ end;
 procedure TNFSeR_ISSSaoPaulo.LerEnderecoPrestador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+//  CodigoIBGE: Integer;
+//  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('EnderecoPrestador');
 
@@ -167,7 +170,15 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
-      xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
+      {
+      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+      if CodigoIBGE > 0 then
+        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+      if UF = '' then
+        UF := xUF;
+      }
     end;
   end;
 end;
@@ -175,6 +186,8 @@ end;
 procedure TNFSeR_ISSSaoPaulo.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+//  CodigoIBGE: Integer;
+//  xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('EnderecoTomador');
 
@@ -190,7 +203,15 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
-      xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
+      {
+      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+
+      if CodigoIBGE > 0 then
+        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+
+      if UF = '' then
+        UF := xUF;
+      }
     end;
 
     NFSe.Servico.CodigoMunicipio := NFSe.Tomador.Endereco.CodigoMunicipio;
@@ -320,6 +341,7 @@ end;
 function TNFSeR_ISSSaoPaulo.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 var
   aValor: string;
+  Ok: Boolean;
 begin
   Result := True;
 
@@ -335,7 +357,7 @@ begin
     else
       StatusRps := srCancelado;
 
-    TipoTributacaoRPS := ObterConteudo(ANode.Childrens.FindAnyNs('TributacaoRPS'), tcStr);
+    TipoTributacaoRPS := StrToTipoTributacaoRPS(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('TributacaoNFe'), tcStr));
 
     LerChaveRPS(ANode);
 
@@ -389,10 +411,10 @@ begin
     LerEnderecoTomador(ANode);
     LerCPFCNPJIntermediario(ANode);
 
-    with IntermediarioServico do
+    with Intermediario do
     begin
-      InscricaoMunicipal := ObterConteudo(ANode.Childrens.FindAnyNs('InscricaoMunicipalIntermediario'), tcStr);
-      EMail := ObterConteudo(ANode.Childrens.FindAnyNs('EmailIntermediario'), tcStr);
+      Identificacao.InscricaoMunicipal := ObterConteudo(ANode.Childrens.FindAnyNs('InscricaoMunicipalIntermediario'), tcStr);
+      Contato.EMail := ObterConteudo(ANode.Childrens.FindAnyNs('EmailIntermediario'), tcStr);
 
       aValor := ObterConteudo(ANode.Childrens.FindAnyNs('ISSRetidoIntermediario'), tcStr);
 
@@ -424,8 +446,9 @@ begin
 
   ItemServico := FormatFloat('0000', Item);
 
-  NFSe.Servico.ItemListaServico := Copy(ItemServico, 1, 2) + '.' +
-                                     Copy(ItemServico, 3, 2);
+//  NFSe.Servico.ItemListaServico := Copy(ItemServico, 1, 2) + '.' +
+//                                     Copy(ItemServico, 3, 2);
+  NFSe.Servico.ItemListaServico := '0' + ItemServico;
 
   if FpAOwner.ConfigGeral.TabServicosExt then
     NFSe.Servico.xItemListaServico := ObterDescricaoServico(ItemServico)

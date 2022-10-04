@@ -170,6 +170,14 @@ type
     // Usado pelos provedores que geram token por WebService
     procedure GerarToken;
 
+    // Usado pelo provedor PadraoNacional
+    procedure ObterDANFSE(const ANumNFSe: String; const ASerieNFSe: String = '');
+    procedure EnviarEvento(aInfEvento: TInfEvento);
+    procedure ConsultarEvento(const aChave: string); overload;
+    procedure ConsultarEvento(const aChave: string; atpEvento: TtpEvento); overload;
+    procedure ConsultarEvento(const aChave: string; atpEvento: TtpEvento;
+      aNumSeq: Integer); overload;
+
     function LinkNFSe(ANumNFSe: String; const ACodVerificacao: String;
       const AChaveAcesso: String = ''; const AValorServico: String = ''): String;
 
@@ -317,15 +325,21 @@ end;
 
 function TACBrNFSeX.GetNumID(ANFSe: TNFSe): String;
 var
-  NumDoc, xCNPJ: String;
+  xNumDoc, xSerie, xCNPJ: String;
 begin
   if ANFSe = nil then
     raise EACBrNFSeException.Create('Não foi informado o objeto TNFSe para gerar a chave!');
 
   if ANFSe.Numero = '' then
-    NumDoc := ANFSe.IdentificacaoRps.Numero
+  begin
+    xNumDoc := ANFSe.IdentificacaoRps.Numero;
+    xSerie := ANFSe.IdentificacaoRps.Serie;
+  end
   else
-    NumDoc := ANFSe.Numero;
+  begin
+    xNumDoc := ANFSe.Numero;
+    xSerie := ANFSe.SeriePrestacao;
+  end;
 
   xCNPJ := ANFSe.Prestador.IdentificacaoPrestador.CpfCnpj;
 
@@ -333,9 +347,9 @@ begin
     Result := GerarNomeNFSe(Configuracoes.WebServices.UFCodigo,
                             ANFSe.DataEmissao,
                             OnlyNumber(xCNPJ),
-                            StrToInt64Def(NumDoc, 0))
+                            StrToInt64Def(xNumDoc, 0))
   else
-    Result := NumDoc + ANFSe.IdentificacaoRps.Serie;
+    Result := xNumDoc + xSerie;
 end;
 
 function TACBrNFSeX.GetConfiguracoes: TConfiguracoesNFSe;
@@ -478,6 +492,50 @@ begin
   Result := lowerCase(Result);
 end;
 
+procedure TACBrNFSeX.ConsultarEvento(const aChave: string);
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.ConsultarEvento.Clear;
+  FWebService.ConsultarEvento.ChaveNFSe := aChave;
+  FWebService.ConsultarEvento.tpEvento := teNenhum;
+  FWebService.ConsultarEvento.nSeqEvento := 0;
+
+  FProvider.ConsultarEvento;
+end;
+
+procedure TACBrNFSeX.ConsultarEvento(const aChave: string;
+  atpEvento: TtpEvento);
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.ConsultarEvento.Clear;
+  FWebService.ConsultarEvento.ChaveNFSe := aChave;
+  FWebService.ConsultarEvento.tpEvento := atpEvento;
+  FWebService.ConsultarEvento.nSeqEvento := 0;
+
+  FProvider.ConsultarEvento;
+end;
+
+procedure TACBrNFSeX.ConsultarEvento(const aChave: string; atpEvento: TtpEvento;
+  aNumSeq: Integer);
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  if aNumSeq < 1 then
+    aNumSeq := 1;
+
+  FWebService.ConsultarEvento.Clear;
+  FWebService.ConsultarEvento.ChaveNFSe := aChave;
+  FWebService.ConsultarEvento.tpEvento := atpEvento;
+  FWebService.ConsultarEvento.nSeqEvento := aNumSeq;
+
+  FProvider.ConsultarEvento;
+end;
+
 procedure TACBrNFSeX.ConsultarLoteRps(const AProtocolo, ANumLote: String);
 begin
   if not Assigned(FProvider) then raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
@@ -514,13 +572,14 @@ begin
     CNPJTomador := aInfConsultaNFSe.CNPJTomador;
     IMTomador := aInfConsultaNFSe.IMTomador;
     CNPJInter := aInfConsultaNFSe.CNPJInter;
-    IMInter   := aInfConsultaNFSe.IMInter;
+    IMInter := aInfConsultaNFSe.IMInter;
     NumeroLote := aInfConsultaNFSe.NumeroLote;
     Pagina := aInfConsultaNFSe.Pagina;
     CadEconomico := aInfConsultaNFSe.CadEconomico;
     CodServ := aInfConsultaNFSe.CodServ;
     CodVerificacao := aInfConsultaNFSe.CodVerificacao;
-    Tipo:= aInfConsultaNFSe.Tipo;
+    tpDocumento := aInfConsultaNFSe.tpDocumento;
+    tpRetorno := aInfConsultaNFSe.tpRetorno;
   end;
 
   ConsultarNFSe;
@@ -533,10 +592,11 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcPorFaixa;
+    tpRetorno := trXml;
 
     NumeroIniNFSe := aNumeroInicial;
     NumeroFinNFSe := aNumeroFinal;
-    Pagina        := aPagina;
+    Pagina := aPagina;
   end;
 
   ConsultarNFSe;
@@ -549,10 +609,11 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcPorNumero;
+    tpRetorno := trXml;
 
     NumeroIniNFSe := aNumero;
     NumeroFinNFSe := aNumero;
-    Pagina        := aPagina;
+    Pagina := aPagina;
   end;
 
   ConsultarNFSe;
@@ -566,13 +627,14 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcPorPeriodo;
+    tpRetorno := trXml;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
-    Pagina      := aPagina;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
+    Pagina := aPagina;
 
-    NumeroLote  := aNumeroLote;
+    NumeroLote := aNumeroLote;
   end;
 
   ConsultarNFSe;
@@ -602,14 +664,15 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoPrestado;
+    tpRetorno := trXml;
 
     CNPJInter := aCNPJ;
-    IMInter   := aInscMun;
-    Pagina    := aPagina;
+    IMInter := aInscMun;
+    Pagina := aPagina;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
   end;
 
   ConsultarNFSe;
@@ -623,14 +686,15 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoPrestado;
+    tpRetorno := trXml;
 
     NumeroIniNFSe := aNumero;
     NumeroFinNFSe := aNumero;
-    Pagina        := aPagina;
+    Pagina := aPagina;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
   end;
 
   ConsultarNFSe;
@@ -644,11 +708,12 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoPrestado;
+    tpRetorno := trXml;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
-    Pagina      := aPagina;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
+    Pagina := aPagina;
   end;
 
   ConsultarNFSe;
@@ -663,14 +728,15 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoPrestado;
+    tpRetorno := trXml;
 
     CNPJTomador := aCNPJ;
-    IMTomador   := aInscMun;
-    Pagina      := aPagina;
+    IMTomador := aInscMun;
+    Pagina := aPagina;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
   end;
 
   ConsultarNFSe;
@@ -685,14 +751,15 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoTomado;
+    tpRetorno := trXml;
 
     CNPJInter := aCNPJ;
-    IMInter   := aInscMun;
-    Pagina    := aPagina;
+    IMInter := aInscMun;
+    Pagina := aPagina;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
   end;
 
   ConsultarNFSe;
@@ -706,14 +773,15 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoTomado;
+    tpRetorno := trXml;
 
     NumeroIniNFSe := aNumero;
     NumeroFinNFSe := aNumero;
-    Pagina        := aPagina;
+    Pagina := aPagina;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
   end;
 
   ConsultarNFSe;
@@ -727,11 +795,12 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoTomado;
+    tpRetorno := trXml;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
-    Pagina      := aPagina;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
+    Pagina := aPagina;
   end;
 
   ConsultarNFSe;
@@ -746,14 +815,15 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoTomado;
+    tpRetorno := trXml;
 
     CNPJPrestador := aCNPJ;
-    IMPrestador   := aInscMun;
-    Pagina        := aPagina;
+    IMPrestador := aInscMun;
+    Pagina := aPagina;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
   end;
 
   ConsultarNFSe;
@@ -768,14 +838,15 @@ begin
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
     tpConsulta := tcServicoTomado;
+    tpRetorno := trXml;
 
     CNPJTomador := aCNPJ;
-    IMTomador   := aInscMun;
-    Pagina      := aPagina;
+    IMTomador := aInscMun;
+    Pagina := aPagina;
 
     DataInicial := aDataInicial;
-    DataFinal   := aDataFinal;
-    tpPeriodo   := aTipoPeriodo;
+    DataFinal := aDataFinal;
+    tpPeriodo := aTipoPeriodo;
   end;
 
   ConsultarNFSe;
@@ -817,7 +888,7 @@ begin
     NumeroNFSeSubst := aInfCancelamento.NumeroNFSeSubst;
     SerieNFSeSubst := aInfCancelamento.SerieNFSeSubst;
     CodServ := aInfCancelamento.CodServ;
-    Tipo:= aInfCancelamento.Tipo;
+    tpDocumento:= aInfCancelamento.tpDocumento;
 
     if (ChaveNFSe <> '') and (NumeroNFSe = '') then
       NumeroNFSe := Copy(ChaveNFSe, 22, 9);
@@ -879,11 +950,54 @@ end;
 
 procedure TACBrNFSeX.GerarToken;
 begin
-  if not Assigned(FProvider) then raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
   FWebService.GerarToken.Clear;
 
   FProvider.GerarToken;
+end;
+
+procedure TACBrNFSeX.ObterDANFSE(const ANumNFSe, ASerieNFSe: String);
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.ConsultaNFSe.Clear;
+
+  with FWebService.ConsultaNFSe.InfConsultaNFSe do
+  begin
+    tpConsulta := tcPorNumero;
+    tpRetorno := trPDF;
+
+    NumeroIniNFSe := ANumNFSe;
+    SerieNFSe := ASerieNFSe;
+  end;
+
+  ConsultarNFSe;
+end;
+
+procedure TACBrNFSeX.EnviarEvento(aInfEvento: TInfEvento);
+begin
+  if not Assigned(FProvider) then
+    raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.EnviarEvento.Clear;
+
+  with FWebService.EnviarEvento.InfEvento.pedRegEvento do
+  begin
+    tpAmb := aInfEvento.pedRegEvento.tpAmb;
+    verAplic := aInfEvento.pedRegEvento.verAplic;
+    dhEvento := aInfEvento.pedRegEvento.dhEvento;
+    chNFSe := aInfEvento.pedRegEvento.chNFSe;
+    nPedRegEvento := aInfEvento.pedRegEvento.nPedRegEvento;
+    tpEvento := aInfEvento.pedRegEvento.tpEvento;
+    cMotivo := aInfEvento.pedRegEvento.cMotivo;
+    xMotivo := TiraAcentos(ChangeLineBreak(aInfEvento.pedRegEvento.xMotivo));
+    chSubstituta := aInfEvento.pedRegEvento.chSubstituta;
+  end;
+
+  FProvider.EnviarEvento;
 end;
 
 function TACBrNFSeX.LinkNFSe(ANumNFSe: String; const ACodVerificacao,

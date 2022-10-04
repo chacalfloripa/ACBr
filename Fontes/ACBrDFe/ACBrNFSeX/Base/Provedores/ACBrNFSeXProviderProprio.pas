@@ -104,6 +104,16 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoGerarToken(Response: TNFSeGerarTokenResponse); override;
 
+    procedure PrepararEnviarEvento(Response: TNFSeEnviarEventoResponse); override;
+    procedure GerarMsgDadosEnviarEvento(Response: TNFSeEnviarEventoResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoEnviarEvento(Response: TNFSeEnviarEventoResponse); override;
+
+    procedure PrepararConsultarEvento(Response: TNFSeConsultarEventoResponse); override;
+    procedure GerarMsgDadosConsultarEvento(Response: TNFSeConsultarEventoResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoConsultarEvento(Response: TNFSeConsultarEventoResponse); override;
+
     function AplicarXMLtoUTF8(AXMLRps: String): String; virtual;
     function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; virtual;
 
@@ -289,8 +299,8 @@ begin
   ListaRps := AplicarLineBreak(ListaRps, '');
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := ListaRps;
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -598,8 +608,8 @@ begin
   TagEnvio := ConfigMsgDados.SubstituirNFSe.DocElemento;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := xRps;
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -659,6 +669,50 @@ end;
 
 procedure TACBrNFSeProviderProprio.TratarRetornoGerarToken(
   Response: TNFSeGerarTokenResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderProprio.PrepararEnviarEvento(
+  Response: TNFSeEnviarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.GerarMsgDadosEnviarEvento(
+  Response: TNFSeEnviarEventoResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.TratarRetornoEnviarEvento(
+  Response: TNFSeEnviarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderProprio.PrepararConsultarEvento(
+  Response: TNFSeConsultarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultarEvento(
+  Response: TNFSeConsultarEventoResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.TratarRetornoConsultarEvento(
+  Response: TNFSeConsultarEventoResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;

@@ -1103,10 +1103,11 @@ begin
   else
     FBoleto := Nil;
 
-  if not DirectoryExists( FBoleto.Configuracoes.Arquivos.PathGravarRegistro ) then
+  if FBoleto.Configuracoes.Arquivos.LogRegistro and
+     not DirectoryExists( FBoleto.Configuracoes.Arquivos.PathGravarRegistro ) then
       ForceDirectories( FBoleto.Configuracoes.Arquivos.PathGravarRegistro );
 
-  if not DirectoryExists( FBoleto.Configuracoes.Arquivos.PathGravarRegistro ) then
+  if not (DirectoryExists( FBoleto.Configuracoes.Arquivos.PathGravarRegistro) ) then
     FArqLOG := C_ARQBOLETOWS_LOG
   else
     FArqLOG := PathWithDelim( FBoleto.Configuracoes.Arquivos.PathGravarRegistro ) + C_ARQBOLETOWS_LOG;
@@ -1209,7 +1210,7 @@ begin
   except
     on E: Exception do
     begin
-      if ( ( FBoletoWSClass.RetornoBanco.CodRetorno = 0 ) and
+      if not (Assigned(FBoletoWSClass.RetornoBanco)) or ( ( FBoletoWSClass.RetornoBanco.CodRetorno = 0 ) and
              ( Trim( FBoletoWSClass.RetornoBanco.Msg ) = '' ) ) then
         DoLog('Falha Envio: ' + ACBrStr(E.Message))
       else

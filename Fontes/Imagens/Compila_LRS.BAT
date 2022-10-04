@@ -52,12 +52,21 @@ echo "****************************************"
 echo.
 
 :PIXCD
-%1\tools\lazres.exe ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png TACBrPSPShipay.png TACBrPSPSicredi.png
+%1\tools\lazres.exe ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png TACBrPSPShipay.png TACBrPSPSicredi.png TACBrPSPSicoob.png
 move ACBrPIXCD.lrs ..\ACBrPIXCD
 echo.
 echo "****************************************"
 echo "* Arquivo   ACBrPIXCD.lrs   gerado     *"
 echo "****************************************"
+echo.
+
+:OpenDelivery
+%1\tools\lazres.exe ACBrOpenDelivery.lrs TACBrOpenDelivery.png
+move ACBrOpenDelivery.lrs ..\ACBrOpenDelivery
+echo.
+echo "***********************************************"
+echo "* Arquivo   ACBrOpenDelivery.lrs   gerado     *"
+echo "***********************************************"
 echo.
 
 :TCP

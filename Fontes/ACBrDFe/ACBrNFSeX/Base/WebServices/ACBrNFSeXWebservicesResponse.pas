@@ -199,6 +199,10 @@ type
     FProtocolo: string;
     FNumeroRps: string;
     FSerieRps: string;
+    FCodVerif: string;
+    FidEvento: string;
+    FtpEvento: TtpEvento;
+    FnSeqEvento: Integer;
 
     FAlertas: TNFSeEventoCollection;
     FErros: TNFSeEventoCollection;
@@ -232,6 +236,10 @@ type
     property Protocolo: string read FProtocolo write FProtocolo;
     property NumeroRps: string read FNumeroRps write FNumeroRps;
     property SerieRps: string read FSerieRps write FSerieRps;
+    property CodVerif: string read FCodVerif write FCodVerif;
+    property idEvento: string read FidEvento write FidEvento;
+    property tpEvento: TtpEvento read FtpEvento write FtpEvento;
+    property nSeqEvento: Integer read FnSeqEvento write FnSeqEvento;
 
     property Alertas: TNFSeEventoCollection read FAlertas;
     property Erros: TNFSeEventoCollection read FErros;
@@ -403,6 +411,34 @@ type
     property HashIdent: string read FHashIdent write FHashIdent;
   end;
 
+  TNFSeEnviarEventoResponse = class(TNFSeWebserviceResponse)
+  private
+    FToken: string;
+    FDataExpiracao: TDateTime;
+    FInfEvento: TInfEvento;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Clear; override;
+
+    property Token: string read FToken write FToken;
+    property DataExpiracao: TDateTime read FDataExpiracao write FDataExpiracao;
+    property InfEvento: TInfEvento read FInfEvento write FInfEvento;
+  end;
+
+  TNFSeConsultarEventoResponse = class(TNFSeWebserviceResponse)
+  private
+    FChaveNFSe: string;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Clear; override;
+
+    property ChaveNFSe: string read FChaveNFSe write FChaveNFSe;
+  end;
+
 implementation
 
 uses
@@ -500,6 +536,9 @@ begin
   Protocolo := '';
   NumeroRps := '';
   SerieRps := '';
+  idEvento := '';
+  tpEvento := teCancelamento;
+  nSeqEvento := 0;
 
   if Assigned(FErros) then
   begin
@@ -599,6 +638,8 @@ end;
 constructor TNFSeCancelaNFSeResponse.Create;
 begin
   inherited Create;
+  FInfCancelamento := nil;
+  FRetCancelamento := nil;
 
   Clear;
 end;
@@ -608,10 +649,10 @@ begin
   inherited Clear;
 
   if Assigned(FInfCancelamento) then
-    FInfCancelamento.Free;
+    FreeAndNil(FInfCancelamento);
 
   if Assigned(FRetCancelamento) then
-   FRetCancelamento.Free;
+   FreeAndNil(FRetCancelamento);
 
   FInfCancelamento := TInfCancelamento.Create;
   FRetCancelamento := TRetCancelamento.Create;
@@ -620,10 +661,10 @@ end;
 destructor TNFSeCancelaNFSeResponse.Destroy;
 begin
   if Assigned(FInfCancelamento) then
-    FInfCancelamento.Free;
+    FreeAndNil(FInfCancelamento);
 
   if Assigned(FRetCancelamento) then
-    FRetCancelamento.Free;
+    FreeAndNil(FRetCancelamento);
 
   inherited Destroy;
 end;
@@ -640,17 +681,10 @@ constructor TNFSeSubstituiNFSeResponse.Create;
 begin
   inherited Create;
 
-  FInfCancelamento := TInfCancelamento.Create;
-  FRetCancelamento := TRetCancelamento.Create;
 end;
 
 destructor TNFSeSubstituiNFSeResponse.Destroy;
 begin
-  if Assigned(FInfCancelamento) then
-    FreeAndNil(FInfCancelamento);
-
-  if Assigned(FRetCancelamento) then
-    FreeAndNil(FRetCancelamento);
 
   inherited Destroy;
 end;
@@ -835,6 +869,53 @@ procedure TNFSeResumoCollection.SetItem(Index: Integer;
   Value: TNFSeResumoCollectionItem);
 begin
   inherited Items[Index] := Value;
+end;
+
+{ TNFSeEnviarEventoResponse }
+
+procedure TNFSeEnviarEventoResponse.Clear;
+begin
+  inherited Clear;
+
+  Token := '';
+  DataExpiracao := 0;
+end;
+
+constructor TNFSeEnviarEventoResponse.Create;
+begin
+  inherited Create;
+
+  FInfEvento := TInfEvento.Create;
+end;
+
+destructor TNFSeEnviarEventoResponse.Destroy;
+begin
+  FInfEvento.Free;
+
+  inherited Destroy;
+end;
+
+{ TNFSeConsultarEventoResponse }
+
+procedure TNFSeConsultarEventoResponse.Clear;
+begin
+  inherited Clear;
+
+  ChaveNFSe := '';
+  tpEvento := teNenhum;
+  nSeqEvento := 0;
+end;
+
+constructor TNFSeConsultarEventoResponse.Create;
+begin
+  inherited Create;
+
+end;
+
+destructor TNFSeConsultarEventoResponse.Destroy;
+begin
+
+  inherited Destroy;
 end;
 
 end.

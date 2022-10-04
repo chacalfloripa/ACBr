@@ -101,9 +101,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base,
-  ACBrUtil.Strings,
-  ACBrUtil.XMLHTML,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML,
   ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ISSDSF.GravarXml, ISSDSF.LerXml;
@@ -133,10 +131,10 @@ begin
       else
         sIndTomador := '3';
 
-    sTomador := sIndTomador + ACBrUtil.Strings.Poem_Zeros(sCPFCNPJTomador, 14);
+    sTomador := sIndTomador + Poem_Zeros(sCPFCNPJTomador, 14);
 
     // Prestador Intermediario
-    sCPFCNPJInter := ACBrUtil.Strings.OnlyNumber(NFSe.IntermediarioServico.CpfCnpj);
+    sCPFCNPJInter := OnlyNumber(NFSe.Intermediario.Identificacao.CpfCnpj);
 
     if Length(sCPFCNPJInter) = 11 then
       sIndInter := '1'
@@ -146,26 +144,25 @@ begin
       else
         sIndInter := '3';
 
-    sISSRetidoInter := EnumeradoToStr(NFSe.IntermediarioServico.IssRetido,
+    sISSRetidoInter := EnumeradoToStr(NFSe.Intermediario.IssRetido,
                                       ['N', 'S'], [stNormal, stRetencao]);
 
     if sIndInter <> '3' then
-      sInter := sIndInter + ACBrUtil.Strings.Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
+      sInter := sIndInter + Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
     else
       sInter := '';
 
-    sAssinatura := ACBrUtil.Strings.Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 8) +
+    sAssinatura := Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 11) +
                    PadRight(NFSe.IdentificacaoRps.Serie, 5 , ' ') +
-                   ACBrUtil.Strings.Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
+                   Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
                    FormatDateTime('yyyymmdd', NFse.DataEmissao) +
-                   TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS) +
+                   PadRight(TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS), 2, ' ') +
                    sSituacao +
                    sISSRetido +
-                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15 ) +
-                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorDeducoes)), 15 ) +
-                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(NFSe.Servico.ItemListaServico ), 5 ) +
-                   sTomador +
-                   sInter;
+                   Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15) +
+                   Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorDeducoes)), 15) +
+                   Poem_Zeros(OnlyNumber(NFSe.Servico.CodigoCnae), 10) +
+                   sTomador;
 
     with TACBrNFSeX(FAOwner) do
       NFSe.Assinatura := string(SSL.CalcHash(AnsiString(sAssinatura), dgstSHA1, outBase64, True));
@@ -181,6 +178,7 @@ begin
     QuebradeLinha := '<br >';
     ModoEnvio := meLoteSincrono;
     DetalharServico := True;
+    CancPreencherMotivo := True;
   end;
 
   with ConfigAssinar do
@@ -1397,23 +1395,29 @@ begin
 
       ANode := Document.Root.Childrens.FindAnyNs('RetornoCancelamentoNFSe');
 
-      ProcessarMensagemErros(ANode, Response);
-
-      AuxNode := ANode.Childrens.FindAnyNs('Cabecalho');
-
-      if AuxNode <> nil then
+      if ANode <> nil then
       begin
-        ProcessarMensagemErros(AuxNode, Response);
+        ProcessarMensagemErros(ANode, Response);
 
-        with Response do
+        AuxNode := ANode.Childrens.FindAnyNs('Cabecalho');
+
+        if AuxNode <> nil then
         begin
-          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr) = 'true';
+          ProcessarMensagemErros(AuxNode, Response);
+
+          with Response do
+          begin
+            Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr) = 'true';
+          end;
         end;
-      end;
 
-      Response.Sucesso := (Response.Erros.Count = 0) and (Response.Alertas.Count = 0);
+        Response.Sucesso := (Response.Erros.Count = 0) and (Response.Alertas.Count = 0);
+      end
+      else
+        Response.Sucesso := False;
 
-      ANode := ANode.Childrens.Find('NotasCanceladas');
+      if ANode <> nil then
+        ANode := ANode.Childrens.Find('NotasCanceladas');
 
       if ANode <> nil then
       begin

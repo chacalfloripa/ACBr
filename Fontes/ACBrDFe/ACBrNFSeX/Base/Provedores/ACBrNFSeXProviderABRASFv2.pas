@@ -109,12 +109,21 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoGerarToken(Response: TNFSeGerarTokenResponse); override;
 
+    procedure PrepararEnviarEvento(Response: TNFSeEnviarEventoResponse); override;
+    procedure GerarMsgDadosEnviarEvento(Response: TNFSeEnviarEventoResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoEnviarEvento(Response: TNFSeEnviarEventoResponse); override;
+
+    procedure PrepararConsultarEvento(Response: TNFSeConsultarEventoResponse); override;
+    procedure GerarMsgDadosConsultarEvento(Response: TNFSeConsultarEventoResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoConsultarEvento(Response: TNFSeConsultarEventoResponse); override;
+
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
                                      const AMessageTag: string = 'MensagemRetorno'); virtual;
 
-//    function LerDatas(const xData: string): TDateTime;
   end;
 
 implementation
@@ -127,30 +136,6 @@ uses
 
 { TACBrNFSeProviderABRASFv2 }
 
-{
-function TACBrNFSeProviderABRASFv2.LerDatas(const xData: string): TDateTime;
-begin
-  if Pos('/', xData) = 3 then
-  begin
-    if Copy(xData, 1, 2) > '12' then
-      result := EncodeDataHora(xData, 'DD/MM/YYYY')
-    else
-      result := EncodeDataHora(xData, 'MM/DD/YYYY');
-  end
-  else
-  begin
-    if Pos('/', xData) = 2 then
-    begin
-      if Copy(xData, 3, 2) > '12' then
-        result := EncodeDataHora(xData, 'M/DD/YYYY')
-      else
-        result := EncodeDataHora(xData, 'D/MM/YYYY');
-    end
-    else
-      result := EncodeDataHora(xData, '');
-  end;
-end;
-}
 procedure TACBrNFSeProviderABRASFv2.Configuracao;
 const
   NameSpace = 'http://www.abrasf.org.br/nfse.xsd';
@@ -353,8 +338,8 @@ begin
   ListaRps := ChangeLineBreak(ListaRps, '');
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := ListaRps;
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -596,8 +581,8 @@ begin
   TagEnvio := ConfigMsgDados.ConsultarLote.DocElemento;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := '';
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -795,8 +780,8 @@ begin
   TagEnvio := ConfigMsgDados.ConsultarNFSeRps.DocElemento;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := '';
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -1104,8 +1089,8 @@ begin
                  '</' + Prefixo + 'Faixa>';
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := XmlConsulta;
     aParams.TagEnvio := '';
     aParams.Prefixo := Prefixo;
@@ -1341,8 +1326,8 @@ begin
   end;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := XmlConsulta;
     aParams.TagEnvio := '';
     aParams.Prefixo := Prefixo;
@@ -1591,8 +1576,8 @@ begin
   end;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := XmlConsulta;
     aParams.TagEnvio := '';
     aParams.Prefixo := Prefixo;
@@ -1867,8 +1852,8 @@ begin
     xCodVerif := '';
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := '';
     aParams.TagEnvio := '';
     aParams.Prefixo := Prefixo;
@@ -2159,8 +2144,8 @@ begin
   TagEnvio := ConfigMsgDados.SubstituirNFSe.DocElemento;
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := xRps;
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -2388,6 +2373,50 @@ end;
 
 procedure TACBrNFSeProviderABRASFv2.TratarRetornoGerarToken(
   Response: TNFSeGerarTokenResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderABRASFv2.PrepararEnviarEvento(
+  Response: TNFSeEnviarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.GerarMsgDadosEnviarEvento(
+  Response: TNFSeEnviarEventoResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.TratarRetornoEnviarEvento(
+  Response: TNFSeEnviarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderABRASFv2.PrepararConsultarEvento(
+  Response: TNFSeConsultarEventoResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.GerarMsgDadosConsultarEvento(
+  Response: TNFSeConsultarEventoResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.TratarRetornoConsultarEvento(
+  Response: TNFSeConsultarEventoResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;

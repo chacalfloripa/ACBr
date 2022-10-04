@@ -54,6 +54,8 @@ type
     procedure CancelaNFSe;
     procedure SubstituiNFSe;
     procedure GerarToken;
+    procedure EnviarEvento;
+    procedure ConsultarEvento;
 
     function GetConfigGeral: TConfigGeral;
     function GetConfigWebServices: TConfigWebServices;
@@ -98,6 +100,10 @@ type
 
     function SituacaoTribToStr(const t: TSituacaoTrib): string;
     function StrToSituacaoTrib(out ok: boolean; const s: string): TSituacaoTrib;
+
+    function TributacaoToStr(const t: TTributacao): string;
+    function StrToTributacao(out ok: boolean; const s: string): TTributacao;
+    function TributacaoDescricao(const t: TTributacao): String;
   end;
 
 implementation

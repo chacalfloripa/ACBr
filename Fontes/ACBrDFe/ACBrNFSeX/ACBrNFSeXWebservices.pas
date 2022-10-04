@@ -54,6 +54,8 @@ type
     FCancelaNFSe: TNFSeCancelaNFSeResponse;
     FSubstituiNFSe: TNFSeSubstituiNFSeResponse;
     FGerarToken: TNFSeGerarTokenResponse;
+    FEnviarEvento: TNFSeEnviarEventoResponse;
+    FConsultarEvento: TNFSeConsultarEventoResponse;
 
   public
     constructor Create;
@@ -68,6 +70,8 @@ type
     property CancelaNFSe: TNFSeCancelaNFSeResponse read FCancelaNFSe;
     property SubstituiNFSe: TNFSeSubstituiNFSeResponse read FSubstituiNFSe;
     property GerarToken: TNFSeGerarTokenResponse read FGerarToken;
+    property EnviarEvento: TNFSeEnviarEventoResponse read FEnviarEvento;
+    property ConsultarEvento: TNFSeConsultarEventoResponse read FConsultarEvento;
 
   end;
 
@@ -85,6 +89,8 @@ begin
   FCancelaNFSe := TNFSeCancelaNFSeResponse.Create;
   FSubstituiNFSe := TNFSeSubstituiNFSeResponse.Create;
   FGerarToken := TNFSeGerarTokenResponse.Create;
+  FEnviarEvento := TNFSeEnviarEventoResponse.Create;
+  FConsultarEvento := TNFSeConsultarEventoResponse.Create;
 end;
 
 destructor TWebServices.Destroy;
@@ -98,6 +104,8 @@ begin
   FCancelaNFSe.Free;
   FSubstituiNFSe.Free;
   FGerarToken.Free;
+  FEnviarEvento.Free;
+  FConsultarEvento.Free;
 
   inherited Destroy;
 end;

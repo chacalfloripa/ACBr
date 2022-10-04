@@ -401,6 +401,35 @@ type
       read fQuandoReceberRespostaHttp write fQuandoReceberRespostaHttp;
   end;
 
+  { TACBrPSPCertificate }
+
+  TACBrPSPCertificate = class(TACBrPSP)
+  private
+    fArquivoCertificado: String;
+    fArquivoChavePrivada: String;
+    fCertificado: AnsiString;
+    fChavePrivada: AnsiString;
+
+    procedure SetArquivoCertificado(aValue: String);
+    procedure SetArquivoChavePrivada(aValue: String);
+    procedure SetCertificado(aValue: AnsiString);
+    procedure SetChavePrivada(aValue: AnsiString);
+
+  protected
+    procedure ConfigurarHeaders(const Method, AURL: String); override;
+
+    function VerificarSeIncluiCertificado(const Method, AURL: String): Boolean; virtual;
+    function VerificarSeIncluiChavePrivada(const Method, AURL: String): Boolean;  virtual;
+  public
+    constructor Create(AOwner: TComponent); override;
+
+    property ArquivoCertificado: String read fArquivoCertificado write SetArquivoCertificado;
+    property ArquivoChavePrivada: String read fArquivoChavePrivada write SetArquivoChavePrivada;
+
+    property Certificado: AnsiString read fCertificado write SetCertificado;
+    property ChavePrivada: AnsiString read fChavePrivada write SetChavePrivada;
+  end;
+
   { TACBrPixRecebedor }
 
   TACBrPixRecebedor = class(TPersistent)
@@ -505,7 +534,8 @@ type
       const TxId: String = ''): String; overload;
     function GerarQRCodeEstatico(const ChavePix: String; Valor: Currency;
       const infoAdicional: String = ''; const TxId: String = ''): String; overload;
-    function GerarQRCodeDinamico(const Location: String): String;
+    function GerarQRCodeDinamico(const Location: String; const TxID: String = '';
+      const Valor: Currency = 0): String;
 
   published
     property Recebedor: TACBrPixRecebedor read fRecebedor write SetRecebedor;
@@ -787,6 +817,87 @@ begin
     fCobsVConsultadas.AsJSON := String(RespostaHttp)
   else
     fPSP.TratarRetornoComErro(ResultCode, RespostaHttp, Problema);
+end;
+
+{ TACBrPSPCertificate }
+
+procedure TACBrPSPCertificate.SetArquivoCertificado(aValue: String);
+begin
+  fArquivoCertificado := Trim(aValue);
+  fCertificado := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetArquivoChavePrivada(aValue: String);
+begin
+  fArquivoChavePrivada := Trim(aValue);
+  fChavePrivada := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetCertificado(aValue: AnsiString);
+begin
+  fCertificado := aValue;
+  fArquivoCertificado := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetChavePrivada(aValue: AnsiString);
+begin
+  fChavePrivada := aValue;
+  fArquivoChavePrivada := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.ConfigurarHeaders(const Method, AURL: String);
+begin
+  inherited ConfigurarHeaders(Method, AURL);
+                                      
+  // Adicionando o Certificado
+  if VerificarSeIncluiCertificado(Method, AURL) then
+  begin
+    if NaoEstaVazio(Certificado) then
+    begin
+      if StringIsPEM(Certificado) then
+        Http.Sock.SSL.Certificate := ConvertPEMToASN1(Certificado)
+      else
+        Http.Sock.SSL.Certificate := Certificado;
+    end
+    else if NaoEstaVazio(ArquivoCertificado) then
+      Http.Sock.SSL.CertificateFile := ArquivoCertificado;
+  end;
+
+  // Adicionando a Chave Privada
+  if VerificarSeIncluiChavePrivada(Method, AURL) then
+  begin
+    if NaoEstaVazio(ChavePrivada) then
+    begin
+      if StringIsPEM(ChavePrivada) then
+        Http.Sock.SSL.PrivateKey := ConvertPEMToASN1(ChavePrivada)
+      else
+        Http.Sock.SSL.PrivateKey := ChavePrivada;
+    end
+    else if NaoEstaVazio(ArquivoChavePrivada) then
+      Http.Sock.SSL.PrivateKeyFile := ArquivoChavePrivada;
+  end;
+end;
+
+function TACBrPSPCertificate.VerificarSeIncluiCertificado(const Method,
+  AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fCertificado) or NaoEstaVazio(fArquivoCertificado);
+end;
+
+function TACBrPSPCertificate.VerificarSeIncluiChavePrivada(const Method,
+  AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fChavePrivada) or NaoEstaVazio(fArquivoChavePrivada);
+end;
+
+constructor TACBrPSPCertificate.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+
+  fCertificado := EmptyStr;
+  fChavePrivada := EmptyStr;
+  fArquivoCertificado := EmptyStr;
+  fArquivoChavePrivada := EmptyStr;
 end;
 
 { TACBrPixEndPoint }
@@ -2129,12 +2240,15 @@ begin
   end;
 end;
 
-function TACBrPixCD.GerarQRCodeDinamico(const Location: String): String;
+function TACBrPixCD.GerarQRCodeDinamico(const Location: String;
+  const TxID: String; const Valor: Currency): String;
 var
   Erros: String;
   QRCodeDinamico: TACBrPIXQRCodeDinamico;
 begin
-  RegistrarLog('GerarQRCodeDinamico( '+Location+' )');
+  RegistrarLog('GerarQRCodeDinamico( ' + Location +
+    IfThen(NaoEstaVazio(TxID), ', ' + TxID, EmptyStr) +
+    IfThen(Valor > 0, ', ' + FloatToString(Valor), EmptyStr) + ' )');
 
   Erros := '';
   if (fRecebedor.Nome = '') then
@@ -2153,6 +2267,11 @@ begin
     QRCodeDinamico.MerchantCity := fRecebedor.Cidade;
     QRCodeDinamico.PostalCode := fRecebedor.CEP;
     QRCodeDinamico.URL := Location;
+
+    if NaoEstaVazio(TxID) then
+      QRCodeDinamico.TxId := TxID;
+    if (Valor <> 0) then
+      QRCodeDinamico.TransactionAmount := Valor;
 
     Result := QRCodeDinamico.AsString;
     RegistrarLog('   '+Result);

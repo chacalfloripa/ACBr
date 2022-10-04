@@ -66,10 +66,10 @@ type
     function SetIDTransmissor (const aIdTransmissor: PChar): longint;
     function SetTipoEmpregador (aTipoEmpregador: integer):longint;
     function SetVersaoDF (const sVersao: PChar):longint;
-    function ConsultaIdentificadoresEventosEmpregador (const aIdEmpregador: PChar; aTipoEvento: integer; aPeriodoApuracao: TDateTime):longint;
-    function ConsultaIdentificadoresEventosTabela (const aIdEmpregador: PChar; aTipoEvento: integer; aChave: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime):longint;
-    function ConsultaIdentificadoresEventosTrabalhador (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial:TDateTime; aDataFinal: TDateTime):longint;
-    function DownloadEventos (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime):longint;
+    function ConsultaIdentificadoresEventosEmpregador (const aIdEmpregador: PChar; aTipoEvento: integer; aPeriodoApuracao: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
+    function ConsultaIdentificadoresEventosTabela (const aIdEmpregador: PChar; aTipoEvento: integer; aChave: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
+    function ConsultaIdentificadoresEventosTrabalhador (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial:TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
+    function DownloadEventos (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
     function SetRetornoEventoCarregados(const NumEventos: integer): integer;
 
     property eSocialDM: TLibeSocialDM read FeSocialDM;
@@ -204,9 +204,7 @@ begin
     else
      GravarLog('eSocial_ConsultareSocial', logNormal);
 
-    with TACBrLibeSocial(pLib) do
-    begin
-      eSocialDM.Travar;
+     eSocialDM.Travar;
       try
         eSocialDM.ACBreSocial1.Eventos.Clear;
         esocialDM.ACBreSocial1.Consultar(AProtocolo);
@@ -226,8 +224,7 @@ begin
       finally
         eSocialDM.Destravar;
       end;
-    end;
-
+      
   except
     on E: EACBrLibException do
      Result := SetRetorno(E.Erro, E.Message);
@@ -259,8 +256,6 @@ begin
      if not FileExists(AIniFile) then
        raise Exception.Create(ACBrStr(Format(SErroeSocialAbrir, [AIniFile])));
 
-     with TACBrLibeSocial(pLib) do
-     begin
         eSocialDM.Travar;
         try
            eSocialDM.ACBreSocial1.Eventos.LoadFromIni(AIniFile);
@@ -299,7 +294,6 @@ begin
         finally
           eSocialDM.Destravar;
         end;
-     end;
 
   except
     on E: EACBrLibException do
@@ -319,8 +313,6 @@ begin
      else
       GravarLog('eSocial_Limpar', logNormal);
 
-    with TACBrLibeSocial(pLib) do
-    begin
      eSocialDM.Travar;
       try
         eSocialDM.ACBreSocial1.Eventos.Clear;
@@ -328,7 +320,6 @@ begin
       finally
         eSocialDM.Destravar;
       end;
-    end;
 
   except
     on E: EACBrLibException do
@@ -390,8 +381,6 @@ begin
     if DirectoryExists(idEmpregador) then
       raise EACBrLibException.Create(ErrDiretorioNaoExiste, 'Diretorio não existe');
 
-    with TACBrLibeSocial(pLib) do
-    begin
       eSocialDM.Travar;
       try
         eSocialDM.ACBreSocial1.Configuracoes.Geral.IdEmpregador := idEmpregador;
@@ -399,8 +388,6 @@ begin
       finally
         eSocialDM.Destravar;
       end;
-
-    end;
 
   except
     on E: EACBrLibException do
@@ -425,8 +412,6 @@ begin
     if EstaVazio(idTransmissor)then
          raise Exception.Create('Valor Nulo');
 
-    with TACBrLibeSocial(pLib) do
-    begin
       eSocialDM.Travar;
       try
         eSocialDM.ACBreSocial1.Configuracoes.Geral.IdTransmissor := idTransmissor;
@@ -434,7 +419,6 @@ begin
       finally
         eSocialDM.Destravar;
       end;
-    end;
 
   except
     on E: EACBrLibException do
@@ -457,8 +441,6 @@ begin
      else
       GravarLog('eSocial_SetTipoEmpregador', logNormal);
 
-     with TACBrLibeSocial(pLib) do
-     begin
         eSocialDM.Travar;
        try
          eSocialDM.ACBreSocial1.Configuracoes.Geral.TipoEmpregador := TEmpregador( tipoEmpregador );
@@ -466,8 +448,6 @@ begin
        finally
          eSocialDM.Destravar;
        end;
-
-     end;
 
    except
      on E: EACBrLibException do
@@ -492,8 +472,6 @@ begin
     else
       GravarLog('eSocial_SetVersaoDF', logNormal);
 
-    with TACBrLibeSocial(pLib) do
-    begin
       eSocialDM.Travar;
       try
         eSocialDM.ACBreSocial1.Configuracoes.Geral.VersaoDF := StrToVersaoeSocial(OK, versao);
@@ -501,7 +479,6 @@ begin
       finally
         eSocialDM.Destravar;
       end;
-    end;
 
   except
     on E: EACBrLibException do
@@ -513,7 +490,7 @@ begin
 
 end;
 
-function TACBrLibeSocial.ConsultaIdentificadoresEventosEmpregador (const aIdEmpregador: PChar; aTipoEvento: integer; aPeriodoApuracao: TDateTime):longint;
+function TACBrLibeSocial.ConsultaIdentificadoresEventosEmpregador (const aIdEmpregador: PChar; aTipoEvento: integer; aPeriodoApuracao: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
 var
   idEmpregador: String;
   APerApur: TDateTime;
@@ -531,8 +508,6 @@ begin
     else
       GravarLog('eSocial_ConsultaIdentificadoresEventosEmpregador', logNormal);
 
-    with TACBrLibeSocial(pLib) do
-    begin
       eSocialDM.Travar;
       try
 
@@ -557,7 +532,6 @@ begin
       finally
         eSocialDM.Destravar;
       end;
-    end;
 
   except
     on E: EACBrLibException do
@@ -569,7 +543,7 @@ begin
 
 end;
 
-function TACBrLibeSocial.ConsultaIdentificadoresEventosTabela(const aIdEmpregador: PChar; aTipoEvento: integer; aChave: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime):longint;
+function TACBrLibeSocial.ConsultaIdentificadoresEventosTabela(const aIdEmpregador: PChar; aTipoEvento: integer; aChave: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
 var
   idEmpregador: String;
   tpEvento: Integer;
@@ -590,8 +564,6 @@ begin
     else
      GravarLog('eSocial_ConsultaIdentificadoresEventosTabela', logNormal);
 
-    with TACBrLibeSocial(pLib) do
-    begin
       eSocialDM.Travar;
       try
         if ( (EstaVazio(idEmpregador)) or (EstaVazio(Chave)) or (DataInicial <= 0 ) or (DataFinal <= 0) ) then
@@ -614,7 +586,6 @@ begin
       finally
         eSocialDM.Destravar;
       end;
-    end;
 
   except
     on E: EACBrLibException do
@@ -625,7 +596,7 @@ begin
   end;
 end;
 
-function TACBrLibeSocial.ConsultaIdentificadoresEventosTrabalhador (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial:TDateTime; aDataFinal: TDateTime):longint;
+function TACBrLibeSocial.ConsultaIdentificadoresEventosTrabalhador (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial:TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
 var
   idEmpregador: String;
   CPFTrabalhador: String;
@@ -644,8 +615,6 @@ begin
     else
       GravarLog('eSocial_ConsultaIdentificadoresEventosTrabalhador', logNormal);
 
-    with TACBrLibeSocial(pLib) do
-    begin
       eSocialDM.Travar;
       try
         if ((EstaVazio(idEmpregador)) or (EstaVazio(CPFTrabalhador))
@@ -671,7 +640,6 @@ begin
         eSocialDM.Destravar;
       end;
 
-    end;
 
   except
     on E: EACBrLibException do
@@ -683,7 +651,7 @@ begin
 
 end;
 
-function TACBrLibeSocial.DownloadEventos (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime):longint;
+function TACBrLibeSocial.DownloadEventos (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
 var
   idEmpregador: String;
   AId: String;
@@ -704,8 +672,6 @@ begin
      else
       GravarLog('eSocial_DownloadEventos', logNormal);
 
-    with TACBrLibeSocial(pLib) do
-    begin
      eSocialDM.Travar;
       try
 
@@ -730,7 +696,6 @@ begin
         eSocialDM.Destravar;
       end;
 
-    end;
 
   except
     on E: EACBrLibException do

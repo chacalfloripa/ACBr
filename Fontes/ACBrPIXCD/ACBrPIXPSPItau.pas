@@ -66,19 +66,17 @@ type
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
-  TACBrPSPItau = class(TACBrPSP)
+  TACBrPSPItau = class(TACBrPSPCertificate)
   private
     fSandboxStatusCode: String;
     fxCorrelationID: String;
     fSSLUtils: TACBrOpenSSLUtils;
-    fArquivoCertificado: String;
-    fArquivoChavePrivada: String;
     fQuandoNecessitarCredenciais: TACBrQuandoNecessitarCredencial;
 
     function ObterChavePrivada: String;
-    procedure SetArquivoCertificado(AValue: String);
-    procedure SetArquivoChavePrivada(AValue: String);
   protected
+    function VerificarSeIncluiCertificado(const Method, AURL: String): Boolean; override;
+    function VerificarSeIncluiChavePrivada(const Method, AURL: String): Boolean; override;
     function ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String; override;
     procedure ConfigurarQueryParameters(const Method, EndPoint: String); override;
     procedure ConfigurarHeaders(const Method, AURL: String); override;
@@ -93,9 +91,6 @@ type
     property APIVersion;
     property ClientID;
     property ClientSecret;
-
-    property ArquivoChavePrivada: String read fArquivoChavePrivada write SetArquivoChavePrivada;
-    property ArquivoCertificado: String read fArquivoCertificado write SetArquivoCertificado;
 
     property QuandoNecessitarCredenciais: TACBrQuandoNecessitarCredencial
       read fQuandoNecessitarCredenciais write fQuandoNecessitarCredenciais;
@@ -118,8 +113,6 @@ begin
 
   fSandboxStatusCode := '';
   fxCorrelationID := '';
-  fArquivoCertificado := '';
-  fArquivoChavePrivada := '';
   fQuandoNecessitarCredenciais := Nil;
   fSSLUtils := TACBrOpenSSLUtils.Create(Self);  // Self irá destruir ele...
 end;
@@ -277,8 +270,10 @@ function TACBrPSPItau.ObterChavePrivada: String;
 var
   Resposta: AnsiString;
 begin
-  if (fArquivoChavePrivada <> '') and FileExists(fArquivoChavePrivada) then
-    fSSLUtils.LoadPrivateKeyFromFile(fArquivoChavePrivada)
+  if NaoEstaVazio(ArquivoChavePrivada) and FileExists(ArquivoChavePrivada) then
+    fSSLUtils.LoadPrivateKeyFromFile(ArquivoChavePrivada)
+  else if NaoEstaVazio(ChavePrivada) then
+    fSSLUtils.LoadPrivateKeyFromString(ChavePrivada)
   else
   begin
     Resposta := '';
@@ -292,16 +287,16 @@ begin
   Result := fSSLUtils.PrivateKeyAsString;
 end;
 
-procedure TACBrPSPItau.SetArquivoCertificado(AValue: String);
+function TACBrPSPItau.VerificarSeIncluiCertificado(const Method, AURL: String): Boolean;
 begin
-  if fArquivoCertificado = AValue then Exit;
-  fArquivoCertificado := Trim(AValue);
+  Result := inherited VerificarSeIncluiCertificado(Method, AURL) and
+    (ACBrPixCD.Ambiente = ambProducao) and (Pos(cItauPathCertificadoSolicitacao, AURL) <= 0);
 end;
 
-procedure TACBrPSPItau.SetArquivoChavePrivada(AValue: String);
+function TACBrPSPItau.VerificarSeIncluiChavePrivada(const Method, AURL: String): Boolean;
 begin
-  if fArquivoChavePrivada = AValue then Exit;
-  fArquivoChavePrivada := (AValue);
+  Result := inherited VerificarSeIncluiChavePrivada(Method, AURL) and
+    (ACBrPixCD.Ambiente = ambProducao) and (Pos(cItauPathCertificadoSolicitacao, AURL) <= 0);
 end;
 
 function TACBrPSPItau.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;
@@ -329,14 +324,6 @@ var
   s: String;
 begin
   inherited ConfigurarHeaders(Method, AURL);
-
-  if (ACBrPixCD.Ambiente = ambProducao) then
-  begin
-    if NaoEstaVazio(fArquivoCertificado) then
-      Http.Sock.SSL.CertificateFile := fArquivoCertificado;
-    if NaoEstaVazio(fArquivoChavePrivada) then
-      Http.Sock.SSL.PrivateKeyFile  := fArquivoChavePrivada;
-  end;
 
   s := Trim(fxCorrelationID);
   if EstaVazio(s) then
