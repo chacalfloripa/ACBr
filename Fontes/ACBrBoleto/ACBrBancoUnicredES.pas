@@ -50,7 +50,9 @@ type
     function CodDescontoToStr(const pCodigoDesconto : TACBrCodigoDesconto): String;
   protected
     function DefineNumeroDocumentoModulo(const ACBrTitulo: TACBrTitulo): String; override;
-    //function DefinePosicaoNossoNumeroRetorno: Integer; override;
+    function DefinePosicaoNossoNumeroRetorno: Integer; override;
+    function DefineSeuNumeroRetorno(const ALinha: String): String; override;
+    function DefineNumeroDocumentoRetorno(const ALinha: String): String; override;
   public
     Constructor create(AOwner: TACBrBanco);
 
@@ -60,6 +62,7 @@ type
     procedure GerarRegistroTransacao400(ACBrTitulo : TACBrTitulo; aRemessa: TStringList); override;
     procedure GerarRegistroHeader400(NumeroRemessa: Integer; ARemessa: TStringList);override;
     Procedure LerRetorno400(ARetorno:TStringList); override;
+    Procedure LerRetorno240(ARetorno:TStringList); override;
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia: Integer ) : TACBrTipoOcorrencia; override;
     function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; Override;
@@ -192,6 +195,17 @@ begin
        aRemessa.Add(UpperCase(sLinha));
     end;
   end;
+end;
+
+procedure TACBrBancoUnicredES.LerRetorno240(ARetorno: TStringList);
+begin
+  fpTamanhoMaximoNossoNum := 19;
+  try
+    inherited;
+  finally
+    fpTamanhoMaximoNossoNum := 10;
+  end;
+
 end;
 
 procedure TACBrBancoUnicredES.LerRetorno400(ARetorno: TStringList);
@@ -546,32 +560,42 @@ begin
   end;
 end;
 
+function TACBrBancoUnicredES.CodJurosToStr(const pCodigoJuros: TACBrCodigoJuros;
+  ValorMoraJuros: Currency): String;
+begin
+
+end;
+
 function TACBrBancoUnicredES.DefineNumeroDocumentoModulo(
   const ACBrTitulo: TACBrTitulo): String;
 begin
   Result:= ACBrTitulo.NossoNumero;
 end;
 
-{function TACBrBancoUnicredES.DefinePosicaoNossoNumeroRetorno: Integer;
+function TACBrBancoUnicredES.DefineNumeroDocumentoRetorno(
+  const ALinha: String): String;
 begin
-  Result := 51;
-end; }
-
-function TACBrBancoUnicredES.CodJurosToStr(const pCodigoJuros : TACBrCodigoJuros; ValorMoraJuros : Currency): String;
-begin
-  if ValorMoraJuros = 0 then
-    result := '5'
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result:= copy(ALinha, 59, 15)
   else
-  begin
-    case pCodigoJuros of
-      cjValorDia: result := '1';
-      cjTaxaMensal: result := '2';
-      cjValorMensal: result := '3';
-      cjTaxaDiaria: result := '4';
-    else
-      result := '5';
-    end;
-  End;
+    Result:= inherited DefineNumeroDocumentoRetorno(ALinha);
+end;
+
+function TACBrBancoUnicredES.DefinePosicaoNossoNumeroRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 39
+  else
+    Result := 71;
+end;
+
+function TACBrBancoUnicredES.DefineSeuNumeroRetorno(
+  const ALinha: String): String;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result:= copy(ALinha, 59, 15)
+  else
+    Result:= inherited DefineSeuNumeroRetorno(ALinha);
 end;
 
 function TACBrBancoUnicredES.CodMotivoRejeicaoToDescricao(

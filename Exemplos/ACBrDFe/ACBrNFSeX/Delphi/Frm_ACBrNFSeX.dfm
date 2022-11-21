@@ -1687,8 +1687,6 @@ object frmACBrNFSe: TfrmACBrNFSe
       ActivePage = TabSheet8
       Align = alClient
       TabOrder = 0
-      ExplicitTop = 247
-      ExplicitHeight = 364
       object TabSheet8: TTabSheet
         Caption = 'Log'
         ImageIndex = 2
@@ -1706,7 +1704,6 @@ object frmACBrNFSe: TfrmACBrNFSe
           ParentFont = False
           ScrollBars = ssVertical
           TabOrder = 0
-          ExplicitHeight = 446
         end
       end
       object TabSheet9: TTabSheet
@@ -1719,7 +1716,6 @@ object frmACBrNFSe: TfrmACBrNFSe
           Height = 419
           Align = alClient
           TabOrder = 0
-          ExplicitHeight = 446
           ControlData = {
             4C000000C63900004E2B00000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
@@ -1738,7 +1734,6 @@ object frmACBrNFSe: TfrmACBrNFSe
           Height = 419
           Align = alClient
           TabOrder = 0
-          ExplicitHeight = 446
           ControlData = {
             4C000000C63900004E2B00000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
@@ -1756,7 +1751,6 @@ object frmACBrNFSe: TfrmACBrNFSe
           Height = 419
           Align = alClient
           TabOrder = 0
-          ExplicitHeight = 446
           ControlData = {
             4C000000C63900004E2B00000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
@@ -2099,7 +2093,6 @@ object frmACBrNFSe: TfrmACBrNFSe
           ActivePage = tsEnvios1
           Align = alTop
           TabOrder = 0
-          ExplicitTop = -1
           object tsEnvios1: TTabSheet
             Caption = 'Envios'
             ImageIndex = 2
@@ -2248,14 +2241,81 @@ object frmACBrNFSe: TfrmACBrNFSe
               TabOrder = 2
               OnClick = btnObterPDFdoDANFSEPNClick
             end
-            object btnConsEventoChavPN: TButton
+            object btnConsultarEventoChavPN: TButton
               Left = 3
               Top = 41
               Width = 177
               Height = 25
               Caption = 'Consultar Evento por Chave'
               TabOrder = 3
-              OnClick = btnConsEventoChavPNClick
+              OnClick = btnConsultarEventoChavPNClick
+            end
+            object btnConsultarDFe: TButton
+              Left = 186
+              Top = 41
+              Width = 177
+              Height = 25
+              Caption = 'Consultar DFe'
+              TabOrder = 4
+              OnClick = btnConsultarDFeClick
+            end
+          end
+          object tsConsultarParametros: TTabSheet
+            Caption = 'Consultar Par'#226'metros Municipais'
+            ImageIndex = 3
+            object btnConsultarParamMunicConvenio: TButton
+              Left = 368
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Conv'#234'nio'
+              TabOrder = 0
+              OnClick = btnConsultarParamMunicConvenioClick
+            end
+            object btnConsultarParamMunicAliquota: TButton
+              Left = 3
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Aliquota'
+              TabOrder = 1
+              OnClick = btnConsultarParamMunicAliquotaClick
+            end
+            object btnConsultarParamMunicHistAliquota: TButton
+              Left = 186
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Historico Aliquotas'
+              TabOrder = 2
+              OnClick = btnConsultarParamMunicHistAliquotaClick
+            end
+            object btnConsultarParamMunicRegimesEspeciais: TButton
+              Left = 3
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Regimes Especiais'
+              TabOrder = 3
+              OnClick = btnConsultarParamMunicRegimesEspeciaisClick
+            end
+            object btnConsultarParamMunicRetencoes: TButton
+              Left = 186
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Reten'#231#245'es'
+              TabOrder = 4
+              OnClick = btnConsultarParamMunicRetencoesClick
+            end
+            object btnConsultarParamMunicBeneficio: TButton
+              Left = 369
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Beneficio'
+              TabOrder = 5
+              OnClick = btnConsultarParamMunicBeneficioClick
             end
           end
         end

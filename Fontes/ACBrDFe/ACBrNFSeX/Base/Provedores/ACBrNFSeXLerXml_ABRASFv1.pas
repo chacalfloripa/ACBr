@@ -96,7 +96,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrConsts, ACBrDFeUtil,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrConsts, ACBrDFeUtil,
   ACBrNFSeXConversao;
 
 //==============================================================================
@@ -220,8 +220,7 @@ procedure TNFSeR_ABRASFv1.LerEnderecoPrestadorServico(const ANode: TACBrXmlNode;
   aTag: string);
 var
   AuxNode: TACBrXmlNode;
-//  xUF: string;
-//  CodigoIBGE: Integer;
+  xUF: string;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -245,17 +244,13 @@ begin
       if UF = '' then
         UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
 
-      CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoPais'), tcInt);
-      CEP        := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-      {
-      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-      if CodigoIBGE >= 1100015 then
-        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
       if UF = '' then
         UF := xUF;
-      }
+
+      CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoPais'), tcInt);
+      CEP        := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
     end;
   end;
 end;
@@ -263,8 +258,7 @@ end;
 procedure TNFSeR_ABRASFv1.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
-//  xUF: string;
-//  CodigoIBGE: Integer;
+  xUF: string;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -288,16 +282,12 @@ begin
       if UF = '' then
         UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
 
-      CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-      {
-      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-      if CodigoIBGE >= 1100015 then
-        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
       if UF = '' then
         UF := xUF;
-      }
+
+      CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
     end;
   end;
 end;
@@ -349,6 +339,9 @@ begin
         end;
       end;
 
+      if Length(CpfCnpj) > 11 then
+        CpfCnpj := Poem_Zeros(CpfCnpj, 14);
+
       InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
     end;
   end
@@ -370,6 +363,9 @@ begin
             CpfCnpj := ObterConteudo(AuxNodeCpfCnpj.Childrens.FindAnyNs('Cnpj'), tcStr);
         end;
       end;
+
+      if Length(CpfCnpj) > 11 then
+        CpfCnpj := Poem_Zeros(CpfCnpj, 14);
 
       InscricaoMunicipal := ObterConteudo(ANode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
     end;
@@ -417,6 +413,9 @@ begin
         if CpfCnpj = '' then
           CpfCnpj := ObterConteudo(AuxNodeCpfCnpj.Childrens.FindAnyNs('Cnpj'), tcStr);
       end;
+
+      if Length(CpfCnpj) > 11 then
+        CpfCnpj := Poem_Zeros(CpfCnpj, 14);
 
       InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
       InscricaoEstadual := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoEstadual'), tcStr);
@@ -553,6 +552,9 @@ begin
         if CpfCnpj = '' then
           CpfCnpj := ObterConteudo(AuxNodeCpfCnpj.Childrens.FindAnyNs('Cnpj'), tcStr);
       end;
+
+      if Length(CpfCnpj) > 11 then
+        CpfCnpj := Poem_Zeros(CpfCnpj, 14);
 
       InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
     end;

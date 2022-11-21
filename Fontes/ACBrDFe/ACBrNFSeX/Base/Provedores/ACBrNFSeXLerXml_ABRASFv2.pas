@@ -259,8 +259,7 @@ procedure TNFSeR_ABRASFv2.LerEnderecoPrestadorServico(const ANode: TACBrXmlNode;
   aTag: string);
 var
   AuxNode: TACBrXmlNode;
-//  xUF: string;
-//  CodigoIBGE: Integer;
+  xUF: string;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -278,15 +277,10 @@ begin
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
       CodigoPais      := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoPais'), tcInt);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-      {
-      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-      if CodigoIBGE >= 1100015 then
-        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+      xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
       if UF = '' then
         UF := xUF;
-      }
     end;
   end;
 end;
@@ -294,8 +288,7 @@ end;
 procedure TNFSeR_ABRASFv2.LerEnderecoTomador(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
-//  xUF: string;
-//  CodigoIBGE: Integer;
+  xUF: string;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -312,15 +305,10 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Uf'), tcStr);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
-      {
-      CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
-
-      if CodigoIBGE >= 1100015 then
-        xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+      xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
       if UF = '' then
         UF := xUF;
-      }
     end;
   end;
 end;
@@ -1103,10 +1091,10 @@ begin
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
-  Document.Clear();
-  Document.LoadFromXml(Arquivo);
+  FDocument.Clear();
+  FDocument.LoadFromXml(Arquivo);
 
-  XmlNode := Document.Root;
+  XmlNode := FDocument.Root;
 
   if XmlNode = nil then
     raise Exception.Create('Arquivo xml vazio.');
@@ -1146,6 +1134,7 @@ begin
 
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
+  NFSe.Servico.Valores.IssRetido := stNenhum;
   LerInfDeclaracaoPrestacaoServico(ANode);
 end;
 

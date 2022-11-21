@@ -332,7 +332,7 @@ begin
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_deducao', 1, 15, 0,
                                 NFSe.Servico.ItemServico[I].ValorDeducoes, ''));
 
-    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 1,
+    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 0,
                          NFSe.Servico.ItemServico[I].ValorISSRetido, DSC_VISS));
   end;
 
@@ -351,7 +351,7 @@ begin
   begin
     Result[i] := CreateElement('parcela');
 
-    Result[i].AppendChild(AddNode(tcInt, '#', 'numero', 1, 2, 1,
+    Result[i].AppendChild(AddNode(tcStr, '#', 'numero', 1, 2, 1,
                          NFSe.CondicaoPagamento.Parcelas.Items[i].Parcela, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor', 1, 15, 1,

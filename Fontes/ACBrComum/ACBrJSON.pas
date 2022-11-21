@@ -54,6 +54,7 @@ type
     function GetAsSplitResult(const AName: string): TSplitResult;
     function IsNull(const AName: string): Boolean; overload;
     function IsNull(const AValue: TACBrJSONValue): Boolean; overload;
+    function GetAsDateTimeBr(const AName: string): TDateTime;
   public
     function AddPair(const AName: string; const AValue: Boolean): TACBrJSONObject; overload;
     function AddPair(const AName, AValue: string; AddEmpty: Boolean = True): TACBrJSONObject; overload;
@@ -88,6 +89,7 @@ type
     property AsInt64[const AName: string]: Int64 read GetAsInt64;
     property AsISODateTime[const AName: string]: TDateTime read GetAsISODateTime;
     property AsISODate[const AName: string]: TDateTime read GetAsISODate;
+    property AsDateTimeBr[const AName: string]: TDateTime read GetAsDateTimeBr;
     property AsISOTime[const AName: string]: TDateTime read GetAsISOTime;
     property AsString[const AName: string]: string read GetAsString;
     property AsSplit[const AName: string]: TSplitResult read GetAsSplitResult;
@@ -120,6 +122,7 @@ type
     property ItemAsJSONObject[const AIndex: Integer]: TACBrJSONObject read GetItemAsJSONObject;
 
     function AddElement(const AValue: string): TACBrJSONArray; overload;
+    function AddElementJSON(AValue: TACBrJSONObject): TACBrJSONArray; overload;
     function AddElementJSONString(const AValue: string): TACBrJSONArray; overload;
 
     procedure Clear;
@@ -300,7 +303,7 @@ begin
     {$Else}{$IfDef FPC}
     if NaoEstaVazio(AValue) then
       FJSON.Objects[AName] := LJSON.Objects[AName].Clone as TJSONObject
-    else
+    else if (FJSON.IndexOfName(AName) < 0) then
       FJSON.Add(AName, TJSONObject(LJSON.Clone));
     {$Else}
     FJson[AName].AsObject := LJSON[AName].AsObject;
@@ -414,6 +417,16 @@ begin
   LStrValue := GetAsString(AName);
   if LStrValue <> '' then
     Result := EncodeDataHora(LStrValue, 'yyyy-MM-dd');
+end;
+
+function TACBrJSONObject.GetAsDateTimeBr(const AName: string): TDateTime;
+var
+  LStrValue: string;
+begin
+  Result := 0;
+  LStrValue := GetAsString(AName);
+  if LStrValue <> '' then
+    Result := EncodeDataHora(LStrValue, 'DD-MM-YYYY');
 end;
 
 function TACBrJSONObject.GetAsISODateTime(const AName: string): TDateTime;
@@ -734,7 +747,7 @@ begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
   FJSON.O[AName] := TACBrJSONObject.CreateJsonObject(AValue.ToJSON);
   {$Else}{$IfDef FPC}
-  FJSON.Add(AName, AValue.FJSON);
+  FJSON.Objects[AName] := TACBrJSONObject.CreateJsonObject(AValue.ToJSON);
   {$ELSE}
   FJSON.Put(AName, AValue.FJSON);
   {$ENDIF}{$EndIf}
@@ -761,6 +774,13 @@ begin
   {$Else}
   FJSON.Put(AValue);
   {$EndIf}{$EndIf}
+end;
+
+function TACBrJSONArray.AddElementJSON(AValue: TACBrJSONObject): TACBrJSONArray;
+begin
+  Result := Self;
+  AddElementJSONString(AValue.ToJSON);
+  FContexts.Add(AValue);
 end;
 
 function TACBrJSONArray.AddElementJSONString(const AValue: string): TACBrJSONArray;

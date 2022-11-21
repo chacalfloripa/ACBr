@@ -50,7 +50,8 @@ type
                      stNFSeImprimir, stNFSeEmail, stNFSeAbrirSessao,
                      stNFSeFecharSessao, stNFSeAguardaProcesso,
                      stNFSeEnvioWebService, stNFSeGerarToken,
-                     stNFSeConsultarEvento);
+                     stNFSeConsultarEvento, stNFSeConsultarDFe,
+                     stNFSeConsultarParam);
 
   TVersaoNFSe = (ve100, ve101, ve103,
                  ve200, ve201, ve202, ve203, ve204);
@@ -108,9 +109,9 @@ type
   TnfseProvedor = (proNenhum,
                    proPadraoNacional,
                    proAbaco, proABase, proActcon, proAdm, proADPM, proAEG,
-                   proAgili, proAssessorPublico, proAsten, proBetha, proBHISS,
-                   proCenti, proCIGA, proCitta, proConam, proCoplan, proCTA,
-                   proCTAConsult, proDataSmart, proDBSeller, proDeISS,
+                   proAgili, proAssessorPublico, proAsten, proBauhaus, proBetha,
+                   proBHISS, proCenti, proCIGA, proCitta, proConam, proCoplan,
+                   proCTA, proCTAConsult, proDataSmart, proDBSeller, proDeISS,
                    proDesenvolve, proDigifred, proDSF, proeGoverneISS, proEL,
                    proEloTech, proEquiplano, proeReceita, proEtherium,
                    proFacundo, proFGMaiss, profintelISS, proFiorilli, proFisco,
@@ -178,7 +179,8 @@ type
              tmConsultarNFSeServicoTomado, tmCancelarNFSe,
              tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
              tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos,
-             tmGerarToken, tmEnviarEvento, tmConsultarEvento);
+             tmGerarToken, tmEnviarEvento, tmConsultarEvento, tmConsultarDFe,
+             tmConsultarParam);
 
   TFormatoItemListaServico = (filsComFormatacao, filsSemFormatacao,
                               filsComFormatacaoSemZeroEsquerda,
@@ -244,8 +246,9 @@ type
   Tobjeto = (oFerrovia, oRodovia, oPostes, oCabos, oDutos, oCondutos);
 
   TcategVeic = (cvDesconhecido, cvAutomovel, cvCaminhao, cvAutomovelComSemiReboque,
-                cvCaminhaoComSemiReboque, cvCaminhaoComReboque, cvMotocicleta,
-                cvVeiculoEspecial, cvVeiculoIsento);
+                cvCaminhaoComSemiReboque, cvAutomovelComReboque,
+                cvCaminhaoComReboque, cvCaminhaoTratorComSemiReboque,
+                cvMotocicleta, cvVeiculoEspecial, cvVeiculoIsento);
 
   Trodagem = (trSimples, trDupla);
 
@@ -284,6 +287,9 @@ type
                teRejeicaoIntermediario, teAnulacaoRejeicao,
                teCancelamentoPorOficio, teBloqueioPorOficio,
                teDesbloqueioPorOficio, teNenhum);
+
+  TParamMunic = (pmAliquota, pmHistoricoAliquota, pmConvenio,
+                 pmRegimesEspeciais, pmRetencoes, pmBeneficios);
 
 function StatusRPSToStr(const t: TStatusRPS): string;
 function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS;
@@ -460,6 +466,9 @@ function tpEventoToDesc(const t: TtpEvento): string;
 
 function TipoDeducaoToStr(const t: TTipoDeducao): string;
 function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao;
+
+function ParamMunicToStr(const t: TParamMunic): string;
+function StrToParamMunic(out ok: Boolean; const s: string): TParamMunic;
 
 function CodIBGEPaisToSiglaISO2(t: Integer): string;
 function SiglaISO2ToCodIBGEPais(const t: string): Integer;
@@ -12669,14 +12678,16 @@ begin
                         'ConsultarNFSeServicoTomado', 'CancelarNFSe',
                         'Gerar', 'GerarLote', 'RecepcionarSincrono', 'SubstituirNFSe',
                         'AbrirSessao', 'FecharSessao', 'Teste', 'Todos',
-                        'GerarToken', 'EnviarEvento'],
+                        'GerarToken', 'EnviarEvento', 'ConsultarEvento',
+                        'ConsultarDFe', 'ConsultarParam'],
                        [tmRecepcionar, tmConsultarSituacao, tmConsultarLote,
                         tmConsultarNFSePorRps, tmConsultarNFSe,
                         tmConsultarNFSePorFaixa, tmConsultarNFSeServicoPrestado,
                         tmConsultarNFSeServicoTomado, tmCancelarNFSe,
                         tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
                         tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos,
-                        tmGerarToken, tmEnviarEvento]);
+                        tmGerarToken, tmEnviarEvento, tmConsultarEvento,
+                        tmConsultarDFe, tmConsultarParam]);
 end;
 
 function ModoEnvioToStr(const t: TmodoEnvio): string;
@@ -12896,20 +12907,22 @@ function categVeicToStr(const t: TcategVeic): string;
 begin
   result := EnumeradoToStr(t,
                            ['00', '01', '02', '03', '04', '05', '06', '07', '08',
-                            '09', '10', '11'],
+                            '09', '10'],
     [cvDesconhecido, cvAutomovel, cvCaminhao, cvAutomovelComSemiReboque,
-     cvCaminhaoComSemiReboque, cvCaminhaoComReboque, cvCaminhaoComReboque,
-     cvCaminhaoComReboque, cvMotocicleta, cvVeiculoEspecial, cvVeiculoIsento]);
+     cvCaminhaoComSemiReboque, cvAutomovelComReboque, cvCaminhaoComReboque,
+     cvCaminhaoTratorComSemiReboque, cvMotocicleta, cvVeiculoEspecial,
+     cvVeiculoIsento]);
 end;
 
 function StrTocategVeic(out ok: Boolean; const s: string): TcategVeic;
 begin
   result := StrToEnumerado(ok, s,
                            ['00', '01', '02', '03', '04', '05', '06', '07', '08',
-                            '09', '10', '11'],
+                            '09', '10'],
     [cvDesconhecido, cvAutomovel, cvCaminhao, cvAutomovelComSemiReboque,
-     cvCaminhaoComSemiReboque, cvCaminhaoComReboque, cvCaminhaoComReboque,
-     cvCaminhaoComReboque, cvMotocicleta, cvVeiculoEspecial, cvVeiculoIsento]);
+     cvCaminhaoComSemiReboque, cvAutomovelComReboque, cvCaminhaoComReboque,
+     cvCaminhaoTratorComSemiReboque, cvMotocicleta, cvVeiculoEspecial,
+     cvVeiculoIsento]);
 end;
 
 function rodagemToStr(const t: Trodagem): string;
@@ -13176,6 +13189,25 @@ begin
                  [tdNenhum, tdMateriais, tdPercentual, tdValor, tdPercMateriais,
                   tdVeiculacao, tdIntermediacao]);
 end;
+
+function ParamMunicToStr(const t: TParamMunic): string;
+begin
+  result := EnumeradoToStr(t,
+                           ['Aliquota', 'HistoricoAliquota', 'Convenio',
+                            'RegimesEspeciais', 'Retencoes', 'Beneficios'],
+                           [pmAliquota, pmHistoricoAliquota, pmConvenio,
+                            pmRegimesEspeciais, pmRetencoes, pmBeneficios]);
+end;
+
+function StrToParamMunic(out ok: Boolean; const s: string): TParamMunic;
+begin
+  result := StrToEnumerado(ok, s,
+                           ['Aliquota', 'HistoricoAliquota', 'Convenio',
+                            'RegimesEspeciais', 'Retencoes', 'Beneficios'],
+                           [pmAliquota, pmHistoricoAliquota, pmConvenio,
+                            pmRegimesEspeciais, pmRetencoes, pmBeneficios]);
+end;
+
 
 function CodIBGEPaisToSiglaISO2(t: Integer): string;
 var

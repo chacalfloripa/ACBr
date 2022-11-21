@@ -49,6 +49,98 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+18/11/2022
+--ACBrBancoDaycoval--
+[-]TK-3295 Ajuste remessa CNAB400 Daycoval sobre a informação do campo Seu Numero
+  por Daniel de Morais / Keiller Rodrigues / Victor H Gonzales - Pandaaa
+
+16/11/2022
+[+]TK2854 - Inclusão do boleto com integração via WS para o Santander
+  por : Renato Rubinho
+[+]TK3201 Implementação no CNAB240 do Boleto Santander com PIX
+  por : Victor H Gonzales - Pandaaa
+[+]TK3201-1 Criar Leitura pelo ACBrBoleto para as propriedades novas do PIX (Y03)
+  por : Victor H Gonzales - Pandaaa
+
+08/11/2022
+--ACBrBancoUnicredES--
+[*]TK-3247 UnicredES CNAB240 Retorno com 19 caracteres
+  por : Victor H Gonzales - Pandaaa
+
+07/11/2022
+--ACBrBancoUnicredES--
+[-] Correção para compilar no Delphi 7.
+  por : Italo Giurizzato Junior
+
+04/11/2022
+--ACBrBancoCecred--
+[*]TK-3217 ACBrBoleto - Mapeamento de alguns códigos de ocorrência para o Ailos/Cecred
+  por : IBS Sistemas 
+
+--ACBrBancoBrasil--
+[*]TK-3173 ACBrBoleto - Alteração na instrução codificada para CNAB400 BB
+  por : Midas
+
+--ACBrBoleto--
+[+]TK-3225 Alteração no CNAB240 novas procedures para leitura dinamica
+  por : Victor H Gonzales - Pandaaa
+
+--ACBrBancoUnicredES--
+[*]TK-3028-1 Alteração retorno para ajuste leitura CNAB240 Retorno SeuNumero / Nosso Numero, banco retorna fixo 0, foi alterado para retornar o mesmo valor em ambos
+  por Daniel de Morais / Victor H Gonzales - Pandaaa
+
+--ACBrBancoBTGPactual--
+[+]TK-3228 ACBrBoleto - Inclusão do Banco BTG Pactual Regra C058 Segmento U
+  por Victor H Gonzales - Pandaaa  
+
+--ACBrBancoCecredi--
+[*]TK-3224 CNAB400 Alteração Registro 7 campo 32 colunas 159 a 160, alteração de dominio vazio para zeros conforme manual versão 03 abril/2021 
+  por Doglas Stumpf
+
+--ACBrBancoSofisaSantander--
+[+]TK-3164 CNAB 400 com 444 posições Registro de NFe
+  por Windsoft
+5.1. CHAVE DA NF-e (401 a 444)
+- 401 a 444 – Chave da NF-e Duplicata de Venda Mercantil / CTE Número da Chave 
+da NF-e para o título/documento ( 44 posições ). 
+- Duplicata referente a Nota Fiscal de Serviço Em caso de Nota Fiscal de SERVIÇO, a 
+chave possuirá normalmente 9 posições. Neste caso, completar com zeros à esquerda 
+até que o campo tenha as 44 posições preenchidas. pag 10
+
+--ACBrBoletoConversao ACBrBoletoFCFortesFr ACBrBoletoFCFortesFr--
+[+]TK-2146 Boleto CarneA5 RL
+  por : Marcio Rossato / Daniel de Morais
+
+--ACBrBoletoFCFortesFr ACBrBoletoFCFortesFr--
+[*]Correção no relatório de Serviços
+  por : Daniel de Morais
+
+27/10/2022
+--ACBrBoleto--
+[-]TK-3132 - Parâmetro ImprimirMensagemPadrao não está surtindo efeito / Outros
+  por : Antonio Carlos / Elton / Pandaaa
+
+26/10/2022
+--ACBrBoletoRet_Sicredi_API--
+[*]ACBrBoleto API Sicredi Consulta em lista
+  por: Victor H Gonzales - Pandaaa
+
+10/10/2022
+--ACBrBoletoRetorno ACBrBoletoRet_Sicredi_API ACBrBoletoRet_PenseBank_API ACBrBoletoRet_BancoBrasil_API ACBrBoletoWS--
+[+]TK-3090 ACBrBoleto - Ajuste  integração via API, adicionado propriedade de JSON Envio
+  por: Victor H Gonzales - Pandaaa / Brunocogoo
+
+06/10/2022
+-- ACBrBoletoW_Sicredi_API ACBrBoletoRet_Sicredi_API --
+[*] TK3084 Boleto WS Sicredi - Metodo de alteração
+  https://www.projetoacbr.com.br/forum/topic/69046-boleto-ws-sicredi-altera%C3%A7%C3%A3o-de-vencimento/
+  por : Thiago S
+
+06/10/2022
+-- ACBrBancoBTGPactual --
+[-] TK-3050-1-1 Ajustes Campo Livre e Nosso Número
+  por Pandaaa / Daniel Moraes / Luizhbr
+
 30/09/2022
 --ACBrBancoInter--
 [*] TK-3115 ACbrBoleto - Ajuste leitura retorno CNAB400 do Banco Inter Motivo de Rejeição

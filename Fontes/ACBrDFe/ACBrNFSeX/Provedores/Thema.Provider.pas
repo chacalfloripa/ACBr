@@ -75,9 +75,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base,
-  ACBrUtil.Strings,
-  ACBrUtil.XMLHTML,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML,
   ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts, ACBrNFSeXNotasFiscais,
   Thema.GravarXml, Thema.LerXml;
@@ -86,34 +84,46 @@ uses
 
 function TACBrNFSeXWebserviceThema.Recepcionar(ACabecalho, AMSG: String): string;
 var
-  Request: string;
+  Request, Servico: string;
 begin
   // Para o provedor Thema devemos utilizar esse serviço caso a quantidade
   // de RPS no lote seja superior a 3, ou seja, 4 ou mais
+
+  Servico := 'recepcionarLoteRps';
+
+  if TACBrNFSeX(FPDFeOwner).NotasFiscais.Count <= 3 then
+    Servico := 'recepcionarLoteRpsLimitado';
+
   FPMsgOrig := AMSG;
 
-  Request := '<recepcionarLoteRps xmlns="http://server.nfse.thema.inf.br">';
+  Request := '<' + Servico + ' xmlns="http://server.nfse.thema.inf.br">';
   Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
-  Request := Request + '</recepcionarLoteRps>';
+  Request := Request + '</' + Servico + '>';
 
-  Result := Executar('urn:recepcionarLoteRps', Request,
+  Result := Executar('urn:' + Servico, Request,
                      ['return', 'EnviarLoteRpsResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceThema.RecepcionarSincrono(ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, Servico: string;
 begin
   // Para o provedor Thema devemos utilizar esse serviço caso a quantidade
   // de RPS no lote seja inferior a 4.
+
+  Servico := 'recepcionarLoteRpsLimitado';
+
+  if TACBrNFSeX(FPDFeOwner).NotasFiscais.Count >= 4 then
+    Servico := 'recepcionarLoteRps';
+
   FPMsgOrig := AMSG;
 
-  Request := '<recepcionarLoteRpsLimitado xmlns="http://server.nfse.thema.inf.br">';
+  Request := '<' + Servico + ' xmlns="http://server.nfse.thema.inf.br">';
   Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
-  Request := Request + '</recepcionarLoteRpsLimitado>';
+  Request := Request + '</' + Servico + '>';
 
-  Result := Executar('urn:recepcionarLoteRpsLimitado', Request,
+  Result := Executar('urn:' + Servico, Request,
                      ['return', 'EnviarLoteRpsResposta'], []);
 end;
 
@@ -275,17 +285,17 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod002;
-    AErro.Descricao := Desc002;
+    AErro.Descricao := ACBrStr(Desc002);
   end;
 
   if TACBrNFSeX(FAOwner).NotasFiscais.Count > Response.MaxRps then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod003;
-    AErro.Descricao := 'Conjunto de RPS transmitidos (máximo de ' +
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
-                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count);
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
   if Response.Erros.Count > 0 then Exit;
@@ -423,20 +433,22 @@ begin
       Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
 
       ANode := Document.Root.Childrens.FindAnyNs('ListaNfse');
+
       if not Assigned(ANode) then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod202;
-        AErro.Descricao := Desc202;
+        AErro.Descricao := ACBrStr(Desc202);
         Exit;
       end;
 
       ANodeArray := ANode.Childrens.FindAllAnyNs('CompNfse');
+
       if not Assigned(ANode) then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -461,7 +473,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally

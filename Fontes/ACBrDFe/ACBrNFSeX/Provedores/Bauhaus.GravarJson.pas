@@ -37,9 +37,10 @@ unit Bauhaus.GravarJson;
 interface
 
 uses
-  SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
+  SysUtils, Classes, Variants, StrUtils,
+  ACBrXmlBase, ACBrXmlDocument, ACBrJSON,
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml,
+  ACBrNFSeXConversao, ACBrNFSeXConsts;
 
 type
   { TNFSeW_Bauhaus }
@@ -48,16 +49,25 @@ type
   protected
     procedure Configuracao; override;
 
+    function GerarDadosNota: String;
+
+    function GerarAtividade: TACBrJSONObject;
+    function GerarPrestador: TACBrJSONObject;
+    function GerarTomador: TACBrJSONObject;
+    function GerarTomadorEndereco: TACBrJSONObject;
+    function GerarTomadorContato: TACBrJSONObject;
+    function GerarRps: TACBrJSONObject;
+    function GerarServicos: TACBrJSONArray;
+    function GerarValores: TACBrJSONObject;
   public
     function GerarXml: Boolean; override;
-
   end;
 
 implementation
 
 uses
-  ACBrJSON,
   ACBrNFSeX,
+  ACBrUtil.Base, ACBrUtil.Strings,
   ACBrConsts;
 
 //==============================================================================
@@ -67,9 +77,13 @@ uses
 
 { TNFSeW_Bauhaus }
 
+procedure TNFSeW_Bauhaus.Configuracao;
+begin
+  inherited Configuracao;
+
+end;
+
 function TNFSeW_Bauhaus.GerarXml: Boolean;
-var
-  LJson: TACBrJSONObject;
 begin
   Configuracao;
 
@@ -89,73 +103,139 @@ begin
     {$ENDIF}
   {$ENDIF}
 
-  LJson := TACBrJsonObject.Create;
-
-  try
-    LJson
-      .AddPair('id', 1)
-      .AddPair('nome', 'Italo')
-      .AddPairISODateTime('idade', Now);
-
-    {
-    Json.Add('numeroConvenio').Value.AsNumber                         := StrToInt64Def(OnlyNumber(Boleto.Cedente.Convenio),0);
-    Json.Add('numeroCarteira').Value.AsInteger                        := StrToIntDef(OnlyNumber(Titulos.Carteira),0);
-    Json.Add('numeroVariacaoCarteira').Value.AsInteger                := StrToIntDef(OnlyNumber(Boleto.Cedente.Modalidade),0);
-    Json.Add('codigoModalidade').Value.AsInteger                      := 1;
-
-    Json.Add('dataEmissao').Value.AsString                            := FormatDateBr(Titulos.DataDocumento, 'DD.MM.YYYY');
-    Json.Add('dataVencimento').Value.AsString                         := FormatDateBr(Titulos.Vencimento, 'DD.MM.YYYY');
-    Json.Add('valorOriginal').Value.AsNumber                          := Titulos.ValorDocumento;
-    Json.Add('valorAbatimento').Value.AsNumber                        := Titulos.ValorAbatimento;
-
-    if (Titulos.DataProtesto > 0) then
-      Json.Add('quantidadeDiasProtesto').Value.AsInteger              := Trunc(Titulos.DataProtesto - Titulos.Vencimento);
-
-    if (Titulos.DataLimitePagto > 0 ) then
-    begin
-      Json.Add('indicadorAceiteTituloVencido').Value.AsString         := 'S';
-      Json.Add('numeroDiasLimiteRecebimento').Value.AsInteger         := Trunc(Titulos.DataLimitePagto - Titulos.Vencimento);
-    end;
-
-    Json.Add('codigoAceite').Value.AsString                           := IfThen(Titulos.Aceite = atSim,'A','N');
-    Json.Add('codigoTipoTitulo').Value.AsInteger                      := codigoTipoTitulo(Titulos.EspecieDoc);
-    Json.Add('descricaoTipoTitulo').Value.AsString                    := Titulos.EspecieDoc;
-    //Json.Add('indicadorPermissaoRecebimentoParcial').Value.AsString := 'N';
-    Json.Add('numeroTituloBeneficiario').Value.AsString               := Copy(Trim(UpperCase(Titulos.NumeroDocumento)),0,15);
-    Json.Add('campoUtilizacaoBeneficiario').Value.AsString            := Copy(Trim(StringReplace(UpperCase(Titulos.Mensagem.Text),'\r\n',' ',[rfReplaceAll])),0,30);
-    Json.Add('numeroTituloCliente').Value.AsString                    := Boleto.Banco.MontarCampoNossoNumero(Titulos);
-    Json.Add('mensagemBloquetoOcorrencia').Value.AsString             := UpperCase(Copy(Trim(Titulos.Instrucao1 +' '+Titulos.Instrucao2+' '+Titulos.Instrucao3),0,165));
-
-    GerarDesconto(Json);
-    GerarJuros(Json);
-    GerarMulta(Json);
-    GerarPagador(Json);
-    GerarBenificiarioFinal(Json);
-
-    if (Titulos.DiasDeNegativacao > 0) then
-    begin
-      Json.Add('quantidadeDiasNegativacao').Value.AsInteger           := Titulos.DiasDeNegativacao;
-      Json.Add('orgaoNegativador').Value.AsInteger                    := StrToInt64Def(Titulos.orgaoNegativador,0);
-    end;
-
-    Json.Add('indicadorPix').Value.AsString := IfThen(Boleto.Cedente.CedenteWS.IndicadorPix,'S','N');
-
-    Data := Json.Stringify;
-
-    FPDadosMsg := Data;
-    }
-    FConteudoTxt.Text := LJson.ToJSON;
-  finally
-    LJson.Free;
-  end;
-
+  FConteudoTxt.Text := GerarDadosNota;
   Result := True;
 end;
 
-procedure TNFSeW_Bauhaus.Configuracao;
+function TNFSeW_Bauhaus.GerarDadosNota: String;
+var
+  AJSon: TACBrJSONObject;
 begin
-  inherited Configuracao;
+  AJSon := TACBrJsonObject.Create;
+  try
+    AJSon
+      .AddPairJSONObject('DadosNota', EmptyStr)
+      .AsJSONObject['DadosNota']
+        .AddPair('MunicipioPrestacao', StrToInt(NFSe.Prestador.Endereco.CodigoMunicipio))
+        .AddPair('NaturezaOperacao', StrToInt(NaturezaOperacaoToStr(NFSe.NaturezaOperacao)))
+        .AddPair('IssRetido', IfThen((NFSe.Servico.Valores.IssRetido = stRetencao), 'S' , 'N'))
+        .AddPair('Observacoes', NFSe.OutrasInformacoes)
+        .AddPair('Atividade', GerarAtividade)
+        .AddPair('Prestador', GerarPrestador)
+        .AddPair('Tomador', GerarTomador)
+        .AddPair('Rps', GerarRps)
+        .AddPair('Servicos', GerarServicos)
+        .AddPair('Valores', GerarValores);
 
+    Result := AJSon.ToJSON;
+  finally
+    AJSon.Free;
+  end;
+end;
+
+function TNFSeW_Bauhaus.GerarAtividade: TACBrJSONObject;
+var
+  wCodTribMun: String;
+begin
+  wCodTribMun := NFSe.Servico.CodigoTributacaoMunicipio;
+
+  Result := TACBrJSONObject.Create
+              .AddPair('Codigo', StrToInt(IfThen((EstaVazio(wCodTribMun)), '0' , wCodTribMun)))
+              .AddPair('CodigoCnae', NFSe.Servico.CodigoCnae);
+end;
+
+function TNFSeW_Bauhaus.GerarPrestador: TACBrJSONObject;
+begin
+  Result := TACBrJSONObject.Create
+              .AddPair('InscricaoMunicipal', OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal));
+end;
+
+function TNFSeW_Bauhaus.GerarTomador: TACBrJSONObject;
+var
+  wTipoPessoa: String;
+begin
+  case NFSe.Tomador.IdentificacaoTomador.Tipo of
+    tpPF: wTipoPessoa := 'F';
+    tpPJforaPais: wTipoPessoa := 'E';
+  else
+    wTipoPessoa := 'J';
+  end;
+
+  Result := TACBrJSONObject.Create
+              .AddPair('TipoPessoa', wTipoPessoa)
+              .AddPair('NrDocumento', NFSe.Tomador.IdentificacaoTomador.CpfCnpj)
+              .AddPair('RazaoSocial', NFSe.Tomador.RazaoSocial)
+              .AddPair('Endereco', GerarTomadorEndereco)
+              .AddPair('Contato', GerarTomadorContato);
+end;
+
+function TNFSeW_Bauhaus.GerarTomadorEndereco: TACBrJSONObject;
+begin
+  Result := TACBrJSONObject.Create
+              .AddPair('Logradouro', NFSe.Tomador.Endereco.Endereco)
+              .AddPair('Numero', NFSe.Tomador.Endereco.Numero)
+              .AddPair('Complemento', NFSe.Tomador.Endereco.Complemento)
+              .AddPair('Bairro', NFSe.Tomador.Endereco.Bairro)
+              .AddPair('Municipio', StrToInt(NFSe.Tomador.Endereco.CodigoMunicipio))
+              .AddPair('Cep', StrToInt(NFSe.Tomador.Endereco.CEP));
+end;
+
+function TNFSeW_Bauhaus.GerarTomadorContato: TACBrJSONObject;
+begin
+  Result := TACBrJSONObject.Create
+              .AddPair('Telefone', NFSe.Tomador.Contato.Telefone)
+              .AddPair('Email', NFSe.Tomador.Contato.Email);
+end;
+
+function TNFSeW_Bauhaus.GerarRps: TACBrJSONObject;
+begin
+  Result := TACBrJSONObject.Create
+              .AddPair('Numero', StrToInt(NFSe.IdentificacaoRps.Numero))
+              .AddPair('Serie', StrToInt(NFSe.IdentificacaoRps.Serie))
+              .AddPair('Tipo', 1)
+              .AddPairISODate('DataEmissao', NFSe.DataEmissaoRps);
+end;
+
+function TNFSeW_Bauhaus.GerarServicos: TACBrJSONArray;
+var
+  jo: TACBrJSONObject;
+  i: Integer;
+begin
+  Result := TACBrJSONArray.Create;
+  for i := 0 to NFSe.Servico.ItemServico.Count - 1 do
+  begin
+    jo := TACBrJSONObject.Create
+      .AddPair('Unidade', NFSe.Servico.ItemServico[i].Unidade)
+      .AddPair('Quantidade', NFSe.Servico.ItemServico[i].Quantidade)
+      .AddPair('Descricao', NFSe.Servico.ItemServico[i].Descricao)
+      .AddPair('ValorUnitario', NFSe.Servico.ItemServico[i].ValorUnitario);
+                                           
+    Result.AddElementJSON(jo);
+  end;
+end;
+
+function TNFSeW_Bauhaus.GerarValores: TACBrJSONObject;
+begin
+  with NFSe.Servico.Valores do
+    Result := TACBrJSONObject.Create
+      .AddPair('ValorServicos',  ValorServicos)
+      .AddPair('ValorDeducoes', ValorDeducoes)
+      .AddPair('ValorOutrasDeducoes', 0)
+      .AddPair('ValorPis', ValorPis)
+      .AddPair('ValorCofins', ValorCofins)
+      .AddPair('ValorInss', ValorInss)
+      .AddPair('ValorIr', ValorIr)
+      .AddPair('ValorCsll', ValorCsll)
+      .AddPair('OutrasRetencoes', OutrasRetencoes)
+      .AddPair('DescontoIncondicionado', DescontoIncondicionado)
+      .AddPair('DescontoCondicionado', DescontoCondicionado)
+      .AddPair('BaseCalculo', BaseCalculo)
+      .AddPair('Aliquota', Aliquota)
+      .AddPair('ValorIss', ValorIss)
+      .AddPair('ValorLiquidoNota', ValorLiquidoNfse)
+      .AddPair('ValorTotalTributos', ValorTotalTributos)
+      .AddPair('ValorCredito', NFSe.ValorCredito)
+      .AddPair('ValorTotalNota', ValorLiquidoNfse);
 end;
 
 end.

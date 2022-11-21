@@ -87,7 +87,6 @@ object Form1: TForm1
     0000
   }
   OnCreate = FormCreate
-  LCLVersion = '2.2.2.0'
   object pgPrincipal: TPageControl
     Left = 0
     Height = 621
@@ -159,7 +158,6 @@ object Form1: TForm1
                 Top = 0
                 Width = 34
                 Caption = 'Nome'
-                ParentColor = False
               end
               object edFluxoClienteNome: TEdit
                 Left = 312
@@ -178,7 +176,6 @@ object Form1: TForm1
                 Top = 0
                 Width = 59
                 Caption = 'CPF/CNPJ'
-                ParentColor = False
               end
               object edFluxoClienteDoc: TEdit
                 Left = 24
@@ -229,7 +226,6 @@ object Form1: TForm1
                 Top = 48
                 Width = 24
                 Caption = 'EAN'
-                ParentColor = False
               end
               object lbFluxoItemValor: TLabel
                 Left = 166
@@ -237,7 +233,6 @@ object Form1: TForm1
                 Top = 48
                 Width = 27
                 Caption = 'Valor'
-                ParentColor = False
               end
               object edFluxoItemDescricao: TEdit
                 Left = 24
@@ -252,7 +247,6 @@ object Form1: TForm1
                 Top = 0
                 Width = 56
                 Caption = 'Descrição'
-                ParentColor = False
               end
               object btFluxoItemIncluir: TBitBtn
                 Left = 24
@@ -583,7 +577,6 @@ object Form1: TForm1
                 Caption = 'PIX Copia e Cola'
                 Font.Name = 'Arial'
                 Font.Style = [fsBold]
-                ParentColor = False
                 ParentFont = False
               end
               object edFluxoCopiaECola: TEdit
@@ -703,7 +696,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 28
                       Caption = 'E2eid'
-                      ParentColor = False
                     end
                     object edtConsultarPixE2eid: TEdit
                       Left = 16
@@ -779,7 +771,6 @@ object Form1: TForm1
                       Top = 56
                       Width = 170
                       Caption = 'Identificador da Transação (TxId)'
-                      ParentColor = False
                     end
                     object edtConsultarPixRecebidosTxId: TEdit
                       Left = 8
@@ -808,7 +799,6 @@ object Form1: TForm1
                       Top = 8
                       Width = 29
                       Caption = 'Início'
-                      ParentColor = False
                     end
                     object dtConsultarPixRecebidosInicio: TDateTimePicker
                       Left = 8
@@ -838,7 +828,6 @@ object Form1: TForm1
                       Top = 8
                       Width = 20
                       Caption = 'Fim'
-                      ParentColor = False
                     end
                     object dtConsultarPixRecebidosFim: TDateTimePicker
                       Left = 168
@@ -869,7 +858,6 @@ object Form1: TForm1
                       Width = 59
                       Anchors = [akTop, akRight]
                       Caption = 'CPF / CNPJ'
-                      ParentColor = False
                     end
                     object edtConsultarPixRecebidosCPFCNPJ: TEdit
                       Left = 328
@@ -898,7 +886,6 @@ object Form1: TForm1
                       Width = 36
                       Anchors = [akTop, akRight]
                       Caption = 'Página'
-                      ParentColor = False
                     end
                     object lPagina1: TLabel
                       Left = 328
@@ -907,7 +894,6 @@ object Form1: TForm1
                       Width = 69
                       Anchors = [akTop, akRight]
                       Caption = 'Itens por Pág'
-                      ParentColor = False
                     end
                     object seConsultarPixRecebidosItensPagina: TSpinEdit
                       Left = 328
@@ -973,7 +959,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 28
                       Caption = 'E2eid'
-                      ParentColor = False
                     end
                     object edtSolicitarDevolucaoPix_e2eid: TEdit
                       Left = 16
@@ -1003,7 +988,6 @@ object Form1: TForm1
                       Width = 126
                       Anchors = [akTop, akRight]
                       Caption = 'Identificador Devolução'
-                      ParentColor = False
                     end
                     object edtSolicitarDevolucaoPix_id: TEdit
                       Left = 328
@@ -1019,7 +1003,6 @@ object Form1: TForm1
                       Top = 72
                       Width = 26
                       Caption = 'Valor'
-                      ParentColor = False
                     end
                     object Label37: TLabel
                       Left = 144
@@ -1027,7 +1010,6 @@ object Form1: TForm1
                       Top = 72
                       Width = 106
                       Caption = 'Natureza Devoluçao'
-                      ParentColor = False
                     end
                     object cbxSolicitarDevolucaoPix_Natureza: TComboBox
                       Left = 144
@@ -1044,7 +1026,6 @@ object Form1: TForm1
                       Top = 72
                       Width = 51
                       Caption = 'Descrição'
-                      ParentColor = False
                     end
                     object edtSolicitarDevolucaoPix_Descricao: TEdit
                       Left = 328
@@ -1116,7 +1097,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 28
                       Caption = 'E2eid'
-                      ParentColor = False
                     end
                     object edtConsultarDevolucaoPix_e2eid: TEdit
                       Left = 16
@@ -1145,7 +1125,6 @@ object Form1: TForm1
                       Top = 72
                       Width = 126
                       Caption = 'Identificador Devolução'
-                      ParentColor = False
                     end
                     object edtConsultarDevolucaoPix_id: TEdit
                       Left = 16
@@ -1237,7 +1216,6 @@ object Form1: TForm1
                       Top = 56
                       Width = 26
                       Caption = 'Valor'
-                      ParentColor = False
                     end
                     object lConsultarDevolucaoPixE2eid5: TLabel
                       Left = 16
@@ -1245,7 +1223,6 @@ object Form1: TForm1
                       Top = 8
                       Width = 137
                       Caption = 'Nome Devedor (opcional)'
-                      ParentColor = False
                     end
                     object edtCriarCobrancaImediata_NomeDevedor: TEdit
                       Left = 16
@@ -1263,7 +1240,6 @@ object Form1: TForm1
                       Width = 59
                       Anchors = [akTop, akRight]
                       Caption = 'CPF / CNPJ'
-                      ParentColor = False
                     end
                     object edtCriarCobrancaImediata_CPF_CNPJ: TEdit
                       Left = 298
@@ -1290,7 +1266,6 @@ object Form1: TForm1
                       Top = 56
                       Width = 120
                       Caption = 'Solicitação ao Pagador'
-                      ParentColor = False
                     end
                     object edtCriarCobrancaImediata_SolicitacaoAoPagador: TEdit
                       Left = 16
@@ -1305,7 +1280,6 @@ object Form1: TForm1
                       Top = 106
                       Width = 222
                       Caption = 'Identificador da Transação (TxId, opcional)'
-                      ParentColor = False
                     end
                     object edtCriarCobrancaImediata_TxId: TEdit
                       Left = 16
@@ -1331,7 +1305,7 @@ object Form1: TForm1
                       Width = 145
                       Alignment = taRightJustify
                       TabOrder = 6
-                      Text = '0,00'
+                      Text = '1,00'
                     end
                   end
                   object mCriarCobrancaImediata: TMemo
@@ -1405,7 +1379,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 21
                       Caption = 'TxId'
-                      ParentColor = False
                     end
                     object edtConsultarCobrancaImediata_TxId: TEdit
                       Left = 16
@@ -1435,7 +1408,6 @@ object Form1: TForm1
                       Width = 40
                       Anchors = [akTop, akRight]
                       Caption = 'Revisão'
-                      ParentColor = False
                     end
                     object seConsultarCobrancaImediata_Revisao: TSpinEdit
                       Left = 495
@@ -1512,7 +1484,6 @@ object Form1: TForm1
                       Top = 8
                       Width = 29
                       Caption = 'Início'
-                      ParentColor = False
                     end
                     object dtConsultarCobrancas_Inicio: TDateTimePicker
                       Left = 8
@@ -1542,7 +1513,6 @@ object Form1: TForm1
                       Top = 57
                       Width = 20
                       Caption = 'Fim'
-                      ParentColor = False
                     end
                     object dtConsultarCobrancas_Fim: TDateTimePicker
                       Left = 8
@@ -1573,7 +1543,6 @@ object Form1: TForm1
                       Width = 59
                       Anchors = [akTop, akRight]
                       Caption = 'CPF / CNPJ'
-                      ParentColor = False
                     end
                     object edtConsultarCobrancas_CPFCNPJ: TEdit
                       Left = 178
@@ -1602,7 +1571,6 @@ object Form1: TForm1
                       Width = 36
                       Anchors = [akTop, akRight]
                       Caption = 'Página'
-                      ParentColor = False
                     end
                     object lPagina4: TLabel
                       Left = 523
@@ -1611,7 +1579,6 @@ object Form1: TForm1
                       Width = 69
                       Anchors = [akTop, akRight]
                       Caption = 'Itens por Pág'
-                      ParentColor = False
                     end
                     object seConsultarCobrancas_ItensPagina: TSpinEdit
                       Left = 523
@@ -1637,7 +1604,6 @@ object Form1: TForm1
                       Top = 58
                       Width = 32
                       Caption = 'Status'
-                      ParentColor = False
                     end
                     object cbxConsultarCobrancas_Status: TComboBox
                       Left = 176
@@ -1702,7 +1668,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 21
                       Caption = 'TxId'
-                      ParentColor = False
                     end
                     object edCancelarCobrancaTxID: TEdit
                       Left = 16
@@ -1768,9 +1733,9 @@ object Form1: TForm1
                 Height = 522
                 Top = 0
                 Width = 616
-                ActivePage = tsCobVCancelarCobranca
+                ActivePage = tsCobVCriarCobranca
                 Align = alClient
-                TabIndex = 3
+                TabIndex = 0
                 TabOrder = 0
                 object tsCobVCriarCobranca: TTabSheet
                   Caption = 'Criar Cobrança Vencimento'
@@ -1821,7 +1786,6 @@ object Form1: TForm1
                     Top = 433
                     Width = 67
                     Caption = 'Copia e Cola'
-                    ParentColor = False
                     Visible = False
                   end
                   object edCobVValor: TEdit
@@ -1838,7 +1802,6 @@ object Form1: TForm1
                     Top = 305
                     Width = 80
                     Caption = 'Valor Cobrança'
-                    ParentColor = False
                   end
                   object lbCobVDiasPagar: TLabel
                     Left = 204
@@ -1847,7 +1810,6 @@ object Form1: TForm1
                     Top = 304
                     Width = 132
                     Caption = 'Dias pagar (Após vencto)'
-                    ParentColor = False
                   end
                   object edCobVDiasPagar: TSpinEdit
                     Left = 204
@@ -1863,7 +1825,6 @@ object Form1: TForm1
                     Top = 304
                     Width = 63
                     Caption = 'Vencimento'
-                    ParentColor = False
                   end
                   object edCobVVencimento: TDateTimePicker
                     Left = 15
@@ -1915,7 +1876,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 63
                         Caption = 'Modalidade'
-                        ParentColor = False
                       end
                       object lbCobVMultaValor: TLabel
                         Left = 398
@@ -1923,7 +1883,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 87
                         Caption = 'Valor/Percentual'
-                        ParentColor = False
                       end
                       object edCobVMultaValor: TEdit
                         Left = 398
@@ -1971,7 +1930,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 63
                         Caption = 'Modalidade'
-                        ParentColor = False
                       end
                       object lbCobVJurosValor: TLabel
                         Left = 398
@@ -1979,7 +1937,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 87
                         Caption = 'Valor/Percentual'
-                        ParentColor = False
                       end
                       object edCobVJurosValor: TEdit
                         Left = 398
@@ -2027,7 +1984,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 63
                         Caption = 'Modalidade'
-                        ParentColor = False
                       end
                       object lbCobVDescValor: TLabel
                         Left = 398
@@ -2035,7 +1991,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 87
                         Caption = 'Valor/Percentual'
-                        ParentColor = False
                       end
                       object edCobVDescValor: TEdit
                         Left = 398
@@ -2083,7 +2038,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 33
                         Caption = 'Nome'
-                        ParentColor = False
                       end
                       object edCobVCompradorNome: TEdit
                         Left = 15
@@ -2099,7 +2053,6 @@ object Form1: TForm1
                         Top = 0
                         Width = 53
                         Caption = 'CPF/CNPJ'
-                        ParentColor = False
                       end
                       object edCobVCompradorDoc: TEdit
                         Left = 398
@@ -2132,7 +2085,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 21
                       Caption = 'TxId'
-                      ParentColor = False
                     end
                     object edCobVConsultarTxID: TEdit
                       Left = 16
@@ -2162,7 +2114,6 @@ object Form1: TForm1
                       Width = 40
                       Anchors = [akTop, akRight]
                       Caption = 'Revisão'
-                      ParentColor = False
                     end
                     object edCobVConsultarRevisao: TSpinEdit
                       Left = 495
@@ -2270,7 +2221,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 29
                       Caption = 'Início'
-                      ParentColor = False
                     end
                     object edCobVConsultarInicio: TDateTimePicker
                       Left = 8
@@ -2300,7 +2250,6 @@ object Form1: TForm1
                       Top = 65
                       Width = 20
                       Caption = 'Fim'
-                      ParentColor = False
                     end
                     object edCobVConsultarFim: TDateTimePicker
                       Left = 8
@@ -2331,7 +2280,6 @@ object Form1: TForm1
                       Width = 59
                       Anchors = [akTop, akRight]
                       Caption = 'CPF / CNPJ'
-                      ParentColor = False
                     end
                     object edCobVConsultarCPFCNPJ: TEdit
                       Left = 178
@@ -2360,7 +2308,6 @@ object Form1: TForm1
                       Width = 36
                       Anchors = [akTop, akRight]
                       Caption = 'Página'
-                      ParentColor = False
                     end
                     object lbCobVConsultarItensPag: TLabel
                       Left = 344
@@ -2369,7 +2316,6 @@ object Form1: TForm1
                       Width = 69
                       Anchors = [akTop, akRight]
                       Caption = 'Itens por Pág'
-                      ParentColor = False
                     end
                     object edCobVConsultarItensPag: TSpinEdit
                       Left = 344
@@ -2395,7 +2341,6 @@ object Form1: TForm1
                       Top = 65
                       Width = 32
                       Caption = 'Status'
-                      ParentColor = False
                     end
                     object cbCobVConsultarStatus: TComboBox
                       Left = 178
@@ -2428,7 +2373,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 21
                       Caption = 'TxId'
-                      ParentColor = False
                     end
                     object edCobVCancelarTxID: TEdit
                       Left = 16
@@ -2549,7 +2493,6 @@ object Form1: TForm1
                       Top = 16
                       Width = 198
                       Caption = 'Pix Copia E Cola  (QRCode Dinâmico)'
-                      ParentColor = False
                     end
                     object edtBBSimulaPagamento_pixCopiaECola: TEdit
                       Left = 16
@@ -2612,7 +2555,6 @@ object Form1: TForm1
                   Top = 15
                   Width = 26
                   Caption = 'Valor'
-                  ParentColor = False
                 end
                 object Label34: TLabel
                   Left = 185
@@ -2620,7 +2562,6 @@ object Form1: TForm1
                   Top = 15
                   Width = 114
                   Caption = 'Informação Adicional'
-                  ParentColor = False
                 end
                 object edtQREInfoAdicional: TEdit
                   Left = 185
@@ -2637,7 +2578,6 @@ object Form1: TForm1
                   Top = 72
                   Width = 170
                   Caption = 'Identificador da Transação (TxId)'
-                  ParentColor = False
                 end
                 object edtQRETxId: TEdit
                   Left = 16
@@ -2771,7 +2711,6 @@ object Form1: TForm1
                   Top = 28
                   Width = 75
                   Caption = 'URL (location)'
-                  ParentColor = False
                 end
                 object edQRDLocation: TEdit
                   Left = 16
@@ -2809,7 +2748,6 @@ object Form1: TForm1
                   Top = 85
                   Width = 336
                   Caption = 'TxId (Campo apenas informativo. TxID considerado será da URL)'
-                  ParentColor = False
                 end
               end
               object pQREGerado1: TPanel
@@ -2923,7 +2861,6 @@ object Form1: TForm1
           Width = 361
           Align = alTop
           Caption = 'Log das Operações'
-          ParentColor = False
         end
         object Panel2: TPanel
           Left = 1
@@ -3023,7 +2960,6 @@ object Form1: TForm1
                   Top = 0
                   Width = 33
                   Caption = 'Nome'
-                  ParentColor = False
                 end
                 object edtRecebedorNome: TEdit
                   Left = 8
@@ -3040,7 +2976,6 @@ object Form1: TForm1
                   Top = 48
                   Width = 37
                   Caption = 'Cidade'
-                  ParentColor = False
                 end
                 object edtRecebedorCidade: TEdit
                   Left = 8
@@ -3057,7 +2992,6 @@ object Form1: TForm1
                   Width = 21
                   Anchors = [akTop, akRight]
                   Caption = 'CEP'
-                  ParentColor = False
                 end
                 object edtRecebedorCEP: TEdit
                   Left = 416
@@ -3077,7 +3011,6 @@ object Form1: TForm1
                   Width = 27
                   Anchors = [akTop, akRight]
                   Caption = 'MCC'
-                  ParentColor = False
                   Visible = False
                 end
                 object imgInfoMCC: TImage
@@ -3126,7 +3059,6 @@ object Form1: TForm1
                   Top = 48
                   Width = 14
                   Caption = 'UF'
-                  ParentColor = False
                 end
                 object cbxRecebedorUF: TComboBox
                   Left = 343
@@ -3166,7 +3098,6 @@ object Form1: TForm1
                   Top = 0
                   Width = 25
                   Caption = 'Host'
-                  ParentColor = False
                 end
                 object Label9: TLabel
                   Left = 168
@@ -3175,7 +3106,6 @@ object Form1: TForm1
                   Width = 28
                   Anchors = [akTop, akRight]
                   Caption = 'Porta'
-                  ParentColor = False
                 end
                 object Label10: TLabel
                   Left = 8
@@ -3183,7 +3113,6 @@ object Form1: TForm1
                   Top = 42
                   Width = 40
                   Caption = 'Usuário'
-                  ParentColor = False
                 end
                 object edtProxyHost: TEdit
                   Left = 8
@@ -3200,7 +3129,6 @@ object Form1: TForm1
                   Width = 32
                   Anchors = [akTop, akRight]
                   Caption = 'Senha'
-                  ParentColor = False
                 end
                 object edtProxyUser: TEdit
                   Left = 8
@@ -3270,7 +3198,6 @@ object Form1: TForm1
                   Top = 0
                   Width = 42
                   Caption = 'Arquivo'
-                  ParentColor = False
                 end
                 object Label12: TLabel
                   Left = 8
@@ -3278,7 +3205,6 @@ object Form1: TForm1
                   Top = 42
                   Width = 27
                   Caption = 'Nível'
-                  ParentColor = False
                 end
                 object edtArqLog: TEdit
                   Left = 8
@@ -3346,7 +3272,6 @@ object Form1: TForm1
                   Top = 0
                   Width = 51
                   Caption = 'PSP Atual'
-                  ParentColor = False
                 end
                 object cbxPSPAtual: TComboBox
                   Left = 8
@@ -3364,7 +3289,6 @@ object Form1: TForm1
                   Top = 0
                   Width = 52
                   Caption = 'Ambiente'
-                  ParentColor = False
                 end
                 object cbxAmbiente: TComboBox
                   Left = 224
@@ -3382,7 +3306,6 @@ object Form1: TForm1
                   Top = 3
                   Width = 44
                   Caption = 'Timeout'
-                  ParentColor = False
                 end
                 object seTimeout: TSpinEdit
                   Left = 416
@@ -3428,7 +3351,6 @@ object Form1: TForm1
                   Top = 0
                   Width = 51
                   Caption = 'Expiração'
-                  ParentColor = False
                 end
                 object seCobrancaExpiracao: TSpinEdit
                   Left = 8
@@ -3479,7 +3401,6 @@ object Form1: TForm1
                   Top = 40
                   Width = 45
                   Caption = 'Client ID'
-                  ParentColor = False
                 end
                 object edtShipayClientID: TEdit
                   Left = 24
@@ -3495,7 +3416,6 @@ object Form1: TForm1
                   Top = 96
                   Width = 54
                   Caption = 'Secret Key'
-                  ParentColor = False
                 end
                 object edtShipaySecretKey: TEdit
                   Left = 24
@@ -3511,7 +3431,6 @@ object Form1: TForm1
                   Top = 152
                   Width = 58
                   Caption = 'Access Key'
-                  ParentColor = False
                 end
                 object edtShipayAccessKey: TEdit
                   Left = 24
@@ -3543,7 +3462,6 @@ object Form1: TForm1
                   Top = 21
                   Width = 53
                   Caption = 'Chave PIX'
-                  ParentColor = False
                 end
                 object edtBBChavePIX: TEdit
                   Left = 24
@@ -3561,7 +3479,6 @@ object Form1: TForm1
                   Width = 59
                   Anchors = [akTop, akRight]
                   Caption = 'Tipo Chave'
-                  ParentColor = False
                 end
                 object cbxBBTipoChave: TComboBox
                   Left = 746
@@ -3581,7 +3498,6 @@ object Form1: TForm1
                   Top = 72
                   Width = 45
                   Caption = 'Client ID'
-                  ParentColor = False
                 end
                 object edtBBClientID: TEdit
                   Left = 24
@@ -3597,7 +3513,6 @@ object Form1: TForm1
                   Top = 128
                   Width = 66
                   Caption = 'Client Secret'
-                  ParentColor = False
                 end
                 object edtBBClientSecret: TEdit
                   Left = 24
@@ -3613,7 +3528,6 @@ object Form1: TForm1
                   Top = 184
                   Width = 139
                   Caption = 'Developer Application Key'
-                  ParentColor = False
                 end
                 object edtBBDevAppKey: TEdit
                   Left = 24
@@ -3667,7 +3581,6 @@ object Form1: TForm1
                       Top = 21
                       Width = 53
                       Caption = 'Chave PIX'
-                      ParentColor = False
                     end
                     object edtItauChavePIX: TEdit
                       Left = 48
@@ -3685,7 +3598,6 @@ object Form1: TForm1
                       Width = 59
                       Anchors = [akTop, akRight]
                       Caption = 'Tipo Chave'
-                      ParentColor = False
                     end
                     object cbxItauTipoChave: TComboBox
                       Left = 746
@@ -3705,7 +3617,6 @@ object Form1: TForm1
                       Top = 72
                       Width = 45
                       Caption = 'Client ID'
-                      ParentColor = False
                     end
                     object edtItauClientID: TEdit
                       Left = 48
@@ -3722,7 +3633,6 @@ object Form1: TForm1
                       Top = 128
                       Width = 66
                       Caption = 'Client Secret'
-                      ParentColor = False
                     end
                     object edtItauClientSecret: TEdit
                       Left = 48
@@ -3790,7 +3700,6 @@ object Form1: TForm1
                           Top = 56
                           Width = 120
                           Caption = 'Arquivo Chave Privada'
-                          ParentColor = False
                         end
                         object imgItauErroChavePrivada: TImage
                           Left = 72
@@ -3816,7 +3725,6 @@ object Form1: TForm1
                           Top = 96
                           Width = 116
                           Caption = 'lItauErroChavePrivada'
-                          ParentColor = False
                         end
                         object sbItauAcharArqChavePrivada: TSpeedButton
                           Left = 726
@@ -3838,7 +3746,6 @@ object Form1: TForm1
                           Top = 130
                           Width = 103
                           Caption = 'Arquivo Certificado'
-                          ParentColor = False
                         end
                         object imgItauErroCertificado: TImage
                           Left = 72
@@ -3864,7 +3771,6 @@ object Form1: TForm1
                           Top = 172
                           Width = 102
                           Caption = 'lErroItauCertificado'
-                          ParentColor = False
                         end
                         object sbItauAcharArqCertificado: TSpeedButton
                           Left = 726
@@ -3902,7 +3808,6 @@ object Form1: TForm1
                         Width = 168
                         Caption = 'Desabilitado em Homologação'
                         Font.Style = [fsBold]
-                        ParentColor = False
                         ParentFont = False
                         Visible = False
                       end
@@ -3930,7 +3835,6 @@ object Form1: TForm1
                             Top = 24
                             Width = 120
                             Caption = 'Arquivo Chave Privada'
-                            ParentColor = False
                           end
                           object edtItauArqChavePrivada2: TEdit
                             Left = 16
@@ -4017,7 +3921,6 @@ object Form1: TForm1
                               Top = 4
                               Width = 103
                               Caption = 'Arquivo Certificado'
-                              ParentColor = False
                             end
                           end
                           object pItauTokentemporario: TPanel
@@ -4037,7 +3940,6 @@ object Form1: TForm1
                               Width = 834
                               Align = alTop
                               Caption = 'Token Temporário'
-                              ParentColor = False
                             end
                             object mItauTokenTemporario: TMemo
                               Left = 0
@@ -4068,7 +3970,6 @@ object Form1: TForm1
                               Width = 834
                               Align = alTop
                               Caption = 'Certificado Recebido'
-                              ParentColor = False
                             end
                             object mItauCertificadoPEM: TMemo
                               Left = 0
@@ -4107,7 +4008,6 @@ object Form1: TForm1
                           Width = 862
                           Align = alTop
                           Caption = 'Novo Certificado Recebido'
-                          ParentColor = False
                         end
                         object mmItauRenovarCertificadoPEM: TMemo
                           Left = 0
@@ -4152,7 +4052,6 @@ object Form1: TForm1
                           Top = 4
                           Width = 103
                           Caption = 'Arquivo Certificado'
-                          ParentColor = False
                         end
                         object btItauRenovarCertificado: TBitBtn
                           Left = 730
@@ -4206,7 +4105,6 @@ object Form1: TForm1
                       Top = 24
                       Width = 53
                       Caption = 'Chave PIX'
-                      ParentColor = False
                     end
                     object edSantanderChavePIX: TEdit
                       Left = 24
@@ -4224,7 +4122,6 @@ object Form1: TForm1
                       Width = 59
                       Anchors = [akTop, akRight]
                       Caption = 'Tipo Chave'
-                      ParentColor = False
                     end
                     object cbSantanderTipoChave: TComboBox
                       Left = 688
@@ -4244,7 +4141,6 @@ object Form1: TForm1
                       Top = 75
                       Width = 77
                       Caption = 'Consumer Key'
-                      ParentColor = False
                     end
                     object edSantanderConsumerKey: TEdit
                       Left = 24
@@ -4260,7 +4156,6 @@ object Form1: TForm1
                       Top = 131
                       Width = 90
                       Caption = 'Consumer Secret'
-                      ParentColor = False
                     end
                     object edSantanderConsumerSecret: TEdit
                       Left = 24
@@ -4311,7 +4206,6 @@ object Form1: TForm1
                       Top = 181
                       Width = 126
                       Caption = 'Arquivo Certificado PFX'
-                      ParentColor = False
                     end
                     object lbSantanderErroCertificadoPFX: TLabel
                       Left = 24
@@ -4319,7 +4213,6 @@ object Form1: TForm1
                       Top = 222
                       Width = 162
                       Caption = 'lbSantanderErroCertificadoPFX'
-                      ParentColor = False
                     end
                     object imSantanderErroCertificadoPFX: TImage
                       Left = 3
@@ -4344,7 +4237,6 @@ object Form1: TForm1
                       Top = 181
                       Width = 93
                       Caption = 'Senha Certificado'
-                      ParentColor = False
                     end
                     object sbSantanderVerSenhaPFX: TSpeedButton
                       Left = 856
@@ -4407,7 +4299,6 @@ object Form1: TForm1
                       Top = 40
                       Width = 126
                       Caption = 'Arquivo Certificado PFX'
-                      ParentColor = False
                     end
                     object btSantanderExtrairPEM: TBitBtn
                       Left = 40
@@ -4436,7 +4327,6 @@ object Form1: TForm1
                       Top = 160
                       Width = 130
                       Caption = 'Arquivo Certificado PEM'
-                      ParentColor = False
                     end
                     object edSantanderExtrairCertificadoSenhaPFX: TEdit
                       Left = 640
@@ -4454,7 +4344,6 @@ object Form1: TForm1
                       Top = 40
                       Width = 93
                       Caption = 'Senha Certificado'
-                      ParentColor = False
                     end
                     object sbSantanderExtrairCertificadoVerSenhaPFX: TSpeedButton
                       Left = 808
@@ -4553,7 +4442,6 @@ object Form1: TForm1
                       Width = 59
                       Anchors = [akTop, akRight]
                       Caption = 'Tipo Chave'
-                      ParentColor = False
                     end
                     object lbSicrediErroChavePrivada: TLabel
                       Left = 24
@@ -4561,7 +4449,6 @@ object Form1: TForm1
                       Top = 222
                       Width = 138
                       Caption = 'lbSicrediErroChavePrivada'
-                      ParentColor = False
                     end
                     object lbSicrediErroCertificado: TLabel
                       Left = 24
@@ -4569,7 +4456,6 @@ object Form1: TForm1
                       Top = 294
                       Width = 124
                       Caption = 'lbSicrediErroCertificado'
-                      ParentColor = False
                     end
                     object lbSicrediClientSecret: TLabel
                       Left = 24
@@ -4577,7 +4463,6 @@ object Form1: TForm1
                       Top = 132
                       Width = 66
                       Caption = 'Client Secret'
-                      ParentColor = False
                     end
                     object lbSicrediClientID: TLabel
                       Left = 24
@@ -4585,7 +4470,6 @@ object Form1: TForm1
                       Top = 75
                       Width = 45
                       Caption = 'Client ID'
-                      ParentColor = False
                     end
                     object lbSicrediChavePIX: TLabel
                       Left = 24
@@ -4593,7 +4477,6 @@ object Form1: TForm1
                       Top = 24
                       Width = 53
                       Caption = 'Chave PIX'
-                      ParentColor = False
                     end
                     object lbSicrediArqChavePrivada: TLabel
                       Left = 24
@@ -4601,7 +4484,6 @@ object Form1: TForm1
                       Top = 181
                       Width = 120
                       Caption = 'Arquivo Chave Privada'
-                      ParentColor = False
                     end
                     object lbSicrediArqCertificado: TLabel
                       Left = 24
@@ -4609,7 +4491,6 @@ object Form1: TForm1
                       Top = 251
                       Width = 235
                       Caption = 'Arquivo Certificado (GERADO PELO SICREDI)'
-                      ParentColor = False
                     end
                     object imSicrediErroChavePrivada: TImage
                       Left = 3
@@ -4695,12 +4576,13 @@ object Form1: TForm1
                     end
                   end
                 end
-                object tsSicrediGerarChaveCertificado: TTabSheet
-                  Caption = 'Gerar Chave/Certificado'
+                object tsSicrediGerarChaveCSR: TTabSheet
+                  Caption = 'Gerar Chave/CSR'
                   ClientHeight = 340
                   ClientWidth = 880
                   ImageIndex = 1
-                  object pnSicrediGerarChaveCertificado: TPanel
+                  OnShow = tsSicrediGerarChaveCSRShow
+                  object pnSicrediGerarChaveCSR: TPanel
                     Left = 0
                     Height = 340
                     Top = 0
@@ -4716,15 +4598,13 @@ object Form1: TForm1
                       Top = 21
                       Width = 75
                       Caption = 'Chave Privada'
-                      ParentColor = False
                     end
-                    object lbSicrediGerarCertificado: TLabel
+                    object lbSicrediGerarCSR: TLabel
                       Left = 24
                       Height = 15
                       Top = 181
-                      Width = 85
-                      Caption = 'Certificado PEM'
-                      ParentColor = False
+                      Width = 21
+                      Caption = 'CSR'
                     end
                     object btSicrediGerarChaveInfo: TSpeedButton
                       Left = 112
@@ -4741,8 +4621,8 @@ object Form1: TForm1
                       ParentFont = False
                       ParentShowHint = False
                     end
-                    object btSicrediGerarCertificadoInfo: TSpeedButton
-                      Left = 112
+                    object btSicrediGerarCSRInfo: TSpeedButton
+                      Left = 56
                       Height = 30
                       Top = 168
                       Width = 30
@@ -4790,17 +4670,17 @@ object Form1: TForm1
                       OnClick = btSicrediGerarChavePrivadaClick
                       TabOrder = 2
                     end
-                    object edSicrediGerarCertificado: TEdit
+                    object edSicrediGerarCSR: TEdit
                       Left = 24
                       Height = 23
                       Top = 197
-                      Width = 665
+                      Width = 408
                       Anchors = [akTop, akLeft, akRight]
                       AutoSize = False
                       TabOrder = 3
-                      Text = 'SicrediCertificado.pem'
+                      Text = 'SicrediCertificado.csr'
                     end
-                    object mmSicrediGerarCertificado: TMemo
+                    object mmSicrediGerarCSR: TMemo
                       Left = 24
                       Height = 89
                       Top = 232
@@ -4815,14 +4695,30 @@ object Form1: TForm1
                       WantReturns = False
                       WordWrap = False
                     end
-                    object btSicrediGerarCertificado: TBitBtn
+                    object btSicrediGerarCSR: TBitBtn
                       Left = 712
                       Height = 33
                       Top = 192
                       Width = 137
-                      Caption = 'Gerar Certificado'
-                      OnClick = btSicrediGerarCertificadoClick
+                      Caption = 'Gerar CSR'
+                      OnClick = btSicrediGerarCSRClick
                       TabOrder = 5
+                    end
+                    object edSicrediGerarCSREmail: TEdit
+                      Left = 448
+                      Height = 23
+                      Top = 197
+                      Width = 249
+                      Anchors = [akTop, akLeft, akRight]
+                      AutoSize = False
+                      TabOrder = 6
+                    end
+                    object lbSicrediGerarCSREmail: TLabel
+                      Left = 448
+                      Height = 15
+                      Top = 181
+                      Width = 34
+                      Caption = 'E-mail'
                     end
                   end
                 end
@@ -4870,7 +4766,6 @@ object Form1: TForm1
                         Top = 24
                         Width = 53
                         Caption = 'Chave PIX'
-                        ParentColor = False
                       end
                       object lbSicoobTipoChave: TLabel
                         Left = 671
@@ -4879,7 +4774,6 @@ object Form1: TForm1
                         Width = 59
                         Anchors = [akTop, akRight]
                         Caption = 'Tipo Chave'
-                        ParentColor = False
                       end
                       object lbSicoobClientID: TLabel
                         Left = 24
@@ -4887,7 +4781,6 @@ object Form1: TForm1
                         Top = 83
                         Width = 45
                         Caption = 'Client ID'
-                        ParentColor = False
                       end
                       object lbSicoobArquivoChavePrivada: TLabel
                         Left = 24
@@ -4895,7 +4788,6 @@ object Form1: TForm1
                         Top = 137
                         Width = 120
                         Caption = 'Arquivo Chave Privada'
-                        ParentColor = False
                       end
                       object imSicoobErroChavePrivada: TImage
                         Left = 3
@@ -4910,7 +4802,6 @@ object Form1: TForm1
                         Top = 178
                         Width = 139
                         Caption = 'lbSicoobErroChavePrivada'
-                        ParentColor = False
                         Visible = False
                       end
                       object lbSicoobArquivoCertificado: TLabel
@@ -4919,7 +4810,6 @@ object Form1: TForm1
                         Top = 207
                         Width = 103
                         Caption = 'Arquivo Certificado'
-                        ParentColor = False
                       end
                       object imSicoobErroCertificado: TImage
                         Left = 3
@@ -4934,7 +4824,6 @@ object Form1: TForm1
                         Top = 250
                         Width = 125
                         Caption = 'lbSicoobErroCertificado'
-                        ParentColor = False
                         Visible = False
                       end
                       object imSicoobErroChavePIX: TImage
@@ -5055,7 +4944,6 @@ object Form1: TForm1
                       Top = 40
                       Width = 126
                       Caption = 'Arquivo Certificado PFX'
-                      ParentColor = False
                     end
                     object btSicoobExtrairChaveCertificadoArqPFX: TSpeedButton
                       Left = 600
@@ -5080,7 +4968,6 @@ object Form1: TForm1
                       Top = 40
                       Width = 93
                       Caption = 'Senha Certificado'
-                      ParentColor = False
                     end
                     object btSicoobExtrairChaveCertificadoVerSenhaPFX: TSpeedButton
                       Left = 808
@@ -5101,7 +4988,6 @@ object Form1: TForm1
                       Top = 160
                       Width = 120
                       Caption = 'Arquivo Chave Privada'
-                      ParentColor = False
                     end
                     object btSicoobExtrairChaveCertificadoInfo: TSpeedButton
                       Left = 224
@@ -5126,7 +5012,6 @@ object Form1: TForm1
                       Top = 216
                       Width = 130
                       Caption = 'Arquivo Certificado PEM'
-                      ParentColor = False
                     end
                     object edSicoobExtrairChaveCertificadoArqPFX: TEdit
                       Left = 40
@@ -5233,7 +5118,6 @@ object Form1: TForm1
     Font.Color = clWhite
     Font.Height = -16
     Font.Style = [fsBold]
-    ParentColor = False
     ParentFont = False
     Transparent = False
     OnClick = lURLTEFClick
@@ -5406,7 +5290,8 @@ object Form1: TForm1
     DadosAutomacao.CNPJSoftwareHouse = '18760540000139'
     DadosAutomacao.NomeAplicacao = 'ACBrPIXCDTeste'
     DadosAutomacao.VersaoAplicacao = '1.0'
-    PSP = ACBrPSPBancoDoBrasil1
+    Ambiente = ambProducao
+    PSP = ACBrPSPSicredi1
     QuandoGravarLog = ACBrPixCD1QuandoGravarLog
     Left = 112
     Top = 416
@@ -5416,7 +5301,6 @@ object Form1: TForm1
     Top = 416
   end
   object ACBrPSPBancoDoBrasil1: TACBrPSPBancoDoBrasil
-    ACBrPixCD = ACBrPixCD1
     Left = 168
     Top = 416
   end
@@ -5458,6 +5342,10 @@ object Form1: TForm1
     Top = 448
   end
   object ACBrPSPSicredi1: TACBrPSPSicredi
+    ACBrPixCD = ACBrPixCD1
+    ChavePIX = '21459385000120'
+    ClientID = 'NDYxNDUxOTQwMDAxMTQ6MDAwMTpTMWw'
+    ClientSecret = 'MHN5eSk5RmFkKDlMa0hf'
     Left = 256
     Top = 416
   end

@@ -94,6 +94,8 @@ type
     frxServicos: TfrxDBDataset;
     frxParametros: TfrxDBDataset;
     frxItensServico: TfrxDBDataset;
+		FIncorporarFontesPdf: Boolean;
+		FIncorporarBackgroundPdf:Boolean;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -104,6 +106,8 @@ type
   published
     property FastFile: String read FFastFile write FFastFile;
     property EspessuraBorda: Integer read FEspessuraBorda write FEspessuraBorda;
+		property IncorporarFontesPdf : boolean read FIncorporarFontesPdf write FIncorporarFontesPdf;
+		property IncorporarBackgroundPdf : boolean read FIncorporarBackgroundPdf write FIncorporarBackgroundPdf;
   end;
 
 implementation
@@ -121,6 +125,8 @@ begin
   FFastFile := '';
   FEspessuraBorda := 1;
   CriarDataSetsFrx;
+	FIncorporarFontesPdf := false;
+	FIncorporarBackgroundPdf := false;
 end;
 
 destructor TACBrNFSeXDANFSeFR.Destroy;
@@ -190,7 +196,8 @@ begin
     frxPDFExport.Creator := Sistema;
     frxPDFExport.Subject := TITULO_PDF;
     frxPDFExport.EmbeddedFonts := False;
-    frxPDFExport.Background := False;
+    frxPDFExport.Background := IncorporarBackgroundPdf;
+		frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
 
     OldShowDialog := frxPDFExport.ShowDialog;
     try
@@ -913,8 +920,15 @@ begin
         begin
           CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
 
-          if CodigoIBGE >= 1100015 then
+          try
             xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
+          except
+            on E:Exception do
+            begin
+              xMunicipio := '';
+              xUF := '';
+            end;
+          end;
 
           FieldByName('CodigoMunicipio').AsString := xMunicipio;
           FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(ExigibilidadeISS);
@@ -954,12 +968,34 @@ begin
           if Provedor = proAdm then
           begin
             FieldByName('CodigoMunicipio').AsString := CodigoMunicipio;
-            FieldByName('MunicipioIncidencia').AsString := ObterNomeMunicipio(MunicipioIncidencia, xUF);
+
+            try
+              xMunicipio := ObterNomeMunicipio(MunicipioIncidencia, xUF);
+            except
+              on E:Exception do
+              begin
+                xMunicipio := '';
+                xUF := '';
+              end;
+            end;
+
+            FieldByName('MunicipioIncidencia').AsString := xMunicipio;
           end
           else
           begin
             FieldByName('CodigoMunicipio').AsString := CodigoMunicipio;
-            FieldByName('MunicipioIncidencia').AsString := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF);
+
+            try
+              xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF);
+            except
+              on E:Exception do
+              begin
+                xMunicipio := '';
+                xUF := '';
+              end;
+            end;
+
+            FieldByName('MunicipioIncidencia').AsString := xMunicipio;
           end;
         end;
       end;

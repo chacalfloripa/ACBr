@@ -566,6 +566,14 @@ begin
   end
   else
   begin
+    if Length(xData) = 7 then
+    begin
+      if i = 5 then
+        xData := xData + '/01'
+      else
+        xData := '01/' + xData;
+    end;
+
     if i = 5 then
     begin
       Ano := StrToInt(Copy(xData, 1, 4));
@@ -649,9 +657,6 @@ begin
     if (p = 0) then
        p := Pos(' ', xDataHora);
 
-    if (p = 0) then
-       p := Pos('.', xDataHora);
-
     if (p > 0) then
     begin
       xHora := Copy(xDataHora, 1, p-1);
@@ -660,6 +665,11 @@ begin
     else
       xHora := xDataHora;
   end;
+
+  p := Pos('.', xHora);
+
+  if (p > 0) then
+    xHora := Copy(xHora, 1, p-1);
 
   Result := Trim(xData + ' ' + xHora + xTZD);
 end;
@@ -689,7 +699,10 @@ begin
       8: xData := FormatMaskText('!0000\/00\/00;0;_', xData);
     end;
 
-    Result := StringToDateTime(xData, xFormatoData);
+    if (Pos('0000/', xData) > 0) or (Pos('/0000', xData) > 0) then
+      Result := 0
+    else
+      Result := StringToDateTime(xData, xFormatoData);
   end;
 end;
 

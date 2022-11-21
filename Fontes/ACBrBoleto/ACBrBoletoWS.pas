@@ -175,6 +175,7 @@ type
   private
     FACBrBoleto: TACBrBoleto;
     FRetWS: String;
+  	FEnvWS: String;
     FCodRetorno: Integer;
     FMsg: String;
     FLeitor: TLeitor;
@@ -188,6 +189,7 @@ type
     property ACBrBoleto: TACBrBoleto read FACBrBoleto;
     property Leitor: TLeitor read FLeitor;
     property RetWS: String read FRetWS write FRetWS;
+	  property EnvWs: String read FEnvWs;
 
   public
     constructor Create(ABoletoWS: TACBrBoleto); virtual;
@@ -354,8 +356,22 @@ ResourceString
 implementation
 
 uses
-  ACBrBoletoW_Caixa, ACBrBoletoRet_Caixa, ACBrBoletoW_BancoBrasil, ACBrBoletoRet_BancoBrasil, ACBrBoletoW_BancoBrasil_API, ACBrBoletoRet_BancoBrasil_API, ACBrBoletoW_Itau, ACBrBoletoRet_Itau,
-  ACBrBoletoW_Credisis, ACBrBoletoRet_Credisis, ACBrBoletoW_Sicredi_API, ACBrBoletoRet_Sicredi_API, ACBrBoletoW_PenseBank_API, ACBrBoletoRet_PenseBank_API;
+  ACBrBoletoW_Caixa,
+  ACBrBoletoRet_Caixa,
+  ACBrBoletoW_BancoBrasil,
+  ACBrBoletoRet_BancoBrasil,
+  ACBrBoletoW_BancoBrasil_API,
+  ACBrBoletoRet_BancoBrasil_API,
+  ACBrBoletoW_Itau,
+  ACBrBoletoRet_Itau,
+  ACBrBoletoW_Credisis,
+  ACBrBoletoRet_Credisis,
+  ACBrBoletoW_Sicredi_API,
+  ACBrBoletoRet_Sicredi_API,
+  ACBrBoletoW_PenseBank_API,
+  ACBrBoletoRet_PenseBank_API,
+  ACBrBoletoW_Santander,
+  ACBrBoletoRet_Santander;
 
 { TOAuth }
 
@@ -781,7 +797,6 @@ begin
     Result:= LerRetorno(ACBrBoleto.ListadeBoletos[AIndex].RetornoWeb)
   else
     Result:= LerListaRetorno;
-
 end;
 
 { TBoletoWSSOAP }
@@ -1083,6 +1098,11 @@ begin
         FBoletoWSClass := TBoletoW_PenseBank_API.Create(Self);
         FRetornoBanco  := TRetornoEnvio_PenseBank_API.Create(FBoleto);
       end;
+    cobSantander :
+      begin
+        FBoletoWSClass := TBoletoW_Santander.Create(Self);
+        FRetornoBanco  := TRetornoEnvio_Santander.Create(FBoleto);
+      end;
 
   else
     FBoletoWSClass := TBoletoWSClass.Create(Self);
@@ -1177,6 +1197,7 @@ end;}
 function TBoletoWS.Enviar: Boolean;
 var
   indice: Integer;
+  LJsonEnvio : String;
 begin
   Banco := FBoleto.Banco.TipoCobranca;
   Result := False;
@@ -1187,11 +1208,12 @@ begin
       for indice:= 0 to Pred(FBoleto.ListadeBoletos.Count) do
       begin
         FBoletoWSClass.FTitulo := FBoleto.ListadeBoletos[indice];
-        FBoletoWSClass.GerarRemessa;
-        Result :=  FBoletoWSClass.Enviar;
+        LJsonEnvio := FBoletoWSClass.GerarRemessa;
+        Result     :=  FBoletoWSClass.Enviar;
         FRetornoWS := FBoletoWSClass.FRetornoWS;
 
-        RetornoBanco.RetWS:= FRetornoWS;
+        RetornoBanco.RetWS := FRetornoWS;
+		    RetornoBanco.FEnvWs := LJsonEnvio;
         RetornoBanco.RetornoEnvio(indice);
 
       end;

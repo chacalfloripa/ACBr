@@ -37,9 +37,16 @@ unit ACBrANeDocumentos;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, Forms,
-  ACBrANeConfiguracoes, ACBrDFeUtil,
-  pcaANe, pcaANeR, pcaANeW, pcnConversao, pcnAuxiliar, pcnLeitor;
+  Classes, 
+  SysUtils, 
+  ACBrANeConfiguracoes, 
+  ACBrDFeUtil,
+  pcaANe, 
+  pcaANeR, 
+  pcaANeW, 
+  pcnConversao, 
+  pcnAuxiliar, 
+  pcnLeitor;
 
 type
 
@@ -182,9 +189,14 @@ var
   IniGrupo, FimGrupo: Integer;
 begin
   IniGrupo := Pos('<' + Grupo + '>', XML);
-  FimGrupo := Pos('</' + Grupo + '>', XML) + Length(Grupo) + 3;
+  if IniGrupo > 0 then
+  begin
+    FimGrupo := Pos('</' + Grupo + '>', XML) + Length(Grupo) + 3;
 
-  Result := Copy(XML, 1, IniGrupo -1) + Copy(XML, FimGrupo, Length(XML));
+    Result := Copy(XML, 1, IniGrupo -1) + Copy(XML, FimGrupo, Length(XML));
+  end
+  else
+    Result := XML;
 end;
 
 begin

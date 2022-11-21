@@ -914,12 +914,17 @@ namespace ACBrLib.CTe.Demo
             var codUf = 35;
             var cnpj = "";
             var eNsu = "";
+            var ArquivoOuXml = Helpers.OpenFile("Arquivos Distribuição DFe (*-dist-dfe.xml)|*-dist-dfe.xml|Todos os Arquivos (*.*)|*.*",
+                                                "Selecione um Arquivo de Distribuição para simular uma consulta ou feche para consultar o WebService");
 
-            if (InputBox.Show("WebServices: Distribuição DFe", "Código da UF", ref codUf) != DialogResult.OK) return;
-            if (InputBox.Show("WebServices: Distribuição DFe", "CNPJ do autor", ref cnpj) != DialogResult.OK) return;
-            if (InputBox.Show("WebServices: Distribuição DFe", "Número do último NSU", ref eNsu) != DialogResult.OK) return;
+            if (string.IsNullOrEmpty(ArquivoOuXml))
+            {
+                if (InputBox.Show("WebServices: Distribuição DFe", "Código da UF", ref codUf) != DialogResult.OK) return;
+                if (InputBox.Show("WebServices: Distribuição DFe", "CNPJ do autor", ref cnpj) != DialogResult.OK) return;
+                if (InputBox.Show("WebServices: Distribuição DFe", "Número do último NSU", ref eNsu) != DialogResult.OK) return;
+            }
 
-            var ret = ACBrCTe.DistribuicaoDFePorNSU(codUf, cnpj, eNsu);
+            var ret = ACBrCTe.DistribuicaoDFe(codUf, cnpj, eNsu, ArquivoOuXml);
             rtbRespostas.AppendText(ret);
         }
 
@@ -965,6 +970,20 @@ namespace ACBrLib.CTe.Demo
             {
                 MessageBox.Show(exception.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void btnValidarXmlClick(object sender, EventArgs e)
+        {
+            try
+            {
+                CheckCTeLista(true);
+                ACBrCTe.Validar();
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
         }
     }
 }

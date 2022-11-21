@@ -547,7 +547,7 @@ begin
 
           with Parcelas.New do
           begin
-            Parcela := StrToIntDef(sFim, 1);
+            Parcela := sFim;
             DataVencimento := INIRec.ReadDate(sSecao, 'DataVencimento', Now);
             Valor := StringToFloatDef(INIRec.ReadString(sSecao, 'Valor', ''), 0);
           end;
@@ -574,7 +574,7 @@ begin
   if not Assigned(FProvider) then
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
-  Result := FProvider.LerXML(AXml, FNFSe, TipoXml, XmlTratado);
+  Result := FProvider.LerXML(AXML, FNFSe, TipoXml, XmlTratado);
 
   if TipoXml = txmlNFSe then
     FXmlNfse := XmlTratado
@@ -613,6 +613,9 @@ function TNotaFiscal.GravarStream(AStream: TStream): Boolean;
 begin
   if EstaVazio(FXmlRps) then
     GerarXML;
+
+  if EstaVazio(FXmlNfse) then
+    FXmlNfse := FXmlRps;
 
   AStream.Size := 0;
   WriteStrToStream(AStream, AnsiString(FXmlNfse));
@@ -863,24 +866,21 @@ end;
 function TNotasFiscais.LoadFromFile(const CaminhoArquivo: String;
   AGerarNFSe: Boolean = True): Boolean;
 var
-  XMLStr: String;
-  XMLUTF8: AnsiString;
+  XmlUTF8: AnsiString;
   i, l: integer;
   MS: TMemoryStream;
 begin
   MS := TMemoryStream.Create;
   try
     MS.LoadFromFile(CaminhoArquivo);
-    XMLUTF8 := ReadStrFromStream(MS, MS.Size);
+    XmlUTF8 := ReadStrFromStream(MS, MS.Size);
   finally
     MS.Free;
   end;
 
   l := Self.Count; // Indice da última nota já existente
 
-  // Converte de UTF8 para a String nativa da IDE //
-  XMLStr := DecodeToString(XMLUTF8, True);
-  Result := LoadFromString(XMLStr, AGerarNFSe);
+  Result := LoadFromString(XmlUTF8, AGerarNFSe);
 
   if Result then
   begin

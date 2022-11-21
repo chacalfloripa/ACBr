@@ -140,6 +140,8 @@ type
     function TesteEnvio(ACabecalho, AMSG: string): string; virtual;
     function EnviarEvento(ACabecalho, AMSG: string): string; virtual;
     function ConsultarEvento(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarDFe(ACabecalho, AMSG: string): string; virtual;
+    function ConsultarParam(ACabecalho, AMSG: string): string; virtual;
 
     property URL: string read FPURL;
     property BaseURL: string read GetBaseUrl;
@@ -157,7 +159,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'text/xml');
 
   end;
 
@@ -167,7 +169,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'application/soap+xml');
 
   end;
 
@@ -179,7 +181,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'application/xml');
 
   end;
 
@@ -190,7 +192,7 @@ type
 
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'application/json');
 
   end;
 
@@ -201,7 +203,7 @@ type
 
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'application/json');
 
   end;
 
@@ -213,7 +215,7 @@ type
                                   namespace: array of string): string; override;
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'text/xml');
 
   end;
 
@@ -226,7 +228,7 @@ type
 
   public
     constructor Create(AOwner: TACBrDFe; AMetodo: TMetodo; AURL: string;
-      AMethod: string = 'POST');
+      AMethod: string = 'POST'; AMimeType: string = 'text/xml');
 
   end;
 
@@ -365,6 +367,7 @@ type
     FpedRegEvento: TpedRegEvento;
   public
     constructor Create;
+    destructor Destroy; override;
 
     function LerFromIni(const AIniStr: string): Boolean;
 
@@ -508,6 +511,18 @@ begin
       begin
         FPArqEnv := 'con-eve';
         FPArqResp := 'eve';
+      end;
+
+    tmConsultarDFe:
+      begin
+        FPArqEnv := 'con-dfe';
+        FPArqResp := 'dfe';
+      end;
+
+    tmConsultarParam:
+      begin
+        FPArqEnv := 'con-param';
+        FPArqResp := 'param';
       end;
   end;
 
@@ -912,6 +927,12 @@ begin
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
+function TACBrNFSeXWebservice.ConsultarDFe(ACabecalho, AMSG: string): string;
+begin
+  Result := '';
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
 function TACBrNFSeXWebservice.ConsultarEvento(ACabecalho, AMSG: string): string;
 begin
   Result := '';
@@ -955,6 +976,12 @@ begin
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSeServicoTomado(ACabecalho, AMSG: string): string;
+begin
+  Result := '';
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+function TACBrNFSeXWebservice.ConsultarParam(ACabecalho, AMSG: string): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);
@@ -1017,11 +1044,11 @@ end;
 { TACBrNFSeXWebserviceSoap11 }
 
 constructor TACBrNFSeXWebserviceSoap11.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'text/xml';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceSoap11.DefinirMsgEnvio(const Message, SoapAction,
@@ -1057,11 +1084,11 @@ end;
 { TACBrNFSeXWebserviceSoap12 }
 
 constructor TACBrNFSeXWebserviceSoap12.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'application/soap+xml';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceSoap12.DefinirMsgEnvio(const Message, SoapAction,
@@ -1098,11 +1125,11 @@ end;
 { TACBrNFSeXWebserviceNoSoap }
 
 constructor TACBrNFSeXWebserviceNoSoap.Create(AOwner: TACBrDFe;
-  AMetodo: TMetodo; AURL: string; AMethod: string);
+  AMetodo: TMetodo; AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'application/xml';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceNoSoap.DefinirMsgEnvio(const Message, SoapAction,
@@ -1126,11 +1153,11 @@ end;
 { TACBrNFSeXWebserviceRest }
 
 constructor TACBrNFSeXWebserviceRest.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL, AMethod: string);
+  AURL, AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'application/json';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceRest.DefinirMsgEnvio(const Message, SoapAction,
@@ -1146,11 +1173,11 @@ end;
 { TACBrNFSeXWebserviceRest2 }
 
 constructor TACBrNFSeXWebserviceRest2.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
-  FPMimeType := 'application/json';
+  FPMimeType := AMimeType;
 end;
 
 function TACBrNFSeXWebserviceRest2.DefinirMsgEnvio(const Message, SoapAction,
@@ -1170,7 +1197,6 @@ begin
     GerarException(ACBrStr('O provedor ' + TConfiguracoesNFSe(FPConfiguracoes).Geral.xProvedor +
       ' necessita que a propriedade: Configuracoes.Geral.Emitente.WSSenha seja informada.'));
 
-//  Texto := StringReplace(Message, '"', '''', [rfReplaceAll]);
   Texto := StringReplace(Message, '"', '\"', [rfReplaceAll]);
   Texto := StringReplace(Texto, #10, '', [rfReplaceAll]);
   Texto := StringReplace(Texto, #13, '', [rfReplaceAll]);
@@ -1185,7 +1211,7 @@ end;
 { TACBrNFSeXWebserviceMulti1 }
 
 constructor TACBrNFSeXWebserviceMulti1.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
@@ -1231,7 +1257,7 @@ end;
 { TACBrNFSeXWebserviceMulti2 }
 
 constructor TACBrNFSeXWebserviceMulti2.Create(AOwner: TACBrDFe; AMetodo: TMetodo;
-  AURL: string; AMethod: string);
+  AURL: string; AMethod: string; AMimeType: string);
 begin
   inherited Create(AOwner, AMetodo, AURL, AMethod);
 
@@ -1243,6 +1269,8 @@ function TACBrNFSeXWebserviceMulti2.DefinirMsgEnvio(const Message, SoapAction,
   SoapHeader: string; namespace: array of string): string;
 var
   NomeArq: string;
+  Tamanho: Integer;
+  xTamanho: string;
 begin
   NomeArq := GerarPrefixoArquivo + '-' + FPArqEnv + '.xml';
 
@@ -1256,9 +1284,13 @@ begin
             Message + sLineBreak +
             '--' + FPBound + '--' + sLineBreak;
 
+  Tamanho := Length(Result);
+  xTamanho := IntToStr(Tamanho);
+
   HttpClient := FPDFeOwner.SSL.SSLHttpClass;
 
   HttpClient.Clear;
+  HttpClient.HeaderReq.AddHeader('Content-Length', xTamanho);
 end;
 
 { TInfConsulta }
@@ -1406,6 +1438,13 @@ begin
   FnDFe := '';
 
   FpedRegEvento := TpedRegEvento.Create;
+end;
+
+destructor TInfEvento.Destroy;
+begin
+  FpedRegEvento.Free;
+
+  inherited Destroy;
 end;
 
 function TInfEvento.LerFromIni(const AIniStr: string): Boolean;

@@ -47,6 +47,43 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+21/11/2022
+-- ACBrPIXCDReg, ACBrPIXCD.dpk, ACBrPIXCD.lpk --
+[+] Inclusão de novo PSP PagSeguro
+
+-- ACBrPIXCD.dcr, ACBrPIXCD.lrs --
+[+] Inclusão de resources do ícone para o novo PSP PagSeguro
+    Por: Elias César
+
+27/10/2022
+-- ACBrPIXSchemasCob --
+[*] Correção de problema ocorrido com PSP Siccob quando há retorno de tag com valor Null
+    https://www.projetoacbr.com.br/forum/topic/69458-acbrpixcd-sicredi-mensagem-erro-no-demo-duplicate-object-member-retirada/
+	
+-- ACBrPIXPSPBancoDoBrasil --
+[-] Correção de problema ao consultar lista de pagamentos com o PSP BB
+    Por: Elias César
+
+17/10/2022
+-- ACBrPIXPSPSicoob --
+[-] Ajuste para incluir scopes cobv
+[*] Alteração de 'brcode' para 'pixCopiaECola' no retorno do endpoint cobv
+
+-- ACBrPIXPSPSicredi --
+[-] Ajuste para incluir scopes cobv
+
+-- ACBrPixSchemasCobV --
+[*] Alteração no tipo da classe para incluir também a propiedade pixCopiaECola
+Por: Elias César
+
+04/10/2022
+-- ACBrPIXPSPBancoDoBrasil --
+[*] Alteração para disparar erro caso o PSP não possua o endpoint utilizados
+
+-- ACBrPIXCD --
+[*] Incluído resource de erro para disparar a exceção
+    por: Elias César
+
 20/09/2022
 -- ACBrPIXPSPSicoob --
 [-] Correção para tratar corretamente o retorno do Sicoob ao Solicitar uma devolução

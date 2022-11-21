@@ -43,6 +43,27 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+08/11/2022
+-- ACBrPagForClass/CNAB240.LerTxtRetorno --
+[*] Não estava Gerando os avisos ao ler o Segmento O.
+   Por: Italo Giurizzato Junior
+
+04/11/2022
+-- PagFor.Sicredi.GravarTxtRemessa --
+[*] Correção no Segmento B para PIX, não estava usando os campos corretos.
+   Por: Centrodata Sistemas
+
+21/10/2022
+-- PagFor.Santander.GravarTxtRemessa --
+[*] Correção no Registro 0, não estava incluindo o DV da Agencia.
+   Por: Italo Giurizzato Junior
+
+10/10/2022
+-- ACBrPagForArquivo --
+[*] Alterado o método LoadFromString para que o mesmo identifique qual é
+    o banco que consta no arquivo de retorno.
+   Por: Italo Giurizzato Junior
+
 24/08/2022
 -- Diversos --
 [+] Implementado o banco Caixa Economica Federal (pagCaixaEconomica).
