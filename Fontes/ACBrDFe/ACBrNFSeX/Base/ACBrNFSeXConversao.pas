@@ -56,6 +56,10 @@ type
   TVersaoNFSe = (ve100, ve101, ve103,
                  ve200, ve201, ve202, ve203, ve204);
 
+  TLayout =(loABRASF, loProprio);
+
+  TLayoutNFSe = (lnfsProvedor, lnfsPadraoNacionalv1);
+
   TStatusRPS = (srNormal, srCancelado);
 
   TStatusNFSe = (snNormal, snCancelado, snSubstituido);
@@ -125,8 +129,8 @@ type
                    proISSSaoPaulo, proISSSJP, proISSVitoria, proLexsom, proLink3,
                    proMegaSoft, proMetropolisWeb, proMitra, proModernizacaoPublica,
                    proNEAInformatica, proNFSeBrasil, proNotaInteligente,
-                   proProdata, proPronim, proPublica, proRLZ, proSaatri,
-                   proSafeWeb, proSH3, proSiam, proSiapNet, proSiappa,
+                   proProdata, proPronim, proPublica, proPublicSoft, proRLZ,
+                   proSaatri, proSafeWeb, proSH3, proSiam, proSiapNet, proSiappa,
                    proSiapSistemas, proSiat, proSigCorp, proSigep, proSigISS,
                    proSigISSWeb, proSilTecnologia, proSimple, proSimplISS,
                    proSintese, proSisPMJP, proSistemas4R, proSmarAPD,
@@ -194,7 +198,7 @@ type
                  tpPJforaPais);
 
   TtpConsulta = (tcPorNumero, tcPorFaixa, tcPorPeriodo, tcServicoPrestado,
-                 tcServicoTomado);
+                 tcServicoTomado, tcPorCodigoVerificacao);
 
   TtpPeriodo = (tpEmissao, tpCompetencia);
 
@@ -671,10 +675,9 @@ begin
   CodProvedor := GetEnumValue(TypeInfo(TnfseProvedor), ProvedorStr);
 
   if CodProvedor = -1 then
-    raise Exception.Create(Format('"%s" não é um valor TnfseProvedor válido.',
-                                                                [ProvedorStr]));
-
-  Result := TnfseProvedor(CodProvedor);
+    Result := proNenhum
+  else
+    Result := TnfseProvedor(CodProvedor);
 end;
 
 function CondicaoToStr(const t: TnfseCondicaoPagamento): string;
@@ -6739,7 +6742,7 @@ begin
 
  Result := CodTOM;
 
- if (Trim(Result) = '') and (ACodigo <= 9999) then
+ if (Trim(Result) = '') and (ACodigo > 0) and (ACodigo <= 9999) then
    Result:= IntToStr(ACodigo);
 end;
 
@@ -12628,17 +12631,17 @@ end;
 function tpConsultaToStr(const t: TtpConsulta): string;
 begin
   Result := EnumeradoToStr(t,
-                           ['1', '2', '3', '4', '5'],
+                           ['1', '2', '3', '4', '5', '6'],
                            [tcPorNumero, tcPorFaixa, tcPorPeriodo,
-                            tcServicoPrestado, tcServicoTomado]);
+                            tcServicoPrestado, tcServicoTomado, tcPorCodigoVerificacao]);
 end;
 
 function StrTotpConsulta(out ok: boolean; const s: string): TtpConsulta;
 begin
   Result := StrToEnumerado(ok, s,
-                           ['1', '2', '3', '4', '5'],
+                           ['1', '2', '3', '4', '5', '6'],
                            [tcPorNumero, tcPorFaixa, tcPorPeriodo,
-                            tcServicoPrestado, tcServicoTomado]);
+                            tcServicoPrestado, tcServicoTomado, tcPorCodigoVerificacao]);
 end;
 
 function tpPeriodoToStr(const t: TtpPeriodo): string;

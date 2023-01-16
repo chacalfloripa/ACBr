@@ -258,6 +258,8 @@ begin
     DadosCabecalho := '1';
   end;
 
+  SetNomeXSD('***');
+
   with ConfigSchemas do
   begin
     Teste := 'PedidoEnvioLoteRPS_v01.xsd';
@@ -1482,7 +1484,7 @@ function TACBrNFSeXWebserviceISSSaoPaulo.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
 end;
 

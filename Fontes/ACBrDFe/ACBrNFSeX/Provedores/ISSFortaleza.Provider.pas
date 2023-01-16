@@ -129,6 +129,8 @@ begin
     CancelarNFSe := True;
   end;
 
+  SetNomeXSD('***');
+
   with ConfigSchemas do
   begin
     Recepcionar := 'servico_enviar_lote_rps_envio_v03.xsd';
@@ -400,11 +402,13 @@ end;
 function TACBrNFSeXWebserviceISSFortaleza.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(UTF8Decode(aXML));
+//  Result := inherited TratarXmlRetornado(UTF8Decode(aXML));
+  Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
 end;
 

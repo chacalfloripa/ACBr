@@ -35,8 +35,20 @@ program ACBrNFSeXTestCases;
 uses
   ACBrTests.Util in '..\..\ACBrTests.Util.pas',
   ACBrTests.Runner in '..\..\ACBrTests.Runner.pas',
-  ACBrNFSeXProvedorISSNETTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorISSNETTests.pas',
-  ACBrNFSeXTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXTests.pas';
+  ACBrNFSeXTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXTests.pas',
+  ACBrNFSeXProvedorABRASFv1Tests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorABRASFv1Tests.pas',
+  ACBrNFSeXProvedorABRASFv2Tests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorABRASFv2Tests.pas',
+  ACBrNFSeXProvedorAgiliTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorAgiliTests.pas',
+  ACBrNFSeXProvedorAssessorPublicoTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorAssessorPublicoTests.pas',
+  ACBrNFSeXProvedorBauhausTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorBauhausTests.pas',
+  ACBrNFSeXProvedorEquiplanoTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorEquiplanoTests.pas',
+  ACBrNFSeXProvedorIPMTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorIPMTests.pas',
+  ACBrNFSeXProvedorISSBarueriTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorISSBarueriTests.pas',
+  ACBrNFSeXProvedorPadraoNacionalTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorPadraoNacionalTests.pas',
+  ACBrNFSeXProvedorSigISSTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorSigISSTests.pas',
+  ACBrNFSeXProvedorSoftPlanTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorSoftPlanTests.pas',
+  ACBrNFSeXProvedorWebFiscoTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXProvedorWebFiscoTests.pas',
+  ACBrNFSeXRetornoSoapTests in '..\..\FPCUnit\ACBrNFSeX\ACBrNFSeXRetornoSoapTests.pas';
 
 begin
   ACBrRunTests;

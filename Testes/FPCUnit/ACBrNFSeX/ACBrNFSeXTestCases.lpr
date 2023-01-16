@@ -4,8 +4,18 @@ program ACBrNFSeXTestCases;
 
 uses
   Interfaces, Forms, ACBrNFSeXTests, ACBrTests.Util, GuiTestRunner,
-  ACBrNFSeXProvedorISSNETTests, ACBrNFSeXProvedorAbrasfTests,
-  ACBrNFSeXProvedorGinfesTests;
+  ACBrNFSeXProvedorABRASFv1Tests, ACBrNFSeXProvedorABRASFv2Tests,
+  ACBrNFSeXProvedorAgiliTests,
+  ACBrNFSeXProvedorAssessorPublicoTests,
+  ACBrNFSeXProvedorBauhausTests,
+  ACBrNFSeXProvedorEquiplanoTests,
+  ACBrNFSeXProvedorIPMTests,
+  ACBrNFSeXProvedorISSBarueriTests,
+  ACBrNFSeXProvedorPadraoNacionalTests,
+  ACBrNFSeXProvedorSigISSTests, 
+  ACBrNFSeXProvedorSoftPlanTests, 
+  ACBrNFSeXProvedorWebFiscoTests,
+  ACBrNFSeXRetornoSoapTests;
 
 {$R *.res}
 

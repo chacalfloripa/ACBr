@@ -105,13 +105,12 @@ begin
   inherited ConfigurarHeaders(aMethod, aURL);
 
   if (Pos('secure', aURL) <= 0) then
-    Exit;
-
-  if NaoEstaVazio(ArquivoCertificado) then
-    Http.Sock.SSL.CertificateFile := ArquivoCertificado;
-                                           
-  if NaoEstaVazio(ArquivoChavePrivada) then
-    Http.Sock.SSL.PrivateKeyFile := ArquivoChavePrivada;
+  begin
+    Http.Sock.SSL.CertificateFile := EmptyStr;
+    Http.Sock.SSL.Certificate := EmptyStr;
+    Http.Sock.SSL.PrivateKeyFile := EmptyStr;
+    Http.Sock.SSL.PrivateKey := EmptyStr;
+  end;
 end;
 
 procedure TACBrPSPPagSeguro.ConfigurarAutenticacao(const aMethod,
@@ -140,6 +139,7 @@ end;
 constructor TACBrPSPPagSeguro.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  fTokenPay := EmptyStr;
   fpQuandoAcessarEndPoint := QuandoAcessarEndPoint;
 end;
 
@@ -160,7 +160,7 @@ begin
   js := TACBrJSONObject.Create;
   try
     js.AddPair('grant_type', 'client_credentials'); 
-    js.AddPair('scope', 'cob.read cob.write pix.read pix.write');
+    js.AddPair('scope', ScopesToString(Scopes));
     Http.Protocol := '1.1';
     Http.MimeType := CContentTypeApplicationJSon;
     WriteStrToStream(Http.Document, js.ToJSON);

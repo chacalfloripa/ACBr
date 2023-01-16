@@ -176,6 +176,8 @@ begin
     DadosCabecalho := '1';
   end;
 
+  SetNomeXSD('***');
+
   with ConfigSchemas do
   begin
     Recepcionar := 'esRecepcionarLoteRpsEnvio_v01.xsd';
@@ -307,9 +309,18 @@ function TACBrNFSeProviderEquiplano.GerarXmlNota(const aXmlRps,
   aXmlRetorno: string): string;
 var
   aRPS, aNFSE: string;
+  i: Integer;
 begin
   aRPS  := SeparaDados(aXmlRps, 'rps', False);
-  aNFSE := aXmlRetorno;
+  aNFSE := SeparaDados(aXmlRetorno, 'nfse', False);
+
+  i := Pos('<nrEmissorRps', aNFSE);
+  if i > 0 then
+    aNFSE := Copy(aNFSE, 1, i-1);
+
+  i := Pos('<nrRps', aNFSE);
+  if i > 0 then
+    aNFSE := Copy(aNFSE, 1, i-1);
 
   Result := '<compNfse xmlns="http://www.equiplano.com.br/esnfs">' +
               '<nfse>' +
@@ -522,8 +533,12 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
-  i: Integer;
-  aXmlNota: string;
+  ANodeArray: TACBrXmlNodeArray;
+  AResumo: TNFSeResumoCollectionItem;
+  ANumRps, ACodVer, ANumNfse: String;
+  ADataHora: TDateTime;
+  i, j, k: Integer;
+  aXmlNota, aXmlRetorno: string;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
@@ -551,6 +566,8 @@ begin
 
       AuxNode := ANode.Childrens.FindAnyNs('nfse');
 
+      j := TACBrNFSeX(FAOwner).NotasFiscais.Count;
+
       if AuxNode <> nil then
       begin
         Response.NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrNfse'), tcStr);
@@ -558,11 +575,9 @@ begin
         Response.Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtEmissaoNfs'), tcDat);
         Response.NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
 
-        i := TACBrNFSeX(FAOwner).NotasFiscais.Count;
-
-        if i > 0 then
+        if j > 0 then
         begin
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[i-1];
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[j-1];
 
           if ANota.NFSe.IdentificacaoRps.Numero = Response.NumeroRps  then
           begin
@@ -576,39 +591,65 @@ begin
             SalvarXmlNfse(ANota);
           end;
         end;
-      end;
-      {
-      AuxNode := ANode.Childrens.FindAnyNs('listaNfse');
-
-      if AuxNode <> nil then
+      end
+      else
       begin
-        ANodeArray := ANode.Childrens.FindAllAnyNs('nfse');
-        if not Assigned(ANodeArray) then
-        begin
-          AErro := Response.Erros.New;
-          AErro.Codigo := Cod203;
-          AErro.Descricao := ACBrStr(Desc203);
-          Exit;
-        end;
+        AuxNode := ANode.Childrens.FindAnyNs('listaNfse');
 
-        for i := Low(ANodeArray) to High(ANodeArray) do
+        if AuxNode <> nil then
         begin
-          ANode := ANodeArray[i];
-          AuxNode := ANode.Childrens.FindAnyNs('nfse');
-          AuxNode := AuxNode.Childrens.FindAnyNs('nrRps');
-
-          if AuxNode <> nil then
+          ANodeArray := AuxNode.Childrens.FindAllAnyNs('nfse');
+          if not Assigned(ANodeArray) then
           begin
-            NumRps := AuxNode.AsString;
+            AErro := Response.Erros.New;
+            AErro.Codigo := Cod203;
+            AErro.Descricao := ACBrStr(Desc203);
+            Exit;
+          end;
 
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+          for i := Low(ANodeArray) to High(ANodeArray) do
+          begin
+            AuxNode := ANodeArray[i];
 
-            ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
-            SalvarXmlNfse(ANota);
+            if AuxNode <> nil then
+            begin
+              if j > 0 then
+              begin
+                ANumRps:= ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
+                ACodVer := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
+                ANumNfse := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrNfse'), tcStr);
+                ADataHora := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtEmissaoNfs'), tcDat);
+
+                AResumo := Response.Resumos.New;
+                AResumo.NumeroNota := ANumNfse;
+                AResumo.CodigoVerificacao := ACodVer;
+                AResumo.NumeroRps := ANumRps;
+                AResumo.Data := ADataHora;
+
+                aXmlRetorno := AuxNode.OuterXml;
+
+                for k := 0 to j-1 do
+                begin
+                  ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[k];
+
+                  if ANota.NFSe.IdentificacaoRps.Numero = ANumRps  then
+                  begin
+                    if ANota.XmlRps = '' then
+                      aXmlNota := GerarXmlNota(ANota.XmlNfse, aXmlRetorno)
+                    else
+                      aXmlNota := GerarXmlNota(ANota.XmlRps, aXmlRetorno);
+
+                    ANota.XmlNfse := aXmlNota;
+
+                    SalvarXmlNfse(ANota);
+                    Exit;
+                  end;
+                end;
+              end;
+            end;
           end;
         end;
       end;
-      }
     except
       on E:Exception do
       begin
@@ -1068,7 +1109,7 @@ function TACBrNFSeXWebserviceEquiplano.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

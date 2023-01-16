@@ -164,6 +164,12 @@ public
   procedure Executar; override;
 end;
 
+{ TMetodoValidareSocial }
+
+TMetodoValidareSocial = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
 
 implementation
 
@@ -199,7 +205,7 @@ var
   AVersao: String;
 begin
   AVersao := fpCmd.Params(0);
-  eVersao := StrToVersaoeSocial(OK, AVersao);
+  eVersao := StrToVersaoeSocialEX(OK, AVersao);
 
   if not OK then
     raise Exception.Create('Versão Inválida do eSocial.');
@@ -208,11 +214,7 @@ begin
   begin
     with MonitorConfig.DFE.WebService do
     begin
-      VersaoeSocial := VersaoeSocialToStr(eVersao);
-
-      if (VersaoeSocial = '_S_01_00_00') then
-        VersaoeSocial := 'S01_00_00';
-
+      VersaoeSocial := VersaoeSocialToStrEX(eVersao);
     end;
 
     MonitorConfig.SalvarArquivo;
@@ -665,6 +667,29 @@ begin
 
 end;
 
+{ TMetodoValidareSocial }
+{ Params: 0 - XML - Uma String com um Path completo XML NFe
+}
+
+procedure TMetodoValidareSocial.Executar;
+var
+  CargaDFe: TACBrCarregareSocial;
+  AXML: String;
+begin
+  AXML:= fpCmd.Params(0);
+
+  with TACBrObjetoeSocial(fpObjetoDono) do
+  begin
+    ACBreSocial.Eventos.Clear;
+    CargaDFe := TACBrCarregareSocial.Create(ACBreSocial, AXML);
+    try
+      ACBreSocial.Eventos.Validar;
+    finally
+      CargaDFe.Free;
+    end;
+  end;
+end;
+
 { TACBrObjetoeSocial }
 
 constructor TACBrObjetoeSocial.Create(AConfig: TMonitorConfig;
@@ -688,6 +713,10 @@ begin
   ListaDeMetodos.Add(CMetodoDownloadEventos);
   ListaDeMetodos.Add(CMetodoSetTipoEmpregadoreSocial);
   ListaDeMetodos.Add(CMetodoSetVersaoDF);
+  ListaDeMetodos.Add(CMetodoValidareSocial);
+
+  //DoACBrUnit
+  ListaDeMetodos.Add(CMetodoObterCertificados);
 
 end;
 
@@ -724,6 +753,7 @@ begin
     11 : AMetodoClass := TMetodoDownloadEventos;
     12 : AMetodoClass := TMetodoSetTipoEmpregador;
     13 : AMetodoClass := TMetodoSetVersaoDF;
+    14 : AMetodoClass := TMetodoValidareSocial;
 
     else
       begin

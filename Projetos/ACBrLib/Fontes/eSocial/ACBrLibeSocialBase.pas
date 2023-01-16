@@ -48,6 +48,9 @@ type
   private
     FeSocialDM: TLibeSocialDM;
 
+    function SetRetornoEventoCarregados(const NumEventos: integer): integer;
+    function SetRetornoeSocialCarregadas(const NumeSocial: integer): integer;
+
   protected
     procedure CriarConfiguracao (ArqConfig: string = ''; ChaveCrypt: ansistring = ''); override;
     procedure Executar; override;
@@ -70,8 +73,8 @@ type
     function ConsultaIdentificadoresEventosTabela (const aIdEmpregador: PChar; aTipoEvento: integer; aChave: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
     function ConsultaIdentificadoresEventosTrabalhador (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial:TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
     function DownloadEventos (const aIdEmpregador: PChar; aCPFTrabalhador: PChar; aDataInicial: TDateTime; aDataFinal: TDateTime; const sResposta: PChar; var esTamanho: longint):longint;
-    function SetRetornoEventoCarregados(const NumEventos: integer): integer;
     function ObterCertificados(const sResposta: PChar; var esTamanho: longint): longint;
+    function Validar: longint;
 
     property eSocialDM: TLibeSocialDM read FeSocialDM;
 
@@ -116,6 +119,11 @@ begin
   Result := SetRetorno(0, Format(SInfEventosCarregados, [NumEventos]));
 end;
 
+function TACBrLibeSocial.SetRetornoeSocialCarregadas(const NumeSocial: integer):integer;
+begin
+  Result := SetRetorno(0, Format(SInfeSocialCarregadas, [NumeSocial]));
+end;
+
 function TACBrLibeSocial.CriarEventoeSocial(eArqIni: PChar): longint;
 var
   AArqIni: String;
@@ -139,10 +147,10 @@ begin
 
   except
     on E:EACBrLibException do
-       Result := SetRetorno(E.Erro, E.Message);
+       Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-       Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+       Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -175,8 +183,9 @@ begin
       end;
 
       eSocialDM.ACBreSocial1.Eventos.Clear;
+
       MoverStringParaPChar (AResposta, sResposta, esTamanho);
-      Result := SetRetorno(ErrOK, StrPas(sResposta));
+      Result := SetRetorno(ErrOK, AResposta);
 
     finally
        eSocialDM.Destravar;
@@ -184,10 +193,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -220,7 +229,7 @@ begin
         end;
 
         MoverStringParaPChar(AResposta, sResposta, esTamanho);
-        Result := SetRetorno(ErrOK, StrPas(sResposta));
+        Result := SetRetorno(ErrOK, AResposta);
 
       finally
         eSocialDM.Destravar;
@@ -228,10 +237,10 @@ begin
       
   except
     on E: EACBrLibException do
-     Result := SetRetorno(E.Erro, E.Message);
+     Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-     Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+     Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -255,7 +264,7 @@ begin
        GravarLog('eSocial_CriarEnviareSocial', logNormal);
 
      if not FileExists(AIniFile) then
-       raise Exception.Create(ACBrStr(Format(SErroeSocialAbrir, [AIniFile])));
+       raise EACBrLibException.Create(ErrArquivoNaoExiste, ACBrStr(Format(SErroeSocialAbrir, [AIniFile])));
 
         eSocialDM.Travar;
         try
@@ -273,7 +282,7 @@ begin
            ArqeSocial:= eSocialDM.ACBreSocial1.Eventos.Gerados.Items[iEvento].PathNome + '.xml';
 
            if not FileExists(ArqeSocial) then
-            raise Exception.Create(ACBrStr(Format(SErroeSocialAbrir, [ArqeSocial]) ));
+            raise EACBrLibException.Create(ErrArquivoNaoExiste, ACBrStr(Format(SErroeSocialAbrir, [ArqeSocial]) ));
 
            AResposta:= ArqeSocial + sLineBreak + ACBrStr(Format(SMsgeSocialEventoAdicionado, [TipoEventoToStr(eSocialDM.ACBreSocial1.Eventos.Gerados.Items[iEvento].TipoEvento)]) ) + sLineBreak;
 
@@ -298,10 +307,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -324,10 +333,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -344,14 +353,18 @@ begin
     else
      GravarLog('eSocial_CarregarXMLEventoeSocial', logNormal);
 
-    EhArquivo:= StringEhArquivo(ArquivoOuXml);
+    EhArquivo := StringEhArquivo(ArquivoOuXml);
     if EhArquivo then
       VerificarArquivoExiste(ArquivoOuXml);
 
     eSocialDM.Travar;
 
     try
-      eSocialDM.ACBreSocial1.Eventos.LoadFromString(ArquivoOuXml);
+      if EhArquivo then
+      eSocialDM.ACBreSocial1.Eventos.LoadFromFile(ArquivoOuXml)
+      else
+       eSocialDM.ACBreSocial1.Eventos.LoadFromString(ArquivoOuXml);
+
       Result := SetRetornoEventoCarregados(eSocialDM.ACBreSocial1.Eventos.Count);
     finally
       eSocialDM.Destravar;
@@ -359,10 +372,10 @@ begin
 
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -392,9 +405,9 @@ begin
 
   except
     on E: EACBrLibException do
-       Result := SetRetorno(E.Erro, E.Message);
+       Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
     on E: Exception do
-       Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+       Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -411,7 +424,7 @@ begin
       GravarLog('eSocial_SetIDTransmissor', logNormal);
 
     if EstaVazio(idTransmissor)then
-         raise Exception.Create('Valor Nulo');
+         raise EACBrLibException.Create(ErrParametroInvalido, 'Valor Nulo');
 
       eSocialDM.Travar;
       try
@@ -423,10 +436,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -452,10 +465,10 @@ begin
 
    except
      on E: EACBrLibException do
-     Result := SetRetorno(E.Erro, E.Message);
+     Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
      on E: Exception do
-     Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+     Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
    end;
 
 end;
@@ -475,7 +488,7 @@ begin
 
       eSocialDM.Travar;
       try
-        eSocialDM.ACBreSocial1.Configuracoes.Geral.VersaoDF := StrToVersaoeSocial(OK, versao);
+        eSocialDM.ACBreSocial1.Configuracoes.Geral.VersaoDF := StrToVersaoeSocialEX(OK, versao);
         Result := SetRetorno(ErrOK);
       finally
         eSocialDM.Destravar;
@@ -483,10 +496,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -513,7 +526,7 @@ begin
       try
 
         if ((APerApur <= 0) or (EstaVazio(idEmpregador))) then
-         raise Exception.Create(ACBrStr(SErroeSocialConsulta));
+         raise EACBrLibException.Create(ErrParametroInvalido, ACBrStr(SErroeSocialConsulta));
 
         AResposta:= '';
         eSocialDM.ACBreSocial1.Eventos.Clear;
@@ -528,6 +541,8 @@ begin
             Resp.Free;
           end;
 
+          MoverStringParaPChar(AResposta, sResposta, esTamanho);
+          Result := SetRetorno(ErrOK, AResposta);
         end;
 
       finally
@@ -536,10 +551,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -568,7 +583,7 @@ begin
       eSocialDM.Travar;
       try
         if ( (EstaVazio(idEmpregador)) or (EstaVazio(Chave)) or (DataInicial <= 0 ) or (DataFinal <= 0) ) then
-          raise Exception.Create(ACBrStr(SErroeSocialConsulta));
+          raise EACBrLibException.Create(ErrParametroInvalido, ACBrStr(SErroeSocialConsulta));
 
         AResposta:= '';
         eSocialDM.ACBreSocial1.Eventos.Clear;
@@ -582,6 +597,8 @@ begin
             Resp.Free;
           end;
 
+          MoverStringParaPChar(AResposta, sResposta, esTamanho);
+          Result := SetRetorno(ErrOK, AResposta);
         end;
 
       finally
@@ -590,10 +607,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -620,7 +637,7 @@ begin
       try
         if ((EstaVazio(idEmpregador)) or (EstaVazio(CPFTrabalhador))
            or (DataInicial <= 0)  or (DataFinal <= 0 )) then
-          raise Exception.Create(ACBrStr(SErroeSocialConsulta));
+          raise EACBrLibException.Create(ErrParametroInvalido, ACBrStr(SErroeSocialConsulta));
 
         AResposta:= '';
         eSocialDM.ACBreSocial1.Eventos.Clear;
@@ -635,6 +652,8 @@ begin
             Resp.Free;
           end;
 
+          MoverStringParaPChar(AResposta, sResposta, esTamanho);
+          Result := SetRetorno(ErrOK, AResposta);
         end;
 
       finally
@@ -644,10 +663,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -677,7 +696,7 @@ begin
       try
 
         if ( (EstaVazio(idEmpregador)) ) then
-          raise Exception.Create(ACBrStr(SErroeSocialConsulta));
+          raise EACBrLibException.Create(ErrParametroInvalido, ACBrStr(SErroeSocialConsulta));
 
         AResposta:= '';
         eSocialDM.ACBreSocial1.Eventos.Clear;
@@ -691,6 +710,8 @@ begin
             Resp.Free;
           end;
 
+          MoverStringParaPChar(AResposta, sResposta, esTamanho);
+          Result := SetRetorno(ErrOK, AResposta);
         end;
 
       finally
@@ -700,10 +721,10 @@ begin
 
   except
     on E: EACBrLibException do
-    Result := SetRetorno(E.Erro, E.Message);
+    Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-    Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+    Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 
 end;
@@ -728,10 +749,36 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+  end;
+end;
+
+function TACBrLibeSocial.Validar():longint;
+begin
+  try
+    GravarLog('eSocial_Validar', logNormal);
+
+    eSocialDM.Travar;
+    try
+      try
+        eSocialDM.ACBreSocial1.Eventos.Validar;
+        Result := SetRetornoeSocialCarregadas(eSocialDM.ACBreSocial1.Eventos.Count);
+      except
+        on E: EACBreSocialException do
+          Result := SetRetorno(ErrValidacaoeSocial, ConverterUTF8ParaAnsi(E.Message));
+      end;
+    finally
+      eSocialDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 

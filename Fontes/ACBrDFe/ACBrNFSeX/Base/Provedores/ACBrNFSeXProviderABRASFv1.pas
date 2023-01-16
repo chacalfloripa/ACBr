@@ -148,6 +148,7 @@ begin
   // um serviço para recepcionar o RPS e é assíncrono.
   with ConfigGeral do
   begin
+    Layout := loABRASF;
     ModoEnvio := meLoteAssincrono;
     ConsultaSitLote := True;
     ConsultaPorFaixa := False;
@@ -176,6 +177,7 @@ begin
   if Node <> nil then
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
+    if not Assigned(Node) or (Node = nil) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -220,6 +222,7 @@ begin
   if Node <> nil then
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
+    if not Assigned(Node) or (Node = nil) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -974,6 +977,8 @@ begin
       if AuxNode <> nil then
       begin
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
+        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
         InfNfseID := ObterConteudoTag(AuxNode.Attributes.Items['Id']);
         NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
@@ -1456,12 +1461,16 @@ begin
         IdAttr := 'ID';
 
       ANodePed := ANode.Childrens.FindAnyNs('Pedido');
+      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
+
       ANodePed := ANodePed.Childrens.FindAnyNs('InfPedidoCancelamento');
+      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
 
       Ret.Pedido.InfID.ID := ObterConteudoTag(ANodePed.Attributes.Items[IdAttr]);
       Ret.Pedido.CodigoCancelamento := ObterConteudoTag(ANodePed.Childrens.FindAnyNs('CodigoCancelamento'), tcStr);
 
       ANodePed := ANodePed.Childrens.FindAnyNs('IdentificacaoNfse');
+      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
 
       with Ret.Pedido.IdentificacaoNfse do
       begin
@@ -1521,7 +1530,23 @@ begin
   begin
     AuxNodeCanc := AuxNodeCanc.Childrens.FindAnyNs('Confirmacao');
 
-    Response.DataCanc := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
+    if AuxNodeCanc = nil then
+      AuxNodeCanc := ANode.Childrens.FindAnyNs('ConfirmacaoCancelamento');
+
+    if AuxNodeCanc <> nil then
+    begin
+      AuxNodeCanc := AuxNodeCanc.Childrens.FindAnyNs('InfConfirmacaoCancelamento');
+
+      if AuxNodeCanc <> nil then
+        Response.DataCanc := ObterConteudoTag(AuxNodeCanc.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
+
+      if Response.DataCanc = 0 then
+        Response.DataCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHoraCancelamento'), tcDatHor);
+
+      if Response.DataCanc = 0 then
+        Response.DataCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), tcDatHor);
+    end;
+
     Response.DescSituacao := '';
 
     if Response.DataCanc > 0 then

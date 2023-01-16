@@ -92,6 +92,7 @@ var
   jsRet: TACBrJSONObject;
 begin
   Result := False;
+  tpXML := txmlNFSe;
 
   try
     jsRet := TACBrJSONObject.Parse(String(ArquivoRetorno));
@@ -116,6 +117,7 @@ var
   jsRet: TACBrJSONObject;
 begin
   Result := False;
+  tpXML := txmlRPS;
 
   try
     jsRet := TACBrJSONObject.Parse(String(ArquivoRetorno));
@@ -184,6 +186,7 @@ begin
         Numero := aJson.AsString['NumeroNfse'];
         CodigoVerificacao := aJson.AsString['CodigoValidacao'];
         Link := aJson.AsString['LinkNfse'];
+        Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
 
         jsAux := aJson.AsJSONObject['Rps'];
 
@@ -191,6 +194,7 @@ begin
           SeriePrestacao := jsAux.AsString['Serie'];
 
         DataEmissao := aJson.AsISODateTime['DataEmissao'];
+        Competencia := aJson.AsISODate['Competencia'];
 
         LerSituacaoNfse(aJson);
       end;

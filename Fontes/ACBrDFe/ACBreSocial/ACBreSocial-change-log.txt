@@ -52,6 +52,29 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/01/2023
+-- pcesConversaoeSocial --
+[*] Remove o enumerado tpTpInscEstab e funções de conversão respectivas que não eram mais utilizadas.
+   Por: DiegoAF
+
+02/01/2023
+-- pcesS1210 --
+[*] Alteração para que gere a infoPgtoExt apenas para residentes do exterior.
+   Por: EdmarFrazao/DiegoF
+
+30/12/2022
+-- pcesConversaoeSocial --
+[*] Remove tipos que só tinham ocorrência nesta unit e não são mais utilizados pelo componente.
+   Por: DiegoF
+
+16/12/2022
+-- pcesGerador--
+[*] Ajuste para que não haja problemas de codificação quando o XML precisar ter caracteres especiais
+  Por: DiegoF
+-- pcesS5001--
+[*] Corrige leitura da tag tpVrPerRef.
+  Por: DiegoCaetano 
+
 18/09/2022
 -- pcesS3000 --
 [*] Ajuste Envio S3000 referente a tabela S-1207

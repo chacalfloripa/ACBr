@@ -114,6 +114,8 @@ begin
     CancelarNFSe.xmlns := 'NotaFiscal-Cancelamento.xsd';
   end;
 
+  SetNomeXSD('***');
+
   with ConfigSchemas do
   begin
     CancelarNFSe := 'NotaFiscal-Cancelamento.xsd';
@@ -423,7 +425,7 @@ function TACBrNFSeXWebserviceISSLencois.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

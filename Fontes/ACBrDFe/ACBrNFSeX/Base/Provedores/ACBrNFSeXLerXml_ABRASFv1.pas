@@ -154,10 +154,13 @@ begin
 
     with NFSe.NfseCancelamento do
     begin
-      DataHora := LerDataHoraCancelamento(AuxNode);
+      if DataHora = 0 then
+      begin
+        DataHora := LerDataHoraCancelamento(AuxNode);
 
-      if DataHora > 0 then
-        NFSe.SituacaoNfse := snCancelado;
+        if DataHora > 0 then
+          NFSe.SituacaoNfse := snCancelado;
+      end;
     end;
   end;
 end;
@@ -460,6 +463,7 @@ begin
   begin
     NFSe.Numero            := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
     NFSe.Link              := ObterConteudo(AuxNode.Childrens.FindAnyNs('LinkVisualizacaoNfse'), tcStr);
+    NFSe.Link              := StringReplace(NFSe.Link, '&amp;', '&', [rfReplaceAll]);
     NFSe.CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
     NFSe.DataEmissao       := LerDataEmissao(AuxNode);
     NFSe.NfseSubstituida   := ObterConteudo(AuxNode.Childrens.FindAnyNs('NfseSubstituida'), tcStr);

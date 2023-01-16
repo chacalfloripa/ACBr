@@ -593,19 +593,33 @@ end;
 
 function TNotaFiscal.GravarXML(const NomeArquivo: String;
   const PathArquivo: String; aTipo: TtpXML): Boolean;
+var
+  ConteudoEhXml: Boolean;
 begin
   if EstaVazio(FXmlRps) then
     GerarXML;
 
+  {
+    Tem provedor que é gerando um JSON em vez de XML e o método Gravar acaba
+    incluindo na primeira linha do arquivo o encoding do XML.
+    Para contornar isso a variável ConteudoEhXml recebe o valor false quando é
+    um JSON e o método Gravar não inclui o encoding.
+  }
+  ConteudoEhXml := StringIsXML(FXmlRps);
+
   if aTipo = txmlNFSe then
   begin
-    FNomeArq := TACBrNFSeX(FACBrNFSe).GetNumID(NFSe) + '-nfse.xml';
-    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArq, FXmlNfse, PathArquivo);
+    if EstaVazio(NomeArquivo) then
+      FNomeArq := TACBrNFSeX(FACBrNFSe).GetNumID(NFSe) + '-nfse.xml'
+    else
+      FNomeArq := NomeArquivo + '-nfse.xml';
+
+    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArq, FXmlNfse, PathArquivo, ConteudoEhXml);
   end
   else
   begin
     FNomeArqRps := CalcularNomeArquivoCompleto(NomeArquivo, PathArquivo);
-    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArqRps, FXmlRps);
+    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArqRps, FXmlRps, '', ConteudoEhXml);
   end;
 end;
 
@@ -873,6 +887,7 @@ begin
   MS := TMemoryStream.Create;
   try
     MS.LoadFromFile(CaminhoArquivo);
+
     XmlUTF8 := ReadStrFromStream(MS, MS.Size);
   finally
     MS.Free;
@@ -912,6 +927,8 @@ var
   P, N, TamTag, j: Integer;
   aXml, aXmlLote: string;
   TagF: Array[1..14] of String;
+  SL: TStringStream;
+  IsFile: Boolean;
 
   function PrimeiraNFSe: Integer;
   begin
@@ -973,7 +990,17 @@ var
 begin
   MS := TMemoryStream.Create;
   try
-    MS.LoadFromFile(CaminhoArquivo);
+    IsFile := FilesExists(CaminhoArquivo);
+
+    if (IsFile) then
+      MS.LoadFromFile(CaminhoArquivo)
+    else
+    begin
+      SL := TStringStream.Create(CaminhoArquivo);
+      MS.LoadFromStream(SL);
+      SL.Free;
+    end;
+
     XMLUTF8 := ReadStrFromStream(MS, MS.Size);
   finally
     MS.Free;
@@ -1009,7 +1036,12 @@ begin
       if Pos('-rps.xml', CaminhoArquivo) > 0 then
         Self.Items[i].NomeArqRps := CaminhoArquivo
       else
-        Self.Items[i].NomeArq := CaminhoArquivo;
+      begin
+        if IsFile then
+          Self.Items[i].NomeArq := CaminhoArquivo
+        else
+          Self.Items[i].NomeArq := TACBrNFSeX(FACBrNFSe).GetNumID(Items[i].NFSe) + '-nfse.xml';
+      end;
     end;
   end;
 end;

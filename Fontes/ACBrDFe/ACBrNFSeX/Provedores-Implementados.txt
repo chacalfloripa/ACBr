@@ -25,9 +25,9 @@ CTA                  2.00
 CTAConsult           1.00
 DataSmart            2.02
 DBSeller             1.00  20/10/2022
-DBSeller             2.04
+DBSeller             2.04  23/11/2022
 DeISS                2.03
-Desenvolve           2.03
+Desenvolve           2.03  02/12/2022
 Digifred             2.00
 DSF                  1.00
 DSF                  2.00
@@ -36,7 +36,7 @@ eGoverneISS          1.00  06/09/2022
 EL                   1.00
 EL                   2.04
 EloTech              2.03  10/08/2022
-Equiplano            1.00
+Equiplano            1.00  22/11/2022
 eReceita             2.02
 Etherium             2.03
 Facundo              1.00
@@ -99,6 +99,7 @@ Pronim               1.00
 Pronim               2.02  17/08/2022
 Pronim               2.03
 Publica              1.00  08/08/2022
+PublicSoft           2.03  
 RLZ                  1.00
 RLZ                  2.03
 Saatri               2.01
@@ -110,6 +111,7 @@ Siappa               1.00  11/08/2022
 SiapSistemas         2.03
 Siat                 1.00
 SigCorp              2.03
+SigCorp              2.04
 Sigep                2.00
 SigISS               1.00
 SigISS               1.03  01/08/2022
