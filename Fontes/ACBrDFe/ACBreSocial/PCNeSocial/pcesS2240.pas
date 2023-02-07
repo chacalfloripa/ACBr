@@ -477,7 +477,8 @@ begin
   if pEpcEpi.epiInst() then
   begin
     GerarEPI(pEpcEpi.epi);
-    GerarEPICompl(pEpcEpi.epiCompl);
+    if(pEpcEpi.utilizEPI = uEPIUtilizado)then
+      GerarEPICompl(pEpcEpi.epiCompl);
   end;  
 
   Gerador.wGrupo('/epcEpi');
@@ -563,7 +564,7 @@ begin
     end;
 
     if pRespReg[i].ideOC <> idNenhum then
-      Gerador.wCampo(tcStr, '', 'ideOC',   1,  1, 1, eSIdeOCToStr(pRespReg[i].ideOC));
+      Gerador.wCampo(tcStr, '', 'ideOC',   1,  1, 1, eSIdeOCToStrEX(pRespReg[i].ideOC));
 
     if pRespReg[i].ideOC = idOutros then
       Gerador.wCampo(tcStr, '', 'dscOC',   1, 20, 1, pRespReg[i].dscOC);
@@ -620,6 +621,7 @@ end;
 function TEvtExpRisco.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -876,8 +878,8 @@ begin
 
       sSecao := 'ideVinculo';
       ideVinculo.CpfTrab   := INIRec.ReadString(sSecao, 'cpfTrab', EmptyStr);
-//      ideVinculo.NisTrab   := INIRec.ReadString(sSecao, 'nisTrab', EmptyStr);
       ideVinculo.Matricula := INIRec.ReadString(sSecao, 'matricula', EmptyStr);
+      ideVinculo.codCateg  := INIRec.ReadInteger(sSecao, 'codCateg', 0);
 
       sSecao := 'infoExpRisco';
       if INIRec.ReadString(sSecao, 'dtIniCondicao', '') <> '' then
@@ -1008,9 +1010,15 @@ begin
       I := 1;
       while true do
       begin
-        // de 1 até 9
-        sSecao := 'respReg' + IntToStrZero(I, 1);
+        //S1.1.0
+        sSecao := 'respReg' + IntToStrZero(I, 2);
         sFim   := INIRec.ReadString(sSecao, 'cpfResp', 'FIM');
+        if(sFim = 'FIM') or (Length(sFim) <= 0)then
+        begin
+          // layout 2.5 de 1 até 9
+          sSecao := 'respReg' + IntToStrZero(I, 1);
+          sFim   := INIRec.ReadString(sSecao, 'cpfResp', 'FIM');
+        end;
 
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break;
@@ -1019,7 +1027,7 @@ begin
         begin
           cpfResp := INIRec.ReadString(sSecao, 'cpfResp', EmptyStr);
           nmResp  := INIRec.ReadString(sSecao, 'nmResp', EmptyStr);
-          ideOC   := eSStrToIdeOC(Ok, INIRec.ReadString(sSecao, 'ideOC', EmptyStr));
+          ideOC   := eSStrToIdeOCEX(INIRec.ReadString(sSecao, 'ideOC', EmptyStr));
           dscOC   := INIRec.ReadString(sSecao, 'dscOC', EmptyStr);
           nrOC    := INIRec.ReadString(sSecao, 'nrOc', EmptyStr);
           ufOC    := INIRec.ReadString(sSecao, 'ufOC', 'SP');
@@ -1027,6 +1035,9 @@ begin
 
         Inc(I);
       end;
+
+      sSecao := 'obs';
+      infoExpRisco.obs.obsCompl := INIRec.ReadString(sSecao, 'obsCompl', EmptyStr);
     end;
 
     GerarXML;
@@ -1043,8 +1054,8 @@ var
   i, j: integer;
 begin
   Result := False;
+  Leitor := TLeitor.Create;
   try
-    Leitor := TLeitor.Create;
     Leitor.Arquivo := XML;
 
     if Leitor.rExtrai(1, 'evtExpRisco') <> '' then
@@ -1151,7 +1162,7 @@ begin
             with respReg.New do
             begin
               cpfResp := Leitor.rCampo(tcStr, 'cpfResp');
-              ideOC   := eSStrToIdeOC(ok, Leitor.rCampo(tcStr, 'ideOC'));
+              ideOC   := eSStrToIdeOCEX(Leitor.rCampo(tcStr, 'ideOC'));
               dscOC   := Leitor.rCampo(tcStr, 'dscOC');
               nrOC    := Leitor.rCampo(tcStr, 'nrOC');
               ufOC    := Leitor.rCampo(tcStr, 'ufOC');

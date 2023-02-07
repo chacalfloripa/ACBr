@@ -44,6 +44,34 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+27/01/2023
+-- Diversos --
+[*] Alterações visando atender a NT 2022/003 onde foi alterado a quantidade de
+    ocorrências de 500 para 999 do grupo NFref e a inclusão da tag refNFeSig que 
+    poderá conter a chave da nota referenciada, mas com o código numérico zerado.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 07/02/2023 e no de produção: 03/04/2023.
+    por: Italo Giurizzato Junior
+
+25/01/2023
+-- ACBrDFeDANFeReport --
+[-] Correção para o parâmetro "Separar arqs pelo Modelo(NFe/NFCe)" não depender do 
+    parâmetro "Adicionar Literal no nome das pastas".
+    por: Elias César
+
+24/01/2023
+--Diversos--
+[*] TK-3485 ACBrNFe - Verificar a possibilidade de tirar dos impressos(Fast/Fortes) a mensagem fixa AREÁ DA MENSAGEM FISCAL
+ por : Victor H Gonzales - Pandaaa
+
+23/01/2023
+-- Diversos --
+[+] Incluido a propriedade de configuração: ForcarGerarTagRejeicao906 para definir se
+    vai gerar as tags do ICMS Efetivo ou não.
+    Valores aceitos pela nova propriedade: fgtNunca, fgtSomenteProducao, 
+    fgtSomenteHomologacao e fgtSempre. Valor padrão: fgtNunca
+  por : prevedello_sistemas
+
 21/12/2022
 --ACBrDFeDANFeReport--
 [*] TK-3373-1 Opção para impressão do xPED e nTemPed no Danfe (RL e FR) quadro de produtos

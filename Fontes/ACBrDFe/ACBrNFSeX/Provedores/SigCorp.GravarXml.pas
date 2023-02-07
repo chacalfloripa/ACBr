@@ -56,8 +56,6 @@ type
   protected
     procedure Configuracao; override;
 
-  public
-    function GerarXml: Boolean; Override;
   end;
 
 implementation
@@ -74,6 +72,7 @@ begin
   inherited Configuracao;
 
   FormatoAliq := tcDe2;
+
   NrOcorrValorPis := 1;
   NrOcorrValorCofins := 1;
   NrOcorrValorInss := 1;
@@ -93,18 +92,14 @@ begin
   FormatoAliq := tcDe2;
 
   NrOcorrInformacoesComplemetares := 0;
+  NrOcorrNIFTomador := 0;
   NrOcorrCepTomador := 1;
+  NrOcorrAliquota := 1;
   NrOcorrCodigoPaisTomador := -1;
 
   TagTomador := 'TomadorServico';
-end;
 
-function TNFSeW_SigCorp204.GerarXml: Boolean;
-begin
-  if NFSe.OptanteSimplesNacional = snSim then
-    NrOcorrAliquota := 1;
-
-  Result := inherited GerarXml;
+  GerarEnderecoExterior := True;
 end;
 
 end.

@@ -107,7 +107,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ImprimirDANFSe(NFSe: TNFSe = nil); override;
-    procedure ImprimirDANFSePDF(NFSe: TNFSe = nil); override;
+    procedure ImprimirDANFSePDF(NFSe: TNFSe = nil); overload; override;
+    procedure ImprimirDANFSePDF(AStream: TStream; NFSe: TNFSe = nil); overload; override;
     property PreparedReport: TfrxReport read GetPreparedReport;
     property DANFSeXClassOwner: TACBrNFSeXDANFSeClass read FDANFSeXClassOwner;
   published
@@ -190,6 +191,35 @@ begin
       frxReport.ShowPreparedReport
     else
       frxReport.Print;
+  end;
+end;
+
+procedure TACBrNFSeXDANFSeFR.ImprimirDANFSePDF(AStream: TStream; NFSe: TNFSe);
+const
+  TITULO_PDF = 'Nota Fiscal de Serviço Eletrônica';
+var
+  I: Integer;
+  LArquivoPDF: string;
+  OldShowDialog: Boolean;
+begin
+  if PrepareReport(NFSe) then
+  begin
+    frxPDFExport.Author := Sistema;
+    frxPDFExport.Creator := Sistema;
+    frxPDFExport.Subject := TITULO_PDF;
+    frxPDFExport.EmbeddedFonts := False;
+    frxPDFExport.Background := IncorporarBackgroundPdf;
+		frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
+
+    OldShowDialog := frxPDFExport.ShowDialog;
+    try
+      frxPDFExport.ShowDialog := False;
+
+      frxPDFExport.Stream := AStream;
+      frxReport.Export(frxPDFExport);
+    finally
+      frxPDFExport.ShowDialog := OldShowDialog;
+    end;
   end;
 end;
 
@@ -1093,6 +1123,7 @@ begin
 
           try
             xMunicipio := ObterNomeMunicipio(MunicipioIncidencia, xUF);
+            xMunicipio := xMunicipio + '/' + xUF;
           except
             on E:Exception do
             begin
@@ -1106,6 +1137,7 @@ begin
 
         try
           xMunicipio := ObterNomeMunicipio(strToIntDef(Servico.CodigoMunicipio,0), xUF);
+          xMunicipio := xMunicipio + '/' + xUF;
         except
           on E:Exception do
           begin

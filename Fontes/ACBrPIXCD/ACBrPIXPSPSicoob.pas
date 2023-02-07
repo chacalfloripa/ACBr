@@ -44,6 +44,7 @@ interface
 
 uses
   Classes, SysUtils,
+	ACBrBase,
   ACBrPIXCD, ACBrOpenSSLUtils;
 
 const
@@ -103,7 +104,6 @@ constructor TACBrPSPSicoob.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   fpQuandoReceberRespostaEndPoint := QuandoReceberRespostaEndPoint;
-  Scopes := Scopes + [scCobVWrite, scCobVRead];
   Clear;
 end;
 

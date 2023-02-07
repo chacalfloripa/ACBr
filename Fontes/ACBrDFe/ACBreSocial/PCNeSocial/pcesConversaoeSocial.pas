@@ -270,11 +270,8 @@ type
 
   tpCodIncFGTS            = (cdfNaoeBasedeCalculo, cdfBasedeCalculoFGTS, cdfBasedeCalculoFGTS13Sal, cdfBasedeCalculoFGTSRescisorio, cdfIncidenciadecisaoJudicialFGTSMensal, cdfIncidenciadecisaoJudicialFGTS13Sal, cdfIncidenciadecisaoJudicial);
 
-  tpCodIncSIND            = (cisNaoebasedecalculo, cisBasedecalculo, cisValorlaboraldescontada, cisIncidenciasuspensajudicial);
 
   tpExtDecisao            = (edContribPatronais, edContribPatronaisSegurados );
-
-  tpTpIntervalo           = (tinHorarioFixo, tinHorarioVariavel);
 
   tpIndSubstPatronalObra  = (ispVazio, ispPatronalSubstituida, ispPatronalNaoSubstituida);
 
@@ -302,8 +299,6 @@ type
 
   tpIndNIF                = (infBeneficiaNIF, infDispensadoNIF, infPaisnaoNIF);
 
-  tpIndTpDeducao          = (itpOficial, itpPrivada, itpPensao, itpDependentes );
-
   tpTpProcRRA             = (tppAdministrativo, tppJudicial);
 
   tpTpProcRet             = (tpprAdministrativo, tpprJudicial);
@@ -317,17 +312,7 @@ type
   tpIndComercializacao    = (idcProdRuralAgroindustria, idcProdRuralSegEspecial, idcProdRuralSegEspecialVendas,
                              idcEntidadeinscrita, idcMercadoExterno );
 
-  tpIdeSubteto            = (isExecutivo, isLegislativo, isJudiciario, isTodosPoderes);
-
-  tpIndSitPF              = (isPFSitNormal, isPFEncerrEspolio, isPFSaidaPaisCaraterPermanente);
-
-  tpIndSitPJ              = (isPJSitNormal, isPJExtincao, isPJFusao, isPJCisao, isPJIncorporacao);
-
   tpTpRubr                = (tpVencimento, tpDesconto, tpInformativa, tpInformativaDedutora);
-
-  tpSitCargo              = (scCriacao, scExtincao, scReestruturacao);
-
-  tpSitCarr               = tpSitCargo;
 
   tpAcumCargo             = (acNaoAcumulavel, acProfSaude, acProfessor, acTecCientifico);
 
@@ -458,17 +443,13 @@ type
   tpLateralidade          = (laNaoAplicavel, laEsquerda, laDireita, laAmbas);
 
   tpIdeOC                 = (idNenhum, idCRM, idCRO, idRMS, idCREA, idOutros);
+const
+  TtpIdeOCArrayStrings: array[tpIdeOC] of string = ('0', '1', '2', '3', '4', '9');
 
-  tpTpAvPrevio            = (tpAvPrevTrabDadoPeloEmpregadorAoEmpregadoRed2horasDiarias, tpAvPrevTrabDadoPeloEmpregadorAoEmpregadoRedDiasCorridos,
-                             tpAvPrevPeloEmpregadoNaoDispensadoDeSeuCumprimento, tpAvPrevTrabDadoPeloEmpregadorRuralComRed1DiaporSemana,
-                             tpAvPrevTrabDecorrenteDeAcordoEmpregadoEmpregador);
-
-  tpMtvCancAvPrevio       = (mcReconsideracaoPrevistaArt489CLT, mcDeterminacaoJudicial, mcCumprimentoNormaLegal, mcOutros);
+type
 
   tpTpReint               = (trReintegracaoDecisaoJudicial, trReintegracaoAnistiaLegal, trReversaoServidorPublico, trReconducaoServidorPublico,
                              trReinclusoMilitar, trOutros);
-
-  tpTpContribSind         = (csContribSindical, csContribAssociativa, csContribAssistencial, csContribConfederativa);
 
   tpIndSubstPatr          = (spVazio, spIntegralmenteSubstituida, spParcialmenteSubstituida);
 
@@ -503,14 +484,6 @@ type
   tpNivelEstagio          = (nvFundamental, nvMedio, nvEnsinoProfis, nvSuperior, nvEspecial, nvMaeSocial);
 
   tpCaepf                 = (tcVazio, tcContrIndividual, tcProdRural, tcSegEspecial);//layout 2.1
-
-  tpRegPt                 = (rpNaoInformado = -1, rpNaoUtiliza, rpManual, rpMecanico, rpEletronico, rpNaoEletronicoAlternativo, rpEletronicoAlternativo, rpEletronicoOutros);
-
-  tpContApr               = (caDispensado, caDispensadoParcialmente, caObrigado);
-
-  tpContPCD               = (cpcdDispensado, cpcdDispensadoParcialmente, cpcdExigibilidadeSuspensa, cpcdObrigado);
-
-  tpInclContr             = (icNenhum, icLocaisSemFiliais, icEstudoDeMercado, icContratacaoSuperior3Meses);
 
   tpPlanRP                = (prpNenhum = -1,
                              prpSemSegregacaoDaMassa,
@@ -548,7 +521,7 @@ type
   TVersaoeSocial          = (ve02_04_01, ve02_04_02, ve02_05_00, veS01_00_00, veS01_01_00);
 const
   TVersaoeSocialArrayStrings : array[TVersaoeSocial] of string = ('02_04_01', '02_04_02', '02_05_00', 'S01_00_00', 'S01_01_00');
-  TVersaoeSocialSchemasArrayStrings : array[TVersaoeSocial] of string = ('02_04_01', '02_04_02', '02_05_00', '_S_01_00_00', '_S_01_01_00');
+  TVersaoeSocialSchemasArrayStrings : array[TVersaoeSocial] of string = ('v02_04_01', 'v02_04_02', 'v02_05_00', 'v_S_01_00_00', 'v_S_01_01_00');
   TVersaoeSocialArrayReals : array[TVersaoeSocial] of Real = (2.0401, 2.0402, 2.0500, 10.0000, 10.1000);
 
 type
@@ -635,8 +608,6 @@ type
   end;
 
 const
-  PrefixoVersao = '-v';
-
   TEventoString: array[0..52] of String =('evtInfoEmpregador', 'evtTabEstab',
                                           'evtTabRubrica', 'evtTabLotacao',
                                           'evtTabCargo', 'evtTabCarreira',
@@ -683,33 +654,69 @@ const
                                           751, 761, 771, 781, 901, 902, 903, 904);
 
 const
-  __ARRAY_MATRIX_EVENTO_INFO: array [1 .. 76] of TRecMatrixEventoInfo =
+  __ARRAY_MATRIX_EVENTO_INFO: array [1 .. 117] of TRecMatrixEventoInfo =
     (
+    // Leiaute S-1.1.0
+    (TipoEvento: teS1000                   ; TipoEventoString: 'S-1000'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtInfoEmpregador'          ; Schema: schevtInfoEmpregador       ; StrEventoToTipoEvento: 'evtInfoEmpregador'          ; Observacao: ''),
+    (TipoEvento: teS1005                   ; TipoEventoString: 'S-1005'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtTabEstab'                ; Schema: schevtTabEstab             ; StrEventoToTipoEvento: 'evtTabEstab'                ; Observacao: ''),
+    (TipoEvento: teS1010                   ; TipoEventoString: 'S-1010'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtTabRubrica'              ; Schema: schevtTabRubrica           ; StrEventoToTipoEvento: 'evtTabRubrica'              ; Observacao: ''),
+    (TipoEvento: teS1020                   ; TipoEventoString: 'S-1020'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtTabLotacao'              ; Schema: schevtTabLotacao           ; StrEventoToTipoEvento: 'evtTabLotacao'              ; Observacao: ''),
+    (TipoEvento: teS1070                   ; TipoEventoString: 'S-1070'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtTabProcesso'             ; Schema: schevtTabProcesso          ; StrEventoToTipoEvento: 'evtTabProcesso'             ; Observacao: ''),
+    (TipoEvento: teS1200                   ; TipoEventoString: 'S-1200'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtRemun'                   ; Schema: schevtRemun                ; StrEventoToTipoEvento: 'evtRemun'                   ; Observacao: ''),
+    (TipoEvento: teS1202                   ; TipoEventoString: 'S-1202'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtRmnRPPS'                 ; Schema: schevtRmnRPPS              ; StrEventoToTipoEvento: 'evtRmnRPPS'                 ; Observacao: ''),
+    (TipoEvento: teS1207                   ; TipoEventoString: 'S-1207'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtBenPrRP'                 ; Schema: schevtBenPrRP              ; StrEventoToTipoEvento: 'evtBenPrRP'                 ; Observacao: 'Até a v2.5 a tag era evtCdBenPrRP'),
+    (TipoEvento: teS1210                   ; TipoEventoString: 'S-1210'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtPgtos'                   ; Schema: schevtPgtos                ; StrEventoToTipoEvento: 'evtPgtos'                   ; Observacao: ''),
+    (TipoEvento: teS1260                   ; TipoEventoString: 'S-1260'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtComProd'                 ; Schema: schevtComProd              ; StrEventoToTipoEvento: 'evtComProd'                 ; Observacao: ''),
+    (TipoEvento: teS1270                   ; TipoEventoString: 'S-1270'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtContratAvNP'             ; Schema: schevtContratAvNP          ; StrEventoToTipoEvento: 'evtContratAvNP'             ; Observacao: ''),
+    (TipoEvento: teS1280                   ; TipoEventoString: 'S-1280'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtInfoComplPer'            ; Schema: schevtInfoComplPer         ; StrEventoToTipoEvento: 'evtInfoComplPer'            ; Observacao: ''),
+    (TipoEvento: teS1298                   ; TipoEventoString: 'S-1298'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtReabreEvPer'             ; Schema: schevtReabreEvper          ; StrEventoToTipoEvento: 'evtReabreEvPer'             ; Observacao: ''),
+    (TipoEvento: teS1299                   ; TipoEventoString: 'S-1299'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtFechaEvPer'              ; Schema: schevtFechaEvPer           ; StrEventoToTipoEvento: 'evtFechaEvPer'              ; Observacao: ''),
+    (TipoEvento: teS2190                   ; TipoEventoString: 'S-2190'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtAdmPrelim'               ; Schema: schevtAdmPrelim            ; StrEventoToTipoEvento: 'evtAdmPrelim'               ; Observacao: ''),
+    (TipoEvento: teS2200                   ; TipoEventoString: 'S-2200'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtAdmissao'                ; Schema: schevtAdmissao             ; StrEventoToTipoEvento: 'evtAdmissao'                ; Observacao: ''),
+    (TipoEvento: teS2205                   ; TipoEventoString: 'S-2205'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtAltCadastral'            ; Schema: schevtAltCadastral         ; StrEventoToTipoEvento: 'evtAltCadastral'            ; Observacao: ''),
+    (TipoEvento: teS2206                   ; TipoEventoString: 'S-2206'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtAltContratual'           ; Schema: schevtAltContratual        ; StrEventoToTipoEvento: 'evtAltContratual'           ; Observacao: ''),
+    (TipoEvento: teS2210                   ; TipoEventoString: 'S-2210'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCAT'                     ; Schema: schevtCAT                  ; StrEventoToTipoEvento: 'evtCAT'                     ; Observacao: ''),
+    (TipoEvento: teS2220                   ; TipoEventoString: 'S-2220'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtMonit'                   ; Schema: schevtMonit                ; StrEventoToTipoEvento: 'evtMonit'                   ; Observacao: ''),
+    (TipoEvento: teS2230                   ; TipoEventoString: 'S-2230'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtAfastTemp'               ; Schema: schevtAfastTemp            ; StrEventoToTipoEvento: 'evtAfastTemp'               ; Observacao: ''),
+    (TipoEvento: teS2231                   ; TipoEventoString: 'S-2231'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCessao'                  ; Schema: schevtCessao               ; StrEventoToTipoEvento: 'evtCessao'                  ; Observacao: ''),
+    (TipoEvento: teS2240                   ; TipoEventoString: 'S-2240'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtExpRisco'                ; Schema: schevtExpRisco             ; StrEventoToTipoEvento: 'evtExpRisco'                ; Observacao: ''),
+    (TipoEvento: teS2298                   ; TipoEventoString: 'S-2298'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtReintegr'                ; Schema: schevtReintegr             ; StrEventoToTipoEvento: 'evtReintegr'                ; Observacao: ''),
+    (TipoEvento: teS2299                   ; TipoEventoString: 'S-2299'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtDeslig'                  ; Schema: schevtDeslig               ; StrEventoToTipoEvento: 'evtDeslig'                  ; Observacao: ''),
+    (TipoEvento: teS2300                   ; TipoEventoString: 'S-2300'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtTSVInicio'               ; Schema: schevtTSVInicio            ; StrEventoToTipoEvento: 'evtTSVInicio'               ; Observacao: ''),
+    (TipoEvento: teS2306                   ; TipoEventoString: 'S-2306'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtTSVAltContr'             ; Schema: schevtTSVAltContr          ; StrEventoToTipoEvento: 'evtTSVAltContr'             ; Observacao: ''),
+    (TipoEvento: teS2399                   ; TipoEventoString: 'S-2399'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtTSVTermino'              ; Schema: schevtTSVTermino           ; StrEventoToTipoEvento: 'evtTSVTermino'              ; Observacao: ''),
+    (TipoEvento: teS2400                   ; TipoEventoString: 'S-2400'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCdBenefIn'               ; Schema: schevtCdBenefIn            ; StrEventoToTipoEvento: 'evtCdBenefIn'               ; Observacao: ''),
+    (TipoEvento: teS2405                   ; TipoEventoString: 'S-2405'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCdBenefAlt'              ; Schema: schevtCdBenefAlt           ; StrEventoToTipoEvento: 'evtCdBenefAlt'              ; Observacao: ''),
+    (TipoEvento: teS2410                   ; TipoEventoString: 'S-2410'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCdBenIn'                 ; Schema: schevtCdBenIn              ; StrEventoToTipoEvento: 'evtCdBenIn'                 ; Observacao: ''),
+    (TipoEvento: teS2416                   ; TipoEventoString: 'S-2416'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCdBenAlt'                ; Schema: schevtCdBenAlt             ; StrEventoToTipoEvento: 'evtCdBenAlt'                ; Observacao: ''),
+    (TipoEvento: teS2418                   ; TipoEventoString: 'S-2418'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtReativBen'               ; Schema: schevtReativBen            ; StrEventoToTipoEvento: 'evtReativBen'               ; Observacao: ''),
+    (TipoEvento: teS2420                   ; TipoEventoString: 'S-2420'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCdBenTerm'               ; Schema: schevtCdBenTerm            ; StrEventoToTipoEvento: 'evtCdBenTerm'               ; Observacao: ''),
+    (TipoEvento: teS2500                   ; TipoEventoString: 'S-2500'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtProcTrab'                ; Schema: schevtProcTrab             ; StrEventoToTipoEvento: 'evtProcTrab'                ; Observacao: ''),
+    (TipoEvento: teS2501                   ; TipoEventoString: 'S-2501'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtContProc'                ; Schema: schevtContProc             ; StrEventoToTipoEvento: 'evtContProc'                ; Observacao: ''),
+    (TipoEvento: teS3000                   ; TipoEventoString: 'S-3000'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtExclusao'                ; Schema: schevtExclusao             ; StrEventoToTipoEvento: 'evtExclusao'                ; Observacao: ''),
+    (TipoEvento: teS3500                   ; TipoEventoString: 'S-3500'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtExcProcTrab'             ; Schema: schevtExcProcTrab          ; StrEventoToTipoEvento: 'evtExcProcTrab'             ; Observacao: ''),
+    (TipoEvento: teS5001                   ; TipoEventoString: 'S-5001'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtBasesTrab'               ; Schema: schevtBasesTrab            ; StrEventoToTipoEvento: 'S-5001'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
+    (TipoEvento: teS5002                   ; TipoEventoString: 'S-5002'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtIrrfBenef'               ; Schema: schevtIrrfBenef            ; StrEventoToTipoEvento: 'S-5002'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
+    (TipoEvento: teS5003                   ; TipoEventoString: 'S-5003'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtBasesFGTS'               ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-5003'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
+    (TipoEvento: teS5011                   ; TipoEventoString: 'S-5011'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtCS'                      ; Schema: schevtCS                   ; StrEventoToTipoEvento: 'S-5011'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
+    (TipoEvento: teS5013                   ; TipoEventoString: 'S-5013'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtFGTS'                    ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-5013'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
+    (TipoEvento: teS8299                   ; TipoEventoString: 'S-8299'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtBaixa'                   ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'evtBaixa'                   ; Observacao: ''),
+    // Leiaute S-1.0.0
     (TipoEvento: teS1000                   ; TipoEventoString: 'S-1000'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtInfoEmpregador'          ; Schema: schevtInfoEmpregador       ; StrEventoToTipoEvento: 'evtInfoEmpregador'          ; Observacao: ''),
     (TipoEvento: teS1005                   ; TipoEventoString: 'S-1005'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtTabEstab'                ; Schema: schevtTabEstab             ; StrEventoToTipoEvento: 'evtTabEstab'                ; Observacao: ''),
     (TipoEvento: teS1010                   ; TipoEventoString: 'S-1010'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtTabRubrica'              ; Schema: schevtTabRubrica           ; StrEventoToTipoEvento: 'evtTabRubrica'              ; Observacao: ''),
     (TipoEvento: teS1020                   ; TipoEventoString: 'S-1020'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtTabLotacao'              ; Schema: schevtTabLotacao           ; StrEventoToTipoEvento: 'evtTabLotacao'              ; Observacao: ''),
-    (TipoEvento: teS1030                   ; TipoEventoString: 'S-1030'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabCargo'                ; Schema: schevtTabCargo             ; StrEventoToTipoEvento: 'evtTabCargo'                ; Observacao: ''),
-    (TipoEvento: teS1035                   ; TipoEventoString: 'S-1035'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabCarreira'             ; Schema: schevtTabCarreira          ; StrEventoToTipoEvento: 'evtTabCarreira'             ; Observacao: ''),
-    (TipoEvento: teS1040                   ; TipoEventoString: 'S-1040'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabFuncao'               ; Schema: schevtTabFuncao            ; StrEventoToTipoEvento: 'evtTabFuncao'               ; Observacao: ''),
-    (TipoEvento: teS1050                   ; TipoEventoString: 'S-1050'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabHorTur'               ; Schema: schevtTabHorTur            ; StrEventoToTipoEvento: 'evtTabHorContratual'        ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
-    (TipoEvento: teS1060                   ; TipoEventoString: 'S-1060'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabAmbiente'             ; Schema: schevtTabAmbiente          ; StrEventoToTipoEvento: 'evtTabAmbiente'             ; Observacao: ''),
     (TipoEvento: teS1070                   ; TipoEventoString: 'S-1070'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtTabProcesso'             ; Schema: schevtTabProcesso          ; StrEventoToTipoEvento: 'evtTabProcesso'             ; Observacao: ''),
-    (TipoEvento: teS1080                   ; TipoEventoString: 'S-1080'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabOperPort'             ; Schema: schevtTabOperPort          ; StrEventoToTipoEvento: 'evtTabOperPortuario'        ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
     (TipoEvento: teS1200                   ; TipoEventoString: 'S-1200'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtRemun'                   ; Schema: schevtRemun                ; StrEventoToTipoEvento: 'evtRemun'                   ; Observacao: ''),
     (TipoEvento: teS1202                   ; TipoEventoString: 'S-1202'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtRmnRPPS'                 ; Schema: schevtRmnRPPS              ; StrEventoToTipoEvento: 'evtRmnRPPS'                 ; Observacao: ''),
-    (TipoEvento: teS1207                   ; TipoEventoString: 'S-1207'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtCdBenPrRP'               ; Schema: schevtCdBenPrRP            ; StrEventoToTipoEvento: 'evtCdBenPrRP'               ; Observacao: ''),
     (TipoEvento: teS1207                   ; TipoEventoString: 'S-1207'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtBenPrRP'                 ; Schema: schevtBenPrRP              ; StrEventoToTipoEvento: 'evtBenPrRP'                 ; Observacao: 'Até a v2.5 a tag era evtCdBenPrRP'),
     (TipoEvento: teS1210                   ; TipoEventoString: 'S-1210'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtPgtos'                   ; Schema: schevtPgtos                ; StrEventoToTipoEvento: 'evtPgtos'                   ; Observacao: ''),
     (TipoEvento: teS1220                   ; TipoEventoString: 'S-1220'                    ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'S-1220'                     ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-1220'                     ; Observacao: 'Evento não identificado'),
-    (TipoEvento: teS1250                   ; TipoEventoString: 'S-1250'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtAqProd'                  ; Schema: schevtAqProd               ; StrEventoToTipoEvento: 'evtAqProd'                  ; Observacao: ''),
     (TipoEvento: teS1260                   ; TipoEventoString: 'S-1260'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtComProd'                 ; Schema: schevtComProd              ; StrEventoToTipoEvento: 'evtComProd'                 ; Observacao: ''),
     (TipoEvento: teS1270                   ; TipoEventoString: 'S-1270'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtContratAvNP'             ; Schema: schevtContratAvNP          ; StrEventoToTipoEvento: 'evtContratAvNP'             ; Observacao: ''),
     (TipoEvento: teS1280                   ; TipoEventoString: 'S-1280'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtInfoComplPer'            ; Schema: schevtInfoComplPer         ; StrEventoToTipoEvento: 'evtInfoComplPer'            ; Observacao: ''),
-    (TipoEvento: teS1295                   ; TipoEventoString: 'S-1295'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTotConting'              ; Schema: schevtTotConting           ; StrEventoToTipoEvento: 'evtTotConting'              ; Observacao: ''),
     (TipoEvento: teS1298                   ; TipoEventoString: 'S-1298'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtReabreEvPer'             ; Schema: schevtReabreEvper          ; StrEventoToTipoEvento: 'evtReabreEvPer'             ; Observacao: ''),
     (TipoEvento: teS1299                   ; TipoEventoString: 'S-1299'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtFechaEvPer'              ; Schema: schevtFechaEvPer           ; StrEventoToTipoEvento: 'evtFechaEvPer'              ; Observacao: ''),
-    (TipoEvento: teS1300                   ; TipoEventoString: 'S-1300'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtContrSindPatr'           ; Schema: schevtContrSindPatr        ; StrEventoToTipoEvento: 'evtContrSindPatr'           ; Observacao: ''),
     (TipoEvento: teS2100                   ; TipoEventoString: 'S-2100'                    ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'S-2100'                     ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-2100'                     ; Observacao: 'Evento não identificado'),
     (TipoEvento: teS2190                   ; TipoEventoString: 'S-2190'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtAdmPrelim'               ; Schema: schevtAdmPrelim            ; StrEventoToTipoEvento: 'evtAdmPrelim'               ; Observacao: ''),
     (TipoEvento: teS2200                   ; TipoEventoString: 'S-2200'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtAdmissao'                ; Schema: schevtAdmissao             ; StrEventoToTipoEvento: 'evtAdmissao'                ; Observacao: ''),
@@ -721,9 +728,6 @@ const
     (TipoEvento: teS2230                   ; TipoEventoString: 'S-2230'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtAfastTemp'               ; Schema: schevtAfastTemp            ; StrEventoToTipoEvento: 'evtAfastTemp'               ; Observacao: ''),
     (TipoEvento: teS2231                   ; TipoEventoString: 'S-2231'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtCessao'                  ; Schema: schevtCessao               ; StrEventoToTipoEvento: 'evtCessao'                  ; Observacao: ''),
     (TipoEvento: teS2240                   ; TipoEventoString: 'S-2240'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtExpRisco'                ; Schema: schevtExpRisco             ; StrEventoToTipoEvento: 'evtExpRisco'                ; Observacao: ''),
-    (TipoEvento: teS2245                   ; TipoEventoString: 'S-2245'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTreiCap'                 ; Schema: schEvtTreiCap              ; StrEventoToTipoEvento: 'evtTreiCap'                 ; Observacao: ''),
-    (TipoEvento: teS2250                   ; TipoEventoString: 'S-2250'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtAvPrevio'                ; Schema: schevtAvPrevio             ; StrEventoToTipoEvento: 'evtAvPrevio'                ; Observacao: ''),
-    (TipoEvento: teS2260                   ; TipoEventoString: 'S-2260'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtConvInterm'              ; Schema: schevtConvInterm           ; StrEventoToTipoEvento: 'evtConvInterm'              ; Observacao: ''),
     (TipoEvento: teS2298                   ; TipoEventoString: 'S-2298'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtReintegr'                ; Schema: schevtReintegr             ; StrEventoToTipoEvento: 'evtReintegr'                ; Observacao: ''),
     (TipoEvento: teS2299                   ; TipoEventoString: 'S-2299'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtDeslig'                  ; Schema: schevtDeslig               ; StrEventoToTipoEvento: 'evtDeslig'                  ; Observacao: ''),
     (TipoEvento: teS2300                   ; TipoEventoString: 'S-2300'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtTSVInicio'               ; Schema: schevtTSVInicio            ; StrEventoToTipoEvento: 'evtTSVInicio'               ; Observacao: ''),
@@ -736,17 +740,13 @@ const
     (TipoEvento: teS2416                   ; TipoEventoString: 'S-2416'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtCdBenAlt'                ; Schema: schevtCdBenAlt             ; StrEventoToTipoEvento: 'evtCdBenAlt'                ; Observacao: ''),
     (TipoEvento: teS2418                   ; TipoEventoString: 'S-2418'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtReativBen'               ; Schema: schevtReativBen            ; StrEventoToTipoEvento: 'evtReativBen'               ; Observacao: ''),
     (TipoEvento: teS2420                   ; TipoEventoString: 'S-2420'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtCdBenTerm'               ; Schema: schevtCdBenTerm            ; StrEventoToTipoEvento: 'evtCdBenTerm'               ; Observacao: ''),
-    (TipoEvento: teS2500                   ; TipoEventoString: 'S-2500'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtProcTrab'                ; Schema: schevtProcTrab             ; StrEventoToTipoEvento: 'evtProcTrab'                ; Observacao: ''),
-    (TipoEvento: teS2501                   ; TipoEventoString: 'S-2501'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtContProc'                ; Schema: schevtContProc             ; StrEventoToTipoEvento: 'evtContProc'                ; Observacao: ''),
     (TipoEvento: teS3000                   ; TipoEventoString: 'S-3000'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtExclusao'                ; Schema: schevtExclusao             ; StrEventoToTipoEvento: 'evtExclusao'                ; Observacao: ''),
-    (TipoEvento: teS3500                   ; TipoEventoString: 'S-3500'                    ; VersaoeSocial: veS01_01_00; Versao: 'vS1_01'; EventoString: 'evtExcProcTrab'             ; Schema: schevtExcProcTrab          ; StrEventoToTipoEvento: 'evtExcProcTrab'             ; Observacao: ''),
     (TipoEvento: teS4000                   ; TipoEventoString: 'S-4000'                    ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'NI'                         ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-4000'                     ; Observacao: 'Evento não identificado'),
     (TipoEvento: teS4999                   ; TipoEventoString: 'S-4999'                    ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'NI'                         ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-4999'                     ; Observacao: 'Evento não identificado'),
     (TipoEvento: teS5001                   ; TipoEventoString: 'S-5001'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtBasesTrab'               ; Schema: schevtBasesTrab            ; StrEventoToTipoEvento: 'S-5001'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
     (TipoEvento: teS5002                   ; TipoEventoString: 'S-5002'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtIrrfBenef'               ; Schema: schevtIrrfBenef            ; StrEventoToTipoEvento: 'S-5002'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
     (TipoEvento: teS5003                   ; TipoEventoString: 'S-5003'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtBasesFGTS'               ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-5003'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
     (TipoEvento: teS5011                   ; TipoEventoString: 'S-5011'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtCS'                      ; Schema: schevtCS                   ; StrEventoToTipoEvento: 'S-5011'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
-    (TipoEvento: teS5012                   ; TipoEventoString: 'S-5012'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtIRRF'                    ; Schema: schevtIrrf                 ; StrEventoToTipoEvento: 'S-5012'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
     (TipoEvento: teS5013                   ; TipoEventoString: 'S-5013'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtFGTS'                    ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'S-5013'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
     (TipoEvento: teS8299                   ; TipoEventoString: 'S-8299'                    ; VersaoeSocial: veS01_00_00; Versao: 'vS1_00'; EventoString: 'evtBaixa'                   ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'evtBaixa'                   ; Observacao: ''),
     (TipoEvento: teASO                     ; TipoEventoString: 'S-EVTASO'                  ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'evtASO'                     ; Schema: schNaoIdentificado         ; StrEventoToTipoEvento: 'evtASO'                     ; Observacao: 'Evento não identificado'),
@@ -760,7 +760,22 @@ const
     (TipoEvento: teInsApo                  ; TipoEventoString: 'S-EVTINSAPO'               ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'evtInsApo'                  ; Schema: schevtInsApo               ; StrEventoToTipoEvento: 'evtInsApo'                  ; Observacao: 'Evento não identificado'),
     (TipoEvento: teRetornoEnvioLoteEventos ; TipoEventoString: 'S-RETORNOENVIOLOTEEVENTOS' ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'evtRetornoEnvioLoteEventos' ; Schema: schRetornoEnvioLoteEventos ; StrEventoToTipoEvento: 'evtRetornoEnvioLoteEventos' ; Observacao: 'Evento operacional'),
     (TipoEvento: teRetornoEvento           ; TipoEventoString: 'S-RETORNOEVENTO'           ; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'evtRetornoEvento'           ; Schema: schRetornoEvento           ; StrEventoToTipoEvento: 'evtRetornoEvento'           ; Observacao: 'Evento operacional'),
-    (TipoEvento: teRetornoProcessamentoLote; TipoEventoString: 'S-RETORNOPROCESSAMENTOLOTE'; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'evtRetornoProcessamentoLote'; Schema: schRetornoProcessamentoLote; StrEventoToTipoEvento: 'evtRetornoProcessamentoLote'; Observacao: 'Evento operacional')
+    (TipoEvento: teRetornoProcessamentoLote; TipoEventoString: 'S-RETORNOPROCESSAMENTOLOTE'; VersaoeSocial: veS01_00_00; Versao: 'NI'    ; EventoString: 'evtRetornoProcessamentoLote'; Schema: schRetornoProcessamentoLote; StrEventoToTipoEvento: 'evtRetornoProcessamentoLote'; Observacao: 'Evento operacional'),
+    // Leiaute 2.5.0
+    (TipoEvento: teS1030                   ; TipoEventoString: 'S-1030'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabCargo'                ; Schema: schevtTabCargo             ; StrEventoToTipoEvento: 'evtTabCargo'                ; Observacao: ''),
+    (TipoEvento: teS1035                   ; TipoEventoString: 'S-1035'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabCarreira'             ; Schema: schevtTabCarreira          ; StrEventoToTipoEvento: 'evtTabCarreira'             ; Observacao: ''),
+    (TipoEvento: teS1040                   ; TipoEventoString: 'S-1040'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabFuncao'               ; Schema: schevtTabFuncao            ; StrEventoToTipoEvento: 'evtTabFuncao'               ; Observacao: ''),
+    (TipoEvento: teS1050                   ; TipoEventoString: 'S-1050'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabHorTur'               ; Schema: schevtTabHorTur            ; StrEventoToTipoEvento: 'evtTabHorContratual'        ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
+    (TipoEvento: teS1060                   ; TipoEventoString: 'S-1060'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabAmbiente'             ; Schema: schevtTabAmbiente          ; StrEventoToTipoEvento: 'evtTabAmbiente'             ; Observacao: ''),
+    (TipoEvento: teS1080                   ; TipoEventoString: 'S-1080'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTabOperPort'             ; Schema: schevtTabOperPort          ; StrEventoToTipoEvento: 'evtTabOperPortuario'        ; Observacao: 'TeventoString <> StrEventoToTipoEvento'),
+    (TipoEvento: teS1207                   ; TipoEventoString: 'S-1207'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtCdBenPrRP'               ; Schema: schevtCdBenPrRP            ; StrEventoToTipoEvento: 'evtCdBenPrRP'               ; Observacao: ''),
+    (TipoEvento: teS1250                   ; TipoEventoString: 'S-1250'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtAqProd'                  ; Schema: schevtAqProd               ; StrEventoToTipoEvento: 'evtAqProd'                  ; Observacao: ''),
+    (TipoEvento: teS1295                   ; TipoEventoString: 'S-1295'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTotConting'              ; Schema: schevtTotConting           ; StrEventoToTipoEvento: 'evtTotConting'              ; Observacao: ''),
+    (TipoEvento: teS1300                   ; TipoEventoString: 'S-1300'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtContrSindPatr'           ; Schema: schevtContrSindPatr        ; StrEventoToTipoEvento: 'evtContrSindPatr'           ; Observacao: ''),
+    (TipoEvento: teS2245                   ; TipoEventoString: 'S-2245'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtTreiCap'                 ; Schema: schEvtTreiCap              ; StrEventoToTipoEvento: 'evtTreiCap'                 ; Observacao: ''),
+    (TipoEvento: teS2250                   ; TipoEventoString: 'S-2250'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtAvPrevio'                ; Schema: schevtAvPrevio             ; StrEventoToTipoEvento: 'evtAvPrevio'                ; Observacao: ''),
+    (TipoEvento: teS2260                   ; TipoEventoString: 'S-2260'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtConvInterm'              ; Schema: schevtConvInterm           ; StrEventoToTipoEvento: 'evtConvInterm'              ; Observacao: ''),
+    (TipoEvento: teS5012                   ; TipoEventoString: 'S-5012'                    ; VersaoeSocial: ve02_05_00 ; Versao: 'v2_5'  ; EventoString: 'evtIRRF'                    ; Schema: schevtIrrf                 ; StrEventoToTipoEvento: 'S-5012'                     ; Observacao: 'TeventoString <> StrEventoToTipoEvento')
     );
 
 function GetMatrixEventoInfo(AInfoEventoMatrix: TMatrixEventoInfo; ASearchValue: string; AVersaoeSocial: TVersaoeSocial): TRecMatrixEventoInfo;
@@ -817,9 +832,6 @@ function eSStrToCodIncIRRF(var ok: boolean; const s: string): tpCodIncIRRF;
 function eSCodIncFGTSToStr(const t: TpCodIncFGTS ): string;
 function eSStrToCodIncFGTS(var ok: boolean; const s: string): TpCodIncFGTS;
 
-function eSCodIncSINDToStr(const t: TpCodIncSIND ): string;
-function eSStrToCodIncSIND(var ok: boolean; const s: string): TpCodIncSIND;
-
 function eSCodIncCPRPToStr(const t: TpCodIncCPRP ): string;
 function eSStrToCodIncCPRP(var ok: boolean; const s: string): TpCodIncCPRP;
 
@@ -834,9 +846,6 @@ function eSStrTotpInscContratante(var ok: boolean; const s: string): TptpInscCon
 
 function eSTpInscPropToStr(const t: TpTpInscProp ): string;
 function eSStrToTpInscProp(var ok: boolean; const s: string): TpTpInscProp;
-
-function eSTpIntervaloToStr(const t: TpTpIntervalo ): string;
-function eSStrToTpIntervalo(var ok: boolean; const s: string): TpTpIntervalo;
 
 function eSIndSubstPatronalObraToStr(const t: TpIndSubstPatronalObra ): string;
 function eSStrToIndSubstPatronalObra(var ok: boolean; const s: string): TpIndSubstPatronalObra;
@@ -874,9 +883,6 @@ function eSStrToGrauExp(var ok: boolean; const s: string): TpGrauExp;
 function eSIndNIFToStr(const t: TpIndNIF ): string;
 function eSStrToIndNIF(var ok: boolean; const s: string): TpIndNIF;
 
-function eSIndTpDeducaoToStr(const t: TpIndTpDeducao ): string;
-function eSStrToIndTpDeducao(var ok: boolean; const s: string): TpIndTpDeducao;
-
 function eSTpProcRRAToStr(const t: TpTpProcRRA ): string;
 function eSStrToTpProcRRA(var ok: boolean; const s: string): TpTpProcRRA;
 
@@ -895,23 +901,8 @@ function eSStrToIndAbrangencia(var ok: boolean; const s: string): TpIndAbrangenc
 function eSIndComercializacaoToStr(const t: TpIndComercializacao ): string;
 function eSStrToIndComercializacao(var ok: boolean; const s: string): TpIndComercializacao;
 
-function eSIdeSubtetoToStr(const t: tpIdeSubteto): string;
-function eSStrToIdeSubteto(var ok: Boolean; const s: string): tpIdeSubteto;
-
-function eSIndSitPFToStr(const t: tpIndSitPF): string;
-function eSStrToTpIndSitPF(var ok: Boolean; const s: string): tpIndSitPF;
-
-function eSIndSitPJToStr(const t: tpIndSitPJ): string;
-function eSStrToIndSitPJ(var ok: Boolean; const s: string): tpIndSitPJ;
-
 function eSTpRubrToStr(const t: tpTpRubr): string;
 function eSStrToTpRubr(var ok: Boolean; const s: string): tpTpRubr;
-
-function eStpSitCargoToStr(const t: tpSitCargo): string;
-function eSStrToSitCargo(var ok: Boolean; const s: string): tpSitCargo;
-
-function eStpSitCarrToStr(const t: tpSitCarr): string;
-function eSStrToSitCarr(var ok: Boolean; const s: string): tpSitCarr;
 
 function eSAcumCargoToStr(const t: tpAcumCargo): string;
 function eSStrToAcumCargo(var ok: Boolean; const s: string): tpAcumCargo;
@@ -1015,20 +1006,13 @@ function eSStrToTpLocal(var ok: boolean; const s: string): tpTpLocal;
 function eSLateralidadeToStr(const t: tpLateralidade ): string;
 function eSStrToLateralidade(var ok: boolean; const s: string): tpLateralidade;
 
-function eSIdeOCToStr(const t: tpIdeOC ): string;
-function eSStrToIdeOC(var ok: boolean; const s: string): tpIdeOC;
-
-function eSTpAvPrevioToStr(const t: tpTpAvPrevio ): string;
-function eSStrToTpAvPrevio(var ok: boolean; const s: string): tpTpAvPrevio;
-
-function eSMtvCancAvPrevioToStr(const t: tpMtvCancAvPrevio ): string;
-function eSStrToMtvCancAvPrevio(var ok: boolean; const s: string): tpMtvCancAvPrevio;
+function eSIdeOCToStr(const t: tpIdeOC ): string;deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS}'Use a função eSIdeOCToStrEX'{$ENDIF};
+function eSStrToIdeOC(var ok: boolean; const s: string): tpIdeOC;deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS}'Use a função esStrToIdeOCEX'{$ENDIF};
+function eSIdeOCToStrEX(const t: tpIdeOC): string;
+function esStrToIdeOCEX(const s: string): tpIdeOC;
 
 function eSTpReintToStr(const t: tpTpReint ): string;
 function eSStrToTpReint(var ok: boolean; const s: string): tpTpReint;
-
-function eSTpContribSindToStr(const t: tpTpContribSind ): string;
-function eSStrToTpContribSind(var ok: boolean; const s: string): tpTpContribSind;
 
 function eSIndSubstPatrStr(const t: tpIndSubstPatr ): string;
 function eSStrToIndSubstPatr(var ok: boolean; const s: string): tpIndSubstPatr;
@@ -1050,18 +1034,6 @@ function eSStrTotpTpPgto(var ok: Boolean; const s: string): tpTpPgto;
 
 function eSTpNivelEstagioToStr(const t: tpNivelEstagio): string;
 function eSStrTotpNivelEstagio(var ok: Boolean; const s: string): tpNivelEstagio;
-
-function eSTpRegPtToStr(const t: tpRegPt): string;
-function eSStrTotpRegPt(var ok: boolean; const s: string): tpRegPt;
-
-function eSTpContAprToStr(const t: tpContApr): string;
-function eSStrTotpContApr(var ok: boolean; const s: string): tpContApr;
-
-function eSTpContPCDToStr(const t: tpContPCD): string;
-function eSStrToTpContPCD(var ok: boolean; const s: string): tpContPCD;
-
-function eSTpInclContrToStr(const t: tpInclContr): string;
-function eSStrToTpInclContr(var ok: boolean; const s: string): tpInclContr;
 
 function eSTpPlanRPToStr(const t: tpPlanRP): string;
 function eSStrToTpPlanRP(var ok: boolean; const s: string): tpPlanRP;
@@ -1195,7 +1167,7 @@ uses
   ACBrUtil.Strings;
 
 const
-  TTipoEventoString   : array[0..62] of String =('S-1000', 'S-1005', 'S-1010', 'S-1020', 'S-1030',
+  TTipoEventoString   : array[0..76] of String =('S-1000', 'S-1005', 'S-1010', 'S-1020', 'S-1030',
                                                  'S-1035', 'S-1040', 'S-1050', 'S-1060', 'S-1070',
                                                  'S-1080', 'S-2100', 'S-1200', 'S-1202', 'S-1207',
                                                  'S-1210', 'S-1220', 'S-1250', 'S-1260', 'S-1270',
@@ -1207,7 +1179,13 @@ const
                                                  'S-4999', 'S-5001', 'S-5002', 'S-5003', 'S-5011',
                                                  'S-5012', 'S-5013', 'S-2221', 'S-2405', 'S-2410',
                                                  'S-2231', 'S-2416', 'S-2418', 'S-2420', 'S-2500',
-                                                 'S-2501', 'S-3500', 'S-5501');
+                                                 'S-2501', 'S-3500', 'S-5501', 'S-8299',
+                                                 'S-CONSULTAIDENTEVENTOS', 'S-CONSULTALOTEEVENTOS',
+                                                 'S-DOWNLOADEVENTOS', 'S-ENVIOLOTEEVENTOS',
+                                                 'S-ERRO','S-RETORNOENVIOLOTEEVENTOS',
+                                                 'S-RETORNOEVENTO', 'S-RETORNOPROCESSAMENTOLOTE',
+                                                 'S-EVTINSAPO', 'S-EVTADESAO', 'S-EVTCADINICIAL',
+                                                 'S-EVTASO', '');
 
   TUFString           : array[0..27] of String = ('AC','AL','AP','AM','BA','CE','DF','ES','GO',
                                                   'MA','MT','MS','MG','PA','PB','PR','PE','PI',
@@ -1435,46 +1413,6 @@ end;
 function eSStrToTpInscricao(var ok: boolean; const s: string): tpTpInsc;
 begin
   result := tpTpInsc( StrToEnumerado2(ok , s, TGenericosString1_6 ) );
-end;
-
-function eSTpRegPtToStr(const t: tpRegPt): string;
-begin
-  result := EnumeradoToStr2(t, TGenericosString0_6 );
-end;
-
-function eSStrToTpRegPt(var ok: Boolean; const s: string): tpRegPt;
-begin
-  result := tpRegPt( StrToEnumerado2(ok, s, TGenericosString0_6) );
-end;
-
-function eSTpContAprToStr(const t: tpContApr): string;
-begin
-  result := EnumeradoToStr2(t, TGenericosString0_2 );
-end;
-
-function eSStrToTpContApr(var ok: Boolean; const s: string): tpContApr;
-begin
-  result := tpContApr( StrToEnumerado2(ok, s, TGenericosString0_2) );
-end;
-
-function eSTpContPCDToStr(const t: tpContPCD): string;
-begin
-  result := EnumeradoToStr2(t, TIndicativoContratacaoPCD );
-end;
-
-function eSStrToTpContPCD(var ok: Boolean; const s: string): tpContPCD;
-begin
-  result := tpContPCD( StrToEnumerado2(ok, s, TIndicativoContratacaoPCD) );
-end;
-
-function eSTpInclContrToStr(const t: tpInclContr): string;
-begin
-  result := EnumeradoToStr2(t, TGenericosString0_3 );
-end;
-
-function eSStrToTpInclContr(var ok: Boolean; const s: string): tpInclContr;
-begin
-  result := tpInclContr( StrToEnumerado2(ok, s, TGenericosString0_3) );
 end;
 
 function eStpPlanRPToStr(const t: tpPlanRP): string;
@@ -1712,29 +1650,29 @@ begin
   result := EnumeradoToStr2(t, ['0','1', '2', '3', '4', '9']);
 end;
 
+function eSIdeOCToStrEX(const t: tpIdeOC): string;
+begin
+  Result := TtpIdeOCArrayStrings[t];
+end;
+
 function eSStrToIdeOC(var ok: boolean; const s: string): tpIdeOC;
 begin
-  result := tpIdeOC( StrToEnumerado2(ok, s, ['1', '2', '3', '4', '9'] ) );
+  result := tpIdeOC( StrToEnumerado2(ok, s, ['0', '1', '2', '3', '4', '9'] ) );
 end;
 
-function eSTpAvPrevioToStr(const t: tpTpAvPrevio ): string;
+function esStrToIdeOCEX(const s: string): tpIdeOC;
+var
+  idx: tpIdeOC;
 begin
-  result := EnumeradoToStr2(t, [ '1', '2', '4', '5', '6' ] );
-end;
-
-function eSStrToTpAvPrevio(var ok: boolean; const s: string): tpTpAvPrevio;
-begin
-  result := tpTpAvPrevio( StrToEnumerado2(ok , s, [ '1', '2', '4', '5', '6' ] ) );
-end;
-
-function eSTpContribSindToStr(const t: tpTpContribSind ): string;
-begin
-  result := EnumeradoToStr2(t,TGenericosString1_4 );
-end;
-
-function eSStrToTpContribSind(var ok: boolean; const s: string): tpTpContribSind;
-begin
-  result := tpTpContribSind( StrToEnumerado2(ok , s, TGenericosString1_4 ) );
+  for idx:= Low(TtpIdeOCArrayStrings) to High(TtpIdeOCArrayStrings)do
+  begin
+    if(TtpIdeOCArrayStrings[idx] = s)then
+    begin
+      Result := idx;
+      exit;
+    end;
+  end;
+  raise EACBrException.CreateFmt('Valor string inválido para tpIdeOC: %s', [s]);
 end;
 
 function eSIndSubstPatrStr(const t: tpIndSubstPatr ): string;
@@ -1919,16 +1857,6 @@ begin
   result := tpTpLocal( StrToEnumerado2(ok , s,[ '1', '2', '3', '4', '5', '6', '9' ] ));
 end;
 
-function eSMtvCancAvPrevioToStr(const t: tpMtvCancAvPrevio ): string;
-begin
-  result := EnumeradoToStr2(t,[ '1', '2', '3', '9' ] );
-end;
-
-function eSStrToMtvCancAvPrevio(var ok: boolean; const s: string): tpMtvCancAvPrevio;
-begin
-  result := tpMtvCancAvPrevio( StrToEnumerado2(ok , s,[ '1', '2', '3', '9' ] ));
-end;
-
 function eSTpReintToStr(const t: tpTpReint ): string;
 begin
   result := EnumeradoToStr2(t,[ '1', '2', '3', '4', '5', '9' ] );
@@ -1971,16 +1899,6 @@ end;
 function eSStrToCodIncFGTS(var ok: boolean; const s: string): tpCodIncFGTS;
 begin
   result := tpCodIncFGTS( StrToEnumerado2(ok , s,[ '00', '11', '12', '21', '91', '92', '93' ] ));
-end;
-
-function eSCodIncSINDToStr(const t:tpCodIncSIND ): string;
-begin
-  result := EnumeradoToStr2(t,[ '00', '11', '31','91' ] );
-end;
-
-function eSStrToCodIncSIND(var ok: boolean; const s: string): tpCodIncSIND;
-begin
-  result := tpCodIncSIND( StrToEnumerado2(ok , s,[  '00', '11', '31','91'] ));
 end;
 
 function eSCodIncCPRPToStr(const t:tpCodIncCPRP ): string;
@@ -2035,16 +1953,6 @@ begin
   result := TpTpInscProp( StrToEnumerado2(ok , s,TGenericosString1_2  ));
 end;
 
-function eSTpIntervaloToStr(const t:tpTpIntervalo ): string;
-begin
-  result := EnumeradoToStr2(t,TGenericosString1_2  );
-end;
-
-function eSStrToTpIntervalo(var ok: boolean; const s: string): TpTpIntervalo;
-begin
-  result := TpTpIntervalo( StrToEnumerado2(ok , s, TGenericosString1_2));
-end;
-
 function eSIndSubstPatronalObraToStr(const t:tpIndSubstPatronalObra ): string;
 begin
   if t = ispVazio then
@@ -2056,9 +1964,13 @@ end;
 function eSStrToIndSubstPatronalObra(var ok: boolean; const s: string): TpIndSubstPatronalObra;
 begin
   if Trim(s) = '' then
-    result := ispVazio
-  else
+  begin
+    result := ispVazio;
+    ok := true;
+  end else
+  begin
     result := TpIndSubstPatronalObra(StrToEnumerado2(ok , s, TGenericosString0_2));
+  end;
 end;
 
 function eSindAutoriaToStr(const t:tpindAutoria ): string;
@@ -2171,16 +2083,6 @@ begin
   result := TpIndNIF( StrToEnumerado2(ok , s,TGenericosString1_3 ));
 end;
 
-function eSIndTpDeducaoToStr(const t:tpIndTpDeducao ): string;
-begin
-  result := EnumeradoToStr2(t,TGenericosString1_4 );
-end;
-
-function eSStrToIndTpDeducao(var ok: boolean; const s: string): TpIndTpDeducao;
-begin
-  result := TpIndTpDeducao( StrToEnumerado2(ok , s,TGenericosString1_4 ));
-end;
-
 function eSTpProcRRAToStr(const t:tpTpProcRRA ): string;
 begin
   result := EnumeradoToStr2(t,TGenericosString1_2 );
@@ -2271,36 +2173,6 @@ begin
   result := tpTpDep( StrToEnumerado2(ok , s, ['01', '02', '03', '04', '06', '07', '09', '10', '11', '12', '99'] ));
 end;
 
-function eSIdeSubtetoToStr(const t: tpIdeSubteto): string;
-begin
-  result := EnumeradoToStr2(t, TPoderSubteto);
-end;
-
-function eSStrToIdeSubteto(var ok: Boolean; const s: string): tpIdeSubteto;
-begin
-  result := tpIdeSubteto( StrToEnumerado2(ok, s, TPoderSubteto) );
-end;
-
-function eSIndSitPFToStr(const t: tpIndSitPF): string;
-begin
-  result := EnumeradoToStr2(t, TGenericosString0_2);
-end;
-
-function eSStrToTpIndSitPF(var ok: Boolean; const s: string): tpIndSitPF;
-begin
-  result := tpIndSitPF( StrToEnumerado2(ok , s, TGenericosString0_2 ));
-end;
-
-function eSIndSitPJToStr(const t: tpIndSitPJ): string;
-begin
-  result := EnumeradoToStr2(t, TGenericosString0_4);
-end;
-
-function eSStrToIndSitPJ(var ok: Boolean; const s: string): tpIndSitPJ;
-begin
-  result := tpIndSitPJ( StrToEnumerado2(ok , s, TGenericosString0_4 ));
-end;
-
 function eSTpRubrToStr(const t: tpTpRubr): string;
 begin
   result := EnumeradoToStr2(t, TGenericosString1_4);
@@ -2309,26 +2181,6 @@ end;
 function eSStrToTpRubr(var ok: Boolean; const s: string): tpTpRubr;
 begin
   result := tpTpRubr( StrToEnumerado2(ok , s, TGenericosString1_4 ));
-end;
-
-function eStpSitCargoToStr(const t: tpSitCargo): string;
-begin
-  result := EnumeradoToStr2(t, TGenericosString1_3);
-end;
-
-function eSStrToSitCargo(var ok: Boolean; const s: string): tpSitCargo;
-begin
-  result := tpSitCargo( StrToEnumerado2(ok , s, TGenericosString1_3 ));
-end;
-
-function eStpSitCarrToStr(const t: tpSitCarr): string;
-begin
-  result := EnumeradoToStr2(t, TGenericosString1_3);
-end;
-
-function eSStrToSitCarr(var ok: Boolean; const s: string): tpSitCarr;
-begin
-  result := tpSitCarr( StrToEnumerado2(ok , s, TGenericosString1_3 ));
 end;
 
 function eSAcumCargoToStr(const t: tpAcumCargo): string;

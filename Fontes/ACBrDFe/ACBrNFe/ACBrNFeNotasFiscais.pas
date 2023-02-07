@@ -1625,7 +1625,8 @@ begin
 
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
         begin
-          if INIRec.ReadString(sSecao,'refNFe','') <> '' then
+          if (INIRec.ReadString(sSecao,'refNFe','') <> '') or
+             (INIRec.ReadString(sSecao,'refNFeSig','') <> '') then
             sType := 'NFE'
           else if INIRec.ReadString(  sSecao,'refCTe'  ,'') <> '' then
             sType := 'CTE'
@@ -1642,8 +1643,10 @@ begin
         with Ide.NFref.New do
         begin
           if sType = 'NFE' then
-            refNFe :=  INIRec.ReadString(sSecao,'refNFe','')
-
+          begin
+            refNFe :=  INIRec.ReadString(sSecao,'refNFe','');
+            refNFeSig :=  INIRec.ReadString(sSecao,'refNFeSig','');
+          end
           else if sType = 'NF' then
           begin
             RefNF.cUF    := INIRec.ReadInteger( sSecao,'cUF'   ,0);
@@ -2736,6 +2739,11 @@ begin
             INIRec.WriteString(sSecao, 'Tipo', 'NFe');
             INIRec.WriteString(sSecao, 'refNFe', refNFe);
           end
+          else if trim(refNFeSig) <> '' then
+          begin
+            INIRec.WriteString(sSecao, 'Tipo', 'NFe');
+            INIRec.WriteString(sSecao, 'refNFeSig', refNFeSig);
+          end
           else if trim(RefNF.CNPJ) <> '' then
           begin
             INIRec.WriteString(sSecao, 'Tipo', 'NF');
@@ -3652,6 +3660,7 @@ begin
     FNFeW.Opcoes.PathArquivoMunicipios := Configuracoes.Arquivos.PathArquivoMunicipios;
     FNFeW.Opcoes.CamposFatObrigatorios := Configuracoes.Geral.CamposFatObrigatorios;
     FNFeW.Opcoes.ForcarGerarTagRejeicao938 := Configuracoes.Geral.ForcarGerarTagRejeicao938;
+    FNFeW.Opcoes.ForcarGerarTagRejeicao906 := Configuracoes.Geral.ForcarGerarTagRejeicao906;
 {$Else}
     FNFeW.Gerador.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
     FNFeW.Gerador.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
@@ -3661,6 +3670,7 @@ begin
     FNFeW.Opcoes.PathArquivoMunicipios := Configuracoes.Arquivos.PathArquivoMunicipios;
     FNFeW.Opcoes.CamposFatObrigatorios := Configuracoes.Geral.CamposFatObrigatorios;
     FNFeW.Opcoes.ForcarGerarTagRejeicao938 := Configuracoes.Geral.ForcarGerarTagRejeicao938;
+    FNFeW.Opcoes.ForcarGerarTagRejeicao906 := Configuracoes.Geral.ForcarGerarTagRejeicao906;
 {$EndIf}
 
     pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
@@ -3714,6 +3724,7 @@ begin
     FNFeW.Opcoes.PathArquivoMunicipios     := Configuracoes.Arquivos.PathArquivoMunicipios;
     FNFeW.Opcoes.CamposFatObrigatorios     := Configuracoes.Geral.CamposFatObrigatorios;
     FNFeW.Opcoes.ForcarGerarTagRejeicao938 := Configuracoes.Geral.ForcarGerarTagRejeicao938;
+    FNFeW.Opcoes.ForcarGerarTagRejeicao906 := Configuracoes.Geral.ForcarGerarTagRejeicao906;
   end;
 
   FNFeW.Opcoes.GerarTXTSimultaneamente := True;

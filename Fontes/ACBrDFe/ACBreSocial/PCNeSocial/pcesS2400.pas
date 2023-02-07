@@ -245,6 +245,7 @@ end;
 function TEvtCdBenefIn.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -342,7 +343,7 @@ begin
         if(sFim = 'FIM') or (Length(sFIM) <= 0)then
           break;
 
-        depend := Beneficiario.dependente.Add;
+        depend := Beneficiario.dependente.New;
         depend.tpDep     := eSStrToTpDep(Ok, INIRec.ReadString(sSecao, 'tpDep', EmptyStr));
         depend.nmDep     := INIRec.ReadString(sSecao, 'nmDep', EmptyStr);
         depend.dtNascto  := INIRec.ReadDate(sSecao, 'dtNascto', 0);

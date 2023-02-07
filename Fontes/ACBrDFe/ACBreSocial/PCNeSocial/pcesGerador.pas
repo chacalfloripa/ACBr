@@ -239,8 +239,7 @@ begin
   ArqXML := XMLEvento;
 
   // XML já deve estar em UTF8, para poder ser assinado //
-  ArqXML := RemoverDeclaracaoXML(ArqXML);//Para forçar a conversão em UTF8.
-  ArqXML := ConverteXMLtoUTF8(ArqXML);
+  ArqXML := NativeStringToUTF8(ArqXML);
   FXMLOriginal := ArqXML;
 
   with TACBreSocial(FACBreSocial) do
@@ -307,7 +306,7 @@ begin
   lFileName := CaminhoArquivo;
   lStr:= TStringList.Create;
   try
-    lStr.Text := NativeStringToUTF8(string(XML));
+    lStr.Text := string(XML);
     lStr.SaveToFile(ChangeFileExt(lFileName,'.xml'));
   finally
     lStr.Free;
@@ -348,7 +347,7 @@ var
   Evento: string;
 begin
   AXML := FXMLAssinado;
-  Evento := SchemaeSocialToStr(Schema) + PrefixoVersao +
+  Evento := SchemaeSocialToStr(Schema) + '-' +
           VersaoeSocialToStrSchemas(TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF);
 
 
@@ -393,7 +392,7 @@ procedure TeSocialEvento.GerarCabecalho(const Namespace: String);
 begin
   with TACBreSocial(FACBreSocial) do
   begin
-    SSL.NameSpaceURI := ACBRESOCIAL_NAMESPACE_URI + Namespace + '/v' +
+    SSL.NameSpaceURI := ACBRESOCIAL_NAMESPACE_URI + Namespace + '/' +
                         VersaoeSocialToStrSchemas(Configuracoes.Geral.VersaoDF);
 
     Gerador.wGrupo(ENCODING_UTF8, '', False);
@@ -979,10 +978,6 @@ begin
 
     Gerador.wCampo(tcInt, '', 'hipLeg',      1,   1, 1, pTrabTemporario.hipLeg);
     Gerador.wCampo(tcStr, '', 'justContr',   1, 999, 1, pTrabTemporario.justContr);
-
-    if VersaoDF <= ve02_05_00 then
-      if (pTrabTemporario.tpinclContr <> icNenhum) then
-        Gerador.wCampo(tcInt, '', 'tpInclContr', 1,   1, 1, eSTpInclContrToStr(pTrabTemporario.tpinclContr));
 
     if VersaoDF <= ve02_05_00 then
       GerarIdeTomadorServ(pTrabTemporario.ideTomadorServ)

@@ -615,6 +615,7 @@ end;
 function TEvtAfastTemp.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -776,7 +777,7 @@ begin
 
           sSecao := 'emitente' + IntToStrZero(I, 1);
           emitente.nmEmit := INIRec.ReadString(sSecao, 'nmEmit', EmptyStr);
-          emitente.ideOC  := eSStrToIdeOC(Ok, INIRec.ReadString(sSecao, 'ideOC', '1'));
+          emitente.ideOC  := eSStrToIdeOCEX(INIRec.ReadString(sSecao, 'ideOC', '1'));
           emitente.nrOc   := INIRec.ReadString(sSecao, 'nrOc', EmptyStr);
           emitente.ufOC   := INIRec.ReadString(sSecao, 'ufOC', 'SP');
         end;

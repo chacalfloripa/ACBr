@@ -330,9 +330,11 @@ begin
 
   Result := NativeStringToUTF8(Result);
   Result := StringReplace(Result, '&#xd;', '\s\n', [rfReplaceAll]);
+  Result := StringReplace(Result, ''#$A'', '\s\n', [rfReplaceAll]);
   Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverPrefixosDesnecessarios(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
 end;
 
 end.

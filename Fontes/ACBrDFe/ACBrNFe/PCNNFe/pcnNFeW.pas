@@ -178,6 +178,7 @@ type
     FValidarListaServicos: Boolean;
     FCamposFatObrigatorios: Boolean;
     FForcarGerarTagRejeicao938: TForcarGeracaoTag;
+    FForcarGerarTagRejeicao906: TForcarGeracaoTag;
   published
     property GerarTagIPIparaNaoTributado: Boolean read FGerarTagIPIparaNaoTributado;
     property GerarTXTSimultaneamente: Boolean read FGerarTXTSimultaneamente write FGerarTXTSimultaneamente;
@@ -189,6 +190,7 @@ type
     property CamposFatObrigatorios: Boolean read FCamposFatObrigatorios write FCamposFatObrigatorios;
     // ForcarGerarTagRejeicao938 (NT 2018.005 v 1.20) -> Campo-Seq: N12-81 e N12a-50 | Campos: N26, N26a, N26b
     property ForcarGerarTagRejeicao938: TForcarGeracaoTag read FForcarGerarTagRejeicao938 write FForcarGerarTagRejeicao938;
+    property ForcarGerarTagRejeicao906: TForcarGeracaoTag read FForcarGerarTagRejeicao906 write FForcarGerarTagRejeicao906;
   end;
 
 implementation
@@ -218,6 +220,7 @@ begin
   FOpcoes.FValidarListaServicos        := False;
   FOpcoes.FCamposFatObrigatorios       := True;
   FOpcoes.FForcarGerarTagRejeicao938   := fgtNunca;
+  FOpcoes.FForcarGerarTagRejeicao906   := fgtNunca;
 end;
 
 destructor TNFeW.Destroy;
@@ -462,7 +465,8 @@ begin
   for i := 0 to NFe.ide.NFref.Count - 1 do
   begin
     Gerador.wGrupo('NFref', 'B12a');
-    if NFe.ide.NFref[i].refNFe      <> '' then (**)GerarIdeNFrerefNFe(i);
+    if (NFe.ide.NFref[i].refNFe    <> '') or
+       (NFe.ide.NFref[i].refNFeSig <> '') then (**)GerarIdeNFrerefNFe(i);
     if NFe.Ide.NFref[i].RefNF.nNF    >  0 then (**)GerarIdeNFrefRefNF(i);
     if NFe.ide.NFref[i].RefNFP.nNF   >  0 then (**)GerarRefNFP(i);
     if NFe.ide.NFref[i].refCTe      <> '' then (**)GerarIdeNFrerefCTe(i);
@@ -470,14 +474,21 @@ begin
     Gerador.wGrupo('/NFref');
   end;
 
-  if NFe.ide.NFref.Count > 500 then
-    Gerador.wAlerta('B12a', 'NFref', DSC_QNF, ERR_MSG_MAIOR_MAXIMO + '500');
+  if NFe.ide.NFref.Count > 999 then
+    Gerador.wAlerta('B12a', 'NFref', DSC_QNF, ERR_MSG_MAIOR_MAXIMO + '999');
 end;
 
 procedure TNFeW.GerarIdeNFrerefNFe(const i: Integer);
 begin
-  Gerador.wCampo(tcEsp, 'B13', 'refNFe', 44, 44, 1, OnlyNumber(NFe.ide.NFref[i].refNFe), DSC_REFNFE);
-  if not ValidarChave(NFe.ide.NFref[i].refNFe) then Gerador.wAlerta('B13', 'refNFe', DSC_REFNFE, ERR_MSG_INVALIDO);
+  if NFe.ide.NFref[i].refNFe <> '' then
+  begin
+    Gerador.wCampo(tcEsp, 'B13', 'refNFe', 44, 44, 1, OnlyNumber(NFe.ide.NFref[i].refNFe), DSC_REFNFE);
+
+    if not ValidarChave(NFe.ide.NFref[i].refNFe) then
+      Gerador.wAlerta('B13', 'refNFe', DSC_REFNFE, ERR_MSG_INVALIDO);
+  end
+  else
+    Gerador.wCampo(tcEsp, 'B13', 'refNFeSig', 44, 44, 1, OnlyNumber(NFe.ide.NFref[i].refNFeSig), DSC_REFNFE);
 end;
 
 procedure TNFeW.GerarIdeNFrefRefNF(const i: Integer);
@@ -1387,6 +1398,20 @@ procedure TNFeW.GerarDetImpostoICMS(const i: Integer);
 	end;
   end;
 
+  function OcorrenciasICMSEfetivo : Integer;
+  begin
+	if (NFe.Ide.indFinal = cfConsumidorFinal) and ((FOpcoes.ForcarGerarTagRejeicao906 = fgtSempre) or
+	   ((FOpcoes.ForcarGerarTagRejeicao906 = fgtSomenteProducao) and (NFe.Ide.tpAmb = taProducao)) or
+	   ((FOpcoes.ForcarGerarTagRejeicao906 = fgtSomenteHomologacao) and (NFe.Ide.tpAmb = taHomologacao)))  then
+	begin
+	  Result := 1;
+	end
+	else
+	begin
+	  Result := 0;
+	end;
+  end;
+
 var
   sTagTemp : String;
 
@@ -1620,7 +1645,7 @@ begin
                           end;
 
                           if (NFe.Det[i].Imposto.ICMS.pRedBCEfet > 0) or (NFe.Det[i].Imposto.ICMS.vBCEfet > 0) or
-                             (NFe.Det[i].Imposto.ICMS.pICMSEfet > 0) or (NFe.Det[i].Imposto.ICMS.vICMSEfet > 0) then
+                             (NFe.Det[i].Imposto.ICMS.pICMSEfet > 0) or (NFe.Det[i].Imposto.ICMS.vICMSEfet > 0) or (OcorrenciasICMSEfetivo > 0) then
                           begin
                             Gerador.wCampo(IIf(FUsar_tcDe4,tcDe4,tcDe2), 'N34', 'pRedBCEfet', 01, IIf(FUsar_tcDe4,07,05), 1, NFe.Det[i].Imposto.ICMS.pRedBCEfet, DSC_PREDBCEFET);
                             Gerador.wCampo(tcDe2, 'N35', 'vBCEfet ', 01, 15, 1, NFe.Det[i].Imposto.ICMS.vBCEfet, DSC_VBCEFET);
@@ -1781,7 +1806,7 @@ begin
                     Gerador.wCampo(tcDe2, 'N32', 'vICMSSTDest', 01, 15, 1, NFe.Det[i].Imposto.ICMS.vICMSSTDest, DSC_VBCICMSSTDEST);
 
                     if (NFe.Det[i].Imposto.ICMS.pRedBCEfet > 0) or (NFe.Det[i].Imposto.ICMS.vBCEfet > 0) or
-                       (NFe.Det[i].Imposto.ICMS.pICMSEfet > 0) or (NFe.Det[i].Imposto.ICMS.vICMSEfet > 0) then
+                       (NFe.Det[i].Imposto.ICMS.pICMSEfet > 0) or (NFe.Det[i].Imposto.ICMS.vICMSEfet > 0) or (OcorrenciasICMSEfetivo > 0) then
                     begin
                       Gerador.wCampo(IIf(FUsar_tcDe4,tcDe4,tcDe2), 'N34', 'pRedBCEfet', 01, IIf(FUsar_tcDe4,07,05), 1, NFe.Det[i].Imposto.ICMS.pRedBCEfet, DSC_PREDBCEFET);
                       Gerador.wCampo(tcDe2, 'N35', 'vBCEfet ', 01, 15, 1, NFe.Det[i].Imposto.ICMS.vBCEfet, DSC_VBCEFET);
@@ -1885,7 +1910,7 @@ begin
                       end;
 
                       if (NFe.Det[i].Imposto.ICMS.pRedBCEfet > 0) or (NFe.Det[i].Imposto.ICMS.vBCEfet > 0) or
-                         (NFe.Det[i].Imposto.ICMS.pICMSEfet > 0) or (NFe.Det[i].Imposto.ICMS.vICMSEfet > 0) then
+                         (NFe.Det[i].Imposto.ICMS.pICMSEfet > 0) or (NFe.Det[i].Imposto.ICMS.vICMSEfet > 0) or (OcorrenciasICMSEfetivo > 0) then
                       begin
                         Gerador.wCampo(IIf(FUsar_tcDe4,tcDe4,tcDe2), 'N34', 'pRedBCEfet', 01, IIf(FUsar_tcDe4,07,05), 1, NFe.Det[i].Imposto.ICMS.pRedBCEfet, DSC_PREDBCEFET);
                         Gerador.wCampo(tcDe2, 'N35', 'vBCEfet ', 01, 15, 1, NFe.Det[i].Imposto.ICMS.vBCEfet, DSC_VBCEFET);

@@ -49,6 +49,41 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/02/2023
+[-] TK-3580 ACBrBoletoWS.Rest Certificados não Carregando
+  Por : Victor H Gonzales - Pandaaa
+
+03/02/2023
+[-] TK-3563 Banco do Brasil WS erro no Envelope Soap
+ Por : Victor H Gonzales - Pandaaa
+
+01/02/2023
+[-] digito verificador da agencia/conta deve ter o default 0
+  Por : Regys Silveira 
+
+31/01/2023
+[-] TK-3549 ACBrBancoBrasil Correção tratamento Instrucao1 e Instrucao2
+    https://www.projetoacbr.com.br/forum/topic/70582-erro-ao-gerar-remessa-banco-do-brasil/#comment-458669
+  Por: New Line System Desenvolvimento / conf. Daniel Morais
+
+27/01/2023
+[*] TK-3523 ACBrBancoBradesco segmento R (envio) qdo não tiver data do contrato passar 00000000
+  Por : Renfer / conf. Daniel Morais
+  
+[*]TK-3515 ACBrBoleto - Ajuste integração via WS Santander
+ por : Renato Rubinho
+
+26/01/2023
+[*] TK-3501 ACBrBancoOriginal ajustado a funcao CodMotivoRejeicaoToDescricao para tratar os erros de retorno conf manual.
+  Por : Daniel de Morais / Renato Pavan 
+
+25/01/2023
+[*] Refatorações Diversas
+  Por : Victor H Gonzales - Pandaaa 
+
+[+] TK-3181 ACBrBoleto - Integração via API Banco Inter
+  Por : Victor H Gonzales - Pandaaa / Aggille Sistemas Gestão / Jean Peixoto
+
 13/01/2023
 [*] TK-3470 ACBrBoletoW_BancoBrasil_API Contribuição para correção do erro: "Para tipo de multa = 0 ( DISPENSADO ) , não informar valor ou percentual"
 Por Aggille Sistemas /  Daniel Morais
